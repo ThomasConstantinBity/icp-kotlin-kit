@@ -9,10 +9,11 @@ java {
 }
 
 dependencies {
+    implementation(libs.bouncycastle)
+    implementation(libs.commons.codec)
 
     testImplementation(libs.bundles.junit.test)
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
 }
 
 tasks.test {
