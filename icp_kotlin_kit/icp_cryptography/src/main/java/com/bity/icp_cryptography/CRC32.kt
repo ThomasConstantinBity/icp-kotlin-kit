@@ -1,5 +1,4 @@
-package com.bity.icp_cryptography.model.error
-
+package com.bity.icp_cryptography
 import java.nio.ByteBuffer
 import java.util.zip.CRC32
 
