@@ -3,7 +3,7 @@ package com.bity.icp_candid.domain.serializer
 import com.bity.icp_candid.domain.model.CandidPrimitiveType
 import com.bity.icp_candid.domain.model.CandidType
 import com.bity.icp_candid.ext_function.joinedData
-import com.bity.icp_cryptography.LEB128
+import com.bity.icp_cryptography.util.LEB128
 
 class CandidTypeTable {
     private var customTypes = mutableListOf<CandidTypeData>()

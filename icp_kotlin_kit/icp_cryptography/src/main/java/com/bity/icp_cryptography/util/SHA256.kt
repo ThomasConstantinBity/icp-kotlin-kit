@@ -1,4 +1,4 @@
-package com.bity.icp_cryptography
+package com.bity.icp_cryptography.util
 
 import java.security.MessageDigest
 

@@ -1,7 +1,7 @@
 package com.bity.icp_candid.domain.serializer
 
 import com.bity.icp_candid.ext_function.joinedData
-import com.bity.icp_cryptography.LEB128
+import com.bity.icp_cryptography.util.LEB128
 
 class CandidTypeData(
     val types: List<EncodableType>

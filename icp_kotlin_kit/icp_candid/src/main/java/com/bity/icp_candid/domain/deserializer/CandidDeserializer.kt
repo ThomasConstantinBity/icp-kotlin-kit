@@ -10,7 +10,7 @@ import com.bity.icp_candid.domain.model.CandidVector
 import com.bity.icp_candid.domain.model.error.CandidDeserializationError
 import com.bity.icp_candid.domain.serializer.CandidSerializer
 import com.bity.icp_candid.ext_function.readFrom
-import com.bity.icp_cryptography.LEB128
+import com.bity.icp_cryptography.util.LEB128
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.lang.UnsupportedOperationException

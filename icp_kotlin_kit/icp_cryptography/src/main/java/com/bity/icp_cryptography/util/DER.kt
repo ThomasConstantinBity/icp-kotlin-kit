@@ -1,4 +1,4 @@
-package com.bity.icp_cryptography
+package com.bity.icp_cryptography.util
 
 import com.bity.icp_cryptography.model.error.InvalidEcPublicKey
 import org.bouncycastle.asn1.ASN1ObjectIdentifier

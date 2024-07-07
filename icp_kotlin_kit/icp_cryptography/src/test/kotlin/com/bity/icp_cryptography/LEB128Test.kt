@@ -1,5 +1,6 @@
 package com.bity.icp_cryptography
 
+import com.bity.icp_cryptography.util.LEB128
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments

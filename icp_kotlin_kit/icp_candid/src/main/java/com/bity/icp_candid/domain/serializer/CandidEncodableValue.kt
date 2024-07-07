@@ -4,7 +4,7 @@ import com.bity.icp_candid.domain.model.CandidFunction
 import com.bity.icp_candid.domain.model.CandidPrimitiveType
 import com.bity.icp_candid.ext_function.bytes
 import com.bity.icp_candid.ext_function.joinedData
-import com.bity.icp_cryptography.LEB128
+import com.bity.icp_cryptography.util.LEB128
 import java.math.BigInteger
 
 sealed class CandidEncodableValue {

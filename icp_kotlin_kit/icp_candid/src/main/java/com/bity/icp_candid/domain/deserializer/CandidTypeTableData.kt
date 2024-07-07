@@ -1,6 +1,6 @@
 package com.bity.icp_candid.domain.deserializer
 
-import com.bity.icp_cryptography.LEB128
+import com.bity.icp_cryptography.util.LEB128
 import com.bity.icp_candid.domain.model.CandidPrimitiveType
 import com.bity.icp_candid.domain.model.error.CandidDeserializationError
 import java.io.ByteArrayInputStream
