@@ -1,7 +1,7 @@
 package com.bity.icp_candid.ext_function
 
-import domain.model.CandidDictionary
-import domain.model.CandidValue
+import com.bity.icp_candid.domain.model.CandidDictionary
+import com.bity.icp_candid.domain.model.CandidValue
 import java.time.Instant
 
 internal val CandidValue.ICPAmount: ULong?
