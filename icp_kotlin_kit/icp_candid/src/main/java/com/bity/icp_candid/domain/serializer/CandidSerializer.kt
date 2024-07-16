@@ -10,7 +10,7 @@ object CandidSerializer {
     @OptIn(ExperimentalStdlibApi::class)
     val magicBytes = "4449444C".hexToByteArray()
 
-    internal fun encode(value: CandidValue?): ByteArray {
+    fun encode(value: CandidValue?): ByteArray {
         value?.let {
             return encode(listOf(it))
         }

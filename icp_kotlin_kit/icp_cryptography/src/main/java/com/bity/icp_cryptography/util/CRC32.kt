@@ -9,7 +9,7 @@ object CRC32 {
      * and elsewhere, and stored as big-endian, i.e., the most significant byte comes first and
      * then the less significant bytes come in descending order of significance (MSB B2 B1 LSB).
      */
-    private const val CRC_32_LENGTH = 4
+    const val CRC_32_LENGTH = 4
 
     fun crc32(data: ByteArray): ByteArray {
         val crc32 = CRC32()

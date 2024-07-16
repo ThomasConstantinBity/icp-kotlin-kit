@@ -1,19 +1,20 @@
 package com.bity.icp_kotlin_kit.data.datasource.api.model
 
-import com.bity.icp_kotlin_kit.data.datasource.api.enum.RequestType
+import com.bity.icp_kotlin_kit.data.datasource.api.enum.ContentRequestType
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class CallApiModel(
-    requestType: RequestType,
+// Need to use sneak case because of order independent hash
+internal class CallApiModel(
+    requestType: ContentRequestType,
     sender: ByteArray,
     nonce: ByteArray,
     ingressExpiry: Long,
-    @JsonProperty("method_name") val methodName: String,
-    @JsonProperty("canister_id") val canisterId: ByteArray,
-    @JsonProperty("arg") val arg: ByteArray
+    val method_name: String,
+    val canister_id: ByteArray,
+    val arg: ByteArray
 ): ContentApiModel(
-    requestType = requestType,
+    request_type = requestType,
     sender = sender,
     nonce = nonce,
-    ingressExpiry = ingressExpiry
+    ingress_expiry = ingressExpiry
 )

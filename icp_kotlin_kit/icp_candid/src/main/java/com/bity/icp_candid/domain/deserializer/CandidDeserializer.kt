@@ -22,7 +22,7 @@ object CandidDeserializer {
         CandidDeserializationError.InvalidTypeReference::class,
         CandidDeserializationError.UnSerializedBytesLeft::class,
     )
-    internal fun decode(data: ByteArray): List<CandidValue> {
+    fun decode(data: ByteArray): List<CandidValue> {
         require(
             data
                 .take(CandidSerializer.magicBytes.size).toByteArray()

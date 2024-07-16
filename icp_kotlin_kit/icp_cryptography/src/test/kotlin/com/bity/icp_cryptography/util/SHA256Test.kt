@@ -1,6 +1,5 @@
-package com.bity.icp_cryptography
+package com.bity.icp_cryptography.util
 
-import com.bity.icp_cryptography.util.SHA256
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
