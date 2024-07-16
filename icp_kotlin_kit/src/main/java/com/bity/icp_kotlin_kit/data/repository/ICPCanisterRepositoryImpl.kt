@@ -1,10 +1,5 @@
 package com.bity.icp_kotlin_kit.data.repository
 
-import retrofit2.Converter
-import retrofit2.Retrofit
-import okhttp3.ResponseBody
-import okhttp3.RequestBody
-import java.lang.reflect.Type
 import com.bity.icp_candid.domain.deserializer.CandidDeserializer
 import com.bity.icp_candid.domain.model.CandidValue
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPRequestApiModel
@@ -15,9 +10,6 @@ import com.bity.icp_kotlin_kit.data.model.RemoteClientError
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.toDataModel
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory
 
 internal class ICPCanisterRepositoryImpl(
     private val icpRetrofitService: ICPRetrofitService
