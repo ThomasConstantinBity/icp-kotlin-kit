@@ -34,9 +34,8 @@ internal class ICPCanisterRepositoryImpl(
                     )
                 )
             }
-            val responseBody = body() ?: return Result.failure(RemoteClientError.MissingBody())
-            val arg = body()?.reply?.arg
-            val candidValue = CandidDeserializer.decode(arg!!).firstOrNull()
+            val arg = body()?.reply?.arg ?: return Result.failure(RemoteClientError.MissingBody())
+            val candidValue = CandidDeserializer.decode(arg).firstOrNull()
                 ?: return Result.failure(RemoteClientError.ParsingError(arg))
             return Result.success(candidValue)
         }
