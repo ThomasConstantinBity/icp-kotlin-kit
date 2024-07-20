@@ -21,7 +21,7 @@ object ICPCryptography {
      *   The last group may contain less than 5 characters. A separator never appears at the beginning or end.
      **/
     fun encodeCanonicalText(data: ByteArray): String {
-        val checksum = CRC32.crc32(data)
+        val checksum = CRC32(data)
         val dataWithChecksum = checksum + data
         val base32Encoded = base32.encodeAsString(dataWithChecksum)
             .lowercase()
@@ -39,7 +39,7 @@ object ICPCryptography {
         val decoded = base32.decode(base32Encoded)
         val checksum = decoded.take(CRC32.CRC_32_LENGTH).toByteArray()
         val data = decoded.copyOfRange(CRC32.CRC_32_LENGTH, decoded.size)
-        val expectedChecksum = CRC32.crc32(data)
+        val expectedChecksum = CRC32(data)
         require(expectedChecksum.contentEquals(checksum)) {
             throw ICPCryptographyError.ICPCRC32Error.InvalidChecksum()
         }

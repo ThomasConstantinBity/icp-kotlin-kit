@@ -4,7 +4,6 @@ import com.bity.icp_candid.domain.model.CandidDictionary
 import com.bity.icp_candid.domain.model.CandidValue
 import com.bity.icp_kotlin_kit.domain.model.ICPAccount
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
-import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
 import com.bity.icp_kotlin_kit.domain.model.error.ICPLedgerCanisterError

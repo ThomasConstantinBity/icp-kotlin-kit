@@ -1,8 +1,7 @@
 package com.bity.icpkotlinkit
 
-import com.bity.icpkotlinkit.presentation.nav.NavManager
-import org.koin.dsl.module
+import com.bity.icpkotlinkit.presentation.presentationModule
 
-val appModule = module {
-    single { NavManager() }
-}
+val appModule = listOf(
+    presentationModule
+)
