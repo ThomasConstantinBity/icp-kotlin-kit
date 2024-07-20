@@ -2,6 +2,9 @@
 bouncycastle-version = "1.70"
 commons-codec-version = "1.16.0"
 kotlin-reflect = "1.9.20"
+koin = "3.5.0"
+material-compose = "1.2.1"
+compose = "1.6.8"
 
 retrofit = "2.11.0"
 retrofitConverter = "2.7.2"
@@ -13,16 +16,25 @@ kotlinx-coroutines-version = "1.7.3"
 agp = "8.3.2"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
 appcompat = "1.7.0"
 material = "1.12.0"
 jetbrainsKotlinJvm = "1.9.0"
+navigationCommonKtx = "2.7.7"
+uiAndroid = "1.6.8"
+foundationLayoutAndroid = "1.6.8"
 
 [libraries]
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec-version" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "bouncycastle-version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin-reflect" }
+
+koin = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koin" }
+
+compose-material = { module = "androidx.compose.material3:material3", version.ref = "material-compose" }
+compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+
 
 retrofit-core = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofitConverter" }
@@ -34,15 +46,18 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
 kotlinx-coroutines-test = {module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-version"}
 
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-navigation-common-ktx = { group = "androidx.navigation", name = "navigation-common-ktx", version.ref = "navigationCommonKtx" }
+androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroid" }
+androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 
 [bundles]
+koin = ["koin", "koin-navigation"]
 retrofit = ["retrofit-core", "retrofit-converter"]
 junit-test = ["junit-jupiter-api", "junit-jupiter-params"]
 kotlinx-test = ["kotlin-test", "kotlinx-coroutines-test"]
+compose = ["compose-ui", "tooling-preview", "compose-material"]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
