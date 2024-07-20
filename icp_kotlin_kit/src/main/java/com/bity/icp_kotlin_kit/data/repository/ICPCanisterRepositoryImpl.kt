@@ -40,24 +40,6 @@ internal class ICPCanisterRepositoryImpl(
             return Result.success(candidValue)
         }
     }
-
-    private suspend fun fetchCbor(
-        request: ICPRequest
-    ): Result<ByteArray?> {
-        val response = icpRetrofitService.query(
-            urlPath = request.urlPath,
-            body = request.envelope
-        )
-        return if(response.isSuccessful)
-            TODO()
-            // Result.success(response.body()?.bytes())
-        else Result.failure(
-            DataError.HttpError(
-                errorCode = response.code(),
-                errorMessage = response.errorBody().toString()
-            )
-        )
-    }
 }
 
 
