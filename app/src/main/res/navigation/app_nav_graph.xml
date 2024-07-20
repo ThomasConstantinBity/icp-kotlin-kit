@@ -2,14 +2,9 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/app_nav_graph.xml"
-    app:startDestination="@id/navHostActivity">
-
-    <activity
-        android:id="@+id/navHostActivity"
-        android:name="com.bity.icpkotlinkit.presentation.NavHostActivity"
-        android:label="NavHostActivity" />
+    app:startDestination="@id/mainFragment2">
     <fragment
-        android:id="@+id/mainFragment"
+        android:id="@+id/mainFragment2"
         android:name="com.bity.icpkotlinkit.presentation.main.MainFragment"
         android:label="MainFragment" />
 </navigation>
