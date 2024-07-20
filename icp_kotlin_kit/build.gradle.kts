@@ -19,7 +19,7 @@ dependencies {
     testImplementation(libs.bundles.junit.test)
     testImplementation(libs.bundles.kotlinx.test)
 
-    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.10")
+    implementation(libs.logging.interceptor)
 }
 
 tasks.test {
