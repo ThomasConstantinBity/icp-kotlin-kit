@@ -44,7 +44,10 @@ android {
 }
 
 dependencies {
+    implementation(project(":icp_kotlin_kit"))
+
     implementation(libs.androidx.core.ktx)
+    implementation(libs.livedata.runtime)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.compose.material)
@@ -52,5 +55,4 @@ dependencies {
     implementation(libs.bundles.koin)
     implementation(libs.androidx.ui.android)
     implementation(libs.androidx.foundation.layout.android)
-    implementation(project(":icp_kotlin_kit"))
 }
