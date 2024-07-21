@@ -1,6 +1,5 @@
 package com.bity.icpkotlinkit.presentation.icp_account
 
-import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
