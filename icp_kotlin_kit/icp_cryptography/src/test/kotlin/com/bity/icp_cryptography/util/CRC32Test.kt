@@ -14,7 +14,7 @@ class CRC32Test {
         data: ByteArray,
         expectedValue: ByteArray
     ) {
-        val crc32 = CRC32.crc32(data)
+        val crc32 = CRC32(data)
         assertArrayEquals(expectedValue, crc32)
     }
 
