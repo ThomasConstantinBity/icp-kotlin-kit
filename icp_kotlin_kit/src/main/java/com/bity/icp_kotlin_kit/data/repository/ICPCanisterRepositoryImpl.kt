@@ -8,6 +8,7 @@ import com.bity.icp_kotlin_kit.data.datasource.api.service.ICPRetrofitService
 import com.bity.icp_kotlin_kit.data.model.DataError
 import com.bity.icp_kotlin_kit.data.model.RemoteClientError
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
+import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.toDataModel
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
 
@@ -15,7 +16,10 @@ internal class ICPCanisterRepositoryImpl(
     private val icpRetrofitService: ICPRetrofitService
 ): ICPCanisterRepository {
 
-    override suspend fun query(method: ICPMethod): Result<CandidValue> {
+    override suspend fun query(
+        method: ICPMethod,
+        sender: ICPSigningPrincipal?
+    ): Result<CandidValue> {
         val request = ICPRequest.init(
             requestType = ICPRequestApiModel.Query(
                 icpMethod = method.toDataModel()
