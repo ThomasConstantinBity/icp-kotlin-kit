@@ -3,6 +3,7 @@ package com.bity.icp_candid.domain.model
 import com.bity.icp_candid.domain.model.error.CandidVectorError
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class CandidVectorTest {
 
@@ -38,7 +39,7 @@ class CandidVectorTest {
             CandidPrimitiveType.OPTION,
             CandidType.Primitive(CandidPrimitiveType.BOOL)
         )
-        org.junit.jupiter.api.assertThrows<CandidVectorError.WrongCandidType> {
+        assertThrows<CandidVectorError.WrongCandidType> {
             CandidVector(
                 type,
                 listOf(
@@ -83,7 +84,7 @@ class CandidVectorTest {
             isOneWay = false
         )
         val type = CandidType.Function(functionSignature)
-        org.junit.jupiter.api.assertThrows<CandidVectorError.WrongCandidType> {
+        assertThrows<CandidVectorError.WrongCandidType> {
             CandidVector(
                 type,
                 listOf(
@@ -128,7 +129,7 @@ class CandidVectorTest {
             primitiveType = CandidPrimitiveType.RECORD,
             dictionaryItemType = listOf(candidDictionaryItemType)
         )
-        org.junit.jupiter.api.assertThrows<CandidVectorError.WrongCandidType> {
+        assertThrows<CandidVectorError.WrongCandidType> {
             CandidVector(
                 type,
                 listOf(
@@ -169,7 +170,7 @@ class CandidVectorTest {
                 wrongCandidDictionaryItemType
             )
         )
-        org.junit.jupiter.api.assertThrows<CandidVectorError.WrongCandidType> {
+        assertThrows<CandidVectorError.WrongCandidType> {
             CandidVector(
                 type,
                 listOf(
@@ -191,7 +192,7 @@ class CandidVectorTest {
     @Test
     fun `constructor with wrong candid type`() {
         val type = CandidType.Primitive(CandidPrimitiveType.EMPTY)
-        org.junit.jupiter.api.assertThrows<CandidVectorError.WrongCandidType> {
+        assertThrows<CandidVectorError.WrongCandidType> {
             CandidVector(type, listOf(CandidValue.Bool(false)))
         }
     }
