@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.bity.icp_candid.domain.deserializer.CandidDeserializerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2024-07-22T15:48:09" hostname="Thomass-MBP" time="0.008">
+  <properties/>
+  <testcase name="CandidSerializer magic bytes()" classname="com.bity.icp_candid.domain.deserializer.CandidDeserializerTest" time="0.004"/>
+  <testcase name="real world example()" classname="com.bity.icp_candid.domain.deserializer.CandidDeserializerTest" time="0.001"/>
+  <testcase name="function reference real world()" classname="com.bity.icp_candid.domain.deserializer.CandidDeserializerTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

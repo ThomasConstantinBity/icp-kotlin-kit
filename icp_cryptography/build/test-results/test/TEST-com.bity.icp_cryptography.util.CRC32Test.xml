@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.bity.icp_cryptography.util.CRC32Test" tests="8" skipped="0" failures="0" errors="0" timestamp="2024-07-22T15:48:14" hostname="Thomass-MBP" time="0.008">
+  <properties/>
+  <testcase name="[1] [], [0, 0, 0, 0]" classname="com.bity.icp_cryptography.util.CRC32Test" time="0.001"/>
+  <testcase name="[2] [49, 50, 51, 52, 53, 54, 55, 56, 57], [-53, -12, 57, 38]" classname="com.bity.icp_cryptography.util.CRC32Test" time="0.0"/>
+  <testcase name="[3] [97], [-24, -73, -66, 67]" classname="com.bity.icp_cryptography.util.CRC32Test" time="0.001"/>
+  <testcase name="[4] [97, 98, 99], [53, 36, 65, -62]" classname="com.bity.icp_cryptography.util.CRC32Test" time="0.0"/>
+  <testcase name="[5] [109, 101, 115, 115, 97, 103, 101, 32, 100, 105, 103, 101, 115, 116], [32, 21, -99, 127]" classname="com.bity.icp_cryptography.util.CRC32Test" time="0.001"/>
+  <testcase name="[6] [97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122], [76, 39, 80, -67]" classname="com.bity.icp_cryptography.util.CRC32Test" time="0.001"/>
+  <testcase name="[7] [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57], [31, -62, -26, -46]" classname="com.bity.icp_cryptography.util.CRC32Test" time="0.001"/>
+  <testcase name="[8] [49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48], [124, -87, 74, 114]" classname="com.bity.icp_cryptography.util.CRC32Test" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

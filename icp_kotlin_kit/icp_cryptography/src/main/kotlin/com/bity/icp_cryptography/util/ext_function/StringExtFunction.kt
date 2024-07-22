@@ -10,3 +10,28 @@ internal fun String.grouped(separator: String, groupLength: Int): String {
     }
     return stringBuilder.toString()
 }
+
+internal fun String.fromHex(): ByteArray? {
+    require(isValidHex() && length % 2 == 0) {
+        return null
+    }
+    return getByteArray()
+}
+@Throws(NumberFormatException::class)
+internal fun String.getByteArray(): ByteArray {
+    var hexWithoutPrefix = this.stripHexPrefix()
+    if (hexWithoutPrefix.length % 2 == 1) {
+        hexWithoutPrefix = "0$hexWithoutPrefix"
+    }
+    return hexWithoutPrefix.chunked(2)
+        .map { it.toInt(16).toByte() }
+        .toByteArray()
+}
+
+internal fun String.stripHexPrefix(): String =
+    if (this.startsWith("0x", true)) {
+        this.substring(2)
+    } else { this }
+
+internal fun String.isValidHex(): Boolean =
+    matches(Regex("^(0[xX])?[0-9a-fA-F]{2,}$"))

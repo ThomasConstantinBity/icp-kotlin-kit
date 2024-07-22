@@ -2,6 +2,7 @@ package com.bity.icp_cryptography
 
 import com.bity.icp_cryptography.model.error.ICPCryptographyError
 import com.bity.icp_cryptography.util.CRC32
+import com.bity.icp_cryptography.util.ext_function.fromHex
 import com.bity.icp_cryptography.util.ext_function.grouped
 import org.apache.commons.codec.binary.Base32
 
@@ -44,5 +45,16 @@ object ICPCryptography {
             throw ICPCryptographyError.ICPCRC32Error.InvalidChecksum()
         }
         return decoded.copyOfRange(CRC32.CRC_32_LENGTH, decoded.size)
+    }
+
+    fun isValidAccountId(accountId: String): Boolean {
+        val data = accountId.fromHex() ?: return false
+        require(data.size == 32) {
+            return false
+        }
+        val checksum = data.take(CRC32.CRC_32_LENGTH)
+        val hashed = data.takeLast(data.size - CRC32.CRC_32_LENGTH)
+        val expectedChecksum = CRC32(hashed.toByteArray())
+        return expectedChecksum.contentEquals(checksum.toByteArray())
     }
 }

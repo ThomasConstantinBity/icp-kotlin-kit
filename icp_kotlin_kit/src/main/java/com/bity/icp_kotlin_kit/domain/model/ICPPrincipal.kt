@@ -13,7 +13,7 @@ class ICPPrincipal private constructor(
 
     companion object {
 
-        internal fun init(bytes: ByteArray): ICPPrincipal {
+        private fun init(bytes: ByteArray): ICPPrincipal {
             val string = ICPCryptography.encodeCanonicalText(bytes)
             return ICPPrincipal(
                 string = string,

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.bity.icp_cryptography.util.LEB128Test" tests="65" skipped="0" failures="0" errors="0" timestamp="2024-07-22T15:48:14" hostname="Thomass-MBP" time="0.081">
+  <properties/>
+  <testcase name="Decoding 0" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.018"/>
+  <testcase name="Decoding 127" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 128" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 300" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 255" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 624485" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 0" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.004"/>
+  <testcase name="Decoding 127" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 0" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 63" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 64" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding -63" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding -64" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding -65" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding -128" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding -129" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 97" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 127" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 624485" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding -123456" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding -999999999" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding [0]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.005"/>
+  <testcase name="Encoding [127]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding [-128, 1]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Encoding [-84, 2]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding [-1, 1]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding [-27, -114, 38]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 0" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 127" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 128" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 300" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 255" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 624485" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 18446744073709551615" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding 0" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Encoding 63" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Encoding 64" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Encoding -63" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding -64" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding -65" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding -128" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding -129" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding 97" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding 127" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding 512" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding -512" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Encoding 1000" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding -1000" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding 10000" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding -10000" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.002"/>
+  <testcase name="Encoding -999999999" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 0" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 127" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 128" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Decoding 300" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 255" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 624485" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Decoding 0" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding [0]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding [127]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Encoding [-128, 1]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.001"/>
+  <testcase name="Encoding [-84, 2]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding [-1, 1]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding [-27, -114, 38]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <testcase name="Encoding [-1, -1, -1, -1, -1, -1, -1, -1, -1, 1]" classname="com.bity.icp_cryptography.util.LEB128Test" time="0.0"/>
+  <system-out><![CDATA[Decoded: 0
+Decoded: 127
+Decoded: 128
+Decoded: 300
+Decoded: 255
+Decoded: 624485
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

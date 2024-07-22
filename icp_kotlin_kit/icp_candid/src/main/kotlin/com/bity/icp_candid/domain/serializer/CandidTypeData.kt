@@ -1,6 +1,6 @@
 package com.bity.icp_candid.domain.serializer
 
-import com.bity.icp_candid.ext_function.joinedData
+import com.bity.icp_candid.util.ext_function.joinedData
 import com.bity.icp_cryptography.util.LEB128
 
 class CandidTypeData(

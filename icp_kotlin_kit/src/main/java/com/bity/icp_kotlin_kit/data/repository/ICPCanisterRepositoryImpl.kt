@@ -43,6 +43,39 @@ internal class ICPCanisterRepositoryImpl(
             return Result.success(candidValue)
         }
     }
+
+    override suspend fun callAndPoll(
+        method: ICPMethod,
+        sender: ICPSigningPrincipal?,
+        durationSeconds: Long,
+        waitDurationSeconds: Long
+    ): Result<CandidValue> {
+        val requestId = call(
+            method = method,
+            sender = sender
+        )
+        TODO()
+    }
+
+    private suspend fun call(
+        method: ICPMethod,
+        sender: ICPSigningPrincipal? = null
+    ): ByteArray {
+        val request = ICPRequest.init(
+            requestType = ICPRequestApiModel.Call(method.toDataModel()),
+            canister = method.canister.toDataModel(),
+            sender = sender
+        )
+        icpRetrofitService.query(
+            urlPath = request.urlPath,
+            body = request.envelope
+        ).apply {
+            println(isSuccessful)
+            println(body())
+            TODO()
+        }
+        TODO() // return request.requestId
+    }
 }
 
 

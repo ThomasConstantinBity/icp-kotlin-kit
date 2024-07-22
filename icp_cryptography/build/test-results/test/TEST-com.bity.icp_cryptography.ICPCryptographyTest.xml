@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.bity.icp_cryptography.ICPCryptographyTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2024-07-22T15:48:14" hostname="Thomass-MBP" time="0.042">
+  <properties/>
+  <testcase name="Decoding ryjl3-tyaaa-aaaaa-aaaba-cai" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.026"/>
+  <testcase name="Decoding xtqug-aqaae-bagba-faydq-q" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.0"/>
+  <testcase name="Decoding 2ibo7-dia" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.001"/>
+  <testcase name="Decoding 2IBO7-DIA" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.001"/>
+  <testcase name="Decoding 2Ibo7-diA" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.0"/>
+  <testcase name="Decoding w3gef-eqbai" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.001"/>
+  <testcase name="Encoding xtqug-aqaae-bagba-faydq-q" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.002"/>
+  <testcase name="Encoding 2ibo7-dia" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.001"/>
+  <testcase name="Encoding aaaaa-aa" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.001"/>
+  <testcase name="Encoding iineg-fibai-bqibi-ga4ea-searc-ijrif-iwc4m-bsibb-eirsi-jjge4-ucs" classname="com.bity.icp_cryptography.ICPCryptographyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

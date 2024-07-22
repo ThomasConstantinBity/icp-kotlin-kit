@@ -58,6 +58,7 @@ internal object ICPRequestUtil {
         content: ContentApiModel,
         sender: ICPSigningPrincipal?
     ): ICPRequestEnvelope {
+
         requireNotNull(sender) {
             return ICPRequestEnvelope(content)
         }
