@@ -5,7 +5,6 @@ import com.bity.icp_candid.domain.model.CandidValue
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPRequestApiModel
 import com.bity.icp_kotlin_kit.data.datasource.api.request.ICPRequest
 import com.bity.icp_kotlin_kit.data.datasource.api.service.ICPRetrofitService
-import com.bity.icp_kotlin_kit.data.model.DataError
 import com.bity.icp_kotlin_kit.data.model.RemoteClientError
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal

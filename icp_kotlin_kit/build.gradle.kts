@@ -15,6 +15,7 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.bundles.retrofit)
     implementation(libs.jackson.dataformat.cbor)
+    implementation(libs.jackson.module.kotlin)
 
     testImplementation(libs.bundles.junit.test)
     testImplementation(libs.bundles.kotlinx.test)

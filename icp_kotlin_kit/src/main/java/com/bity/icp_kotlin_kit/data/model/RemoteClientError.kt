@@ -6,4 +6,6 @@ sealed class RemoteClientError(errorMessage: String? = null): Error(errorMessage
 
     @OptIn(ExperimentalStdlibApi::class)
     class ParsingError(arg: ByteArray): RemoteClientError("Unable to parse arg: ${arg.toHexString()}")
+
+    class RosettaParsingError(errorMessage: String? = null): RemoteClientError(errorMessage)
 }

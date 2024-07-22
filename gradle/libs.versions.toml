@@ -11,6 +11,7 @@ lifecycle = "2.8.3"
 retrofit = "2.11.0"
 retrofitConverter = "2.7.2"
 jackson-dataformat-cbor = "2.14.2"
+jackson-module-kotlin = "2.14.2"
 
 junit-jupiter-version = "5.10.1"
 kotlinx-coroutines-version = "1.7.3"
@@ -44,6 +45,8 @@ tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.r
 retrofit-core = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofitConverter" }
 jackson-dataformat-cbor = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor", version.ref = "jackson-dataformat-cbor"}
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson-module-kotlin" }
+
 
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter-version"}
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter-version" }
