@@ -12,13 +12,15 @@ object DER {
     // Asymmetric Encryption Algorithms: ECC (ecPublicKey)
     private const val SECP256K1 = "1.3.132.0.10"
 
+    private val ecPublicKey = ASN1ObjectIdentifier(EC_PUBLIC_KEY)
+    private val secp256k1 = ASN1ObjectIdentifier(SECP256K1)
+
     fun serialise(uncompressedEcPublicKey: ByteArray): ByteArray {
         if (uncompressedEcPublicKey.size != 65
             && uncompressedEcPublicKey.first() != 0x04.toByte()) {
             throw InvalidEcPublicKey()
         }
-        val ecPublicKey = ASN1ObjectIdentifier(EC_PUBLIC_KEY)
-        val secp256k1 = ASN1ObjectIdentifier(SECP256K1)
+
         val encoded = DERSequence(
             arrayOf(
                 DERSequence(arrayOf(ecPublicKey, secp256k1)),
