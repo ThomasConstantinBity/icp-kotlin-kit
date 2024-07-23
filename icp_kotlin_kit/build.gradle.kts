@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":icp_kotlin_kit:icp_cryptography"))
 
     implementation(libs.kotlin.reflect)
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.bundles.retrofit)
     implementation(libs.jackson.dataformat.cbor)
     implementation(libs.jackson.module.kotlin)

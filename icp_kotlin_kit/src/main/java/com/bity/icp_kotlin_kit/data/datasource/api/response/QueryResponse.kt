@@ -1,8 +1,8 @@
 package com.bity.icp_kotlin_kit.data.datasource.api.response
 
-import com.bity.icp_kotlin_kit.data.datasource.api.response.model.RejectCodeApiModel
 import com.bity.icp_kotlin_kit.data.datasource.api.response.model.ReplyApiModel
-import com.bity.icp_kotlin_kit.data.datasource.api.response.model.StatusCodeApiModel
+import com.bity.icp_kotlin_kit.data.datasource.api.response.model.enum.RejectCodeApiModel
+import com.bity.icp_kotlin_kit.data.datasource.api.response.model.enum.StatusCodeApiModel
 import com.fasterxml.jackson.annotation.JsonProperty
 
 class QueryResponse(

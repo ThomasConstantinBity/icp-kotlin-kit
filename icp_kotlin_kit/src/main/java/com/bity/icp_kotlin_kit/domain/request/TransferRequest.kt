@@ -16,7 +16,9 @@ class TransferRequest(
     val amount: ULong,
     val signingPrincipal: ICPSigningPrincipal,
     val fee: ULong = 10000U,     // 0.0001 ICP
-    val memo: ULong?
+    val memo: ULong?,
+    val durationSeconds: Long = 120,
+    val waitDurationSeconds: Long = 2
 )
 
 @OptIn(ExperimentalStdlibApi::class)

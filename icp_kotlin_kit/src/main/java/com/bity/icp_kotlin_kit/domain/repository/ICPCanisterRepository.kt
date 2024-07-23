@@ -2,6 +2,7 @@ package com.bity.icp_kotlin_kit.domain.repository
 
 import com.bity.icp_candid.domain.model.CandidValue
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
+import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 
 interface ICPCanisterRepository {
@@ -14,7 +15,13 @@ interface ICPCanisterRepository {
     suspend fun callAndPoll(
         method: ICPMethod,
         sender: ICPSigningPrincipal? = null,
-        durationSeconds: Long = 120,
-        waitDurationSeconds: Long = 2
+    ): Result<ByteArray>
+
+    suspend fun pollRequestStatus(
+        requestId: ByteArray,
+        canister: ICPPrincipal,
+        sender: ICPSigningPrincipal? = null,
+        durationSeconds: Long,
+        waitDurationSeconds: Long
     ): Result<CandidValue>
 }

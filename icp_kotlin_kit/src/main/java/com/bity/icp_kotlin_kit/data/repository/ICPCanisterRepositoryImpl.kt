@@ -2,17 +2,22 @@ package com.bity.icp_kotlin_kit.data.repository
 
 import com.bity.icp_candid.domain.deserializer.CandidDeserializer
 import com.bity.icp_candid.domain.model.CandidValue
+import com.bity.icp_candid.util.ext_function.toInt
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPRequestApiModel
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPStateTreePathApiModel
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPStateTreePathComponentApiModel
 import com.bity.icp_kotlin_kit.data.datasource.api.request.ICPRequest
+import com.bity.icp_kotlin_kit.data.datasource.api.response.model.enum.RejectCodeApiModel
+import com.bity.icp_kotlin_kit.data.datasource.api.response.model.enum.StatusCodeApiModel
 import com.bity.icp_kotlin_kit.data.datasource.api.service.ICPRetrofitService
+import com.bity.icp_kotlin_kit.data.model.PollingError
 import com.bity.icp_kotlin_kit.data.model.RemoteClientError
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.toDataModel
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
+import kotlinx.coroutines.delay
 import java.util.Date
 
 internal class ICPCanisterRepositoryImpl(
@@ -50,24 +55,15 @@ internal class ICPCanisterRepositoryImpl(
 
     override suspend fun callAndPoll(
         method: ICPMethod,
-        sender: ICPSigningPrincipal?,
-        durationSeconds: Long,
-        waitDurationSeconds: Long
-    ): Result<CandidValue> {
+        sender: ICPSigningPrincipal?
+    ): Result<ByteArray> {
         val requestId = call(
             method = method,
             sender = sender
         ).getOrElse {
             return Result.failure(it)
         }
-        val result = pollRequestStatus(
-            requestId = requestId,
-            canister = method.canister,
-            sender = sender,
-            waitDurationSeconds = waitDurationSeconds
-        )
-
-        TODO()
+        return Result.success(requestId)
     }
 
     /**
@@ -98,13 +94,12 @@ internal class ICPCanisterRepositoryImpl(
         return Result.success(request.requestId)
     }
 
-    // TODO, make it private
-    suspend fun pollRequestStatus(
+    override suspend fun pollRequestStatus(
         requestId: ByteArray,
         canister: ICPPrincipal,
-        sender: ICPSigningPrincipal? = null,
-        durationSeconds: Long = 120,
-        waitDurationSeconds: Long = 2
+        sender: ICPSigningPrincipal?,
+        durationSeconds: Long,
+        waitDurationSeconds: Long
     ): Result<CandidValue> {
         val endTime = Date(System.currentTimeMillis() + durationSeconds * 1000).time
 
@@ -136,20 +131,43 @@ internal class ICPCanisterRepositoryImpl(
                 paths = paths,
                 canister = canister,
                 sender = sender
-            )
+            ).getOrElse { return Result.failure(it) }
 
-            println("Looping...")
-            TODO()
+            val statusValue = stringValueForPath(status, "status")
+            if(statusValue != null) {
+                val statusCode = StatusCodeApiModel.valueOf(statusValue.replaceFirstChar { it.uppercase() })
+                when(statusCode){
+                    StatusCodeApiModel.Done ->
+                        return Result.failure(PollingError.RequestIsDone())
+                    StatusCodeApiModel.Received,
+                    StatusCodeApiModel.Processing -> { }
+                    StatusCodeApiModel.Replied -> {
+                        val replyData = rawValueForPath(status, "reply")
+                            ?: return Result.failure(PollingError.ParsingError("Unable to read replyData"))
+                        val result = CandidDeserializer.decode(replyData).firstOrNull()
+                            ?: return Result.failure(PollingError.ParsingError("Unable to deserialize replyData"))
+                        return Result.success(result)
+                    }
+                    StatusCodeApiModel.Rejected -> {
+                        val rejectCodeValue = rawValueForPath(status, "reject_code")
+                            ?: return Result.failure(PollingError.ParsingError("Unable to read rejectCode"))
+                        val rejectCode = RejectCodeApiModel.valueFromErrorCode(rejectCodeValue.toInt())
+                            ?: return Result.failure(PollingError.ParsingError("Unable to parse rejectCode"))
+                        val rejectMessage = stringValueForPath(status,"reject_message")
+                        return Result.failure(PollingError.RequestRejected(rejectCode, rejectMessage))
+                    }
+                }
+            }
+            delay(waitDurationSeconds)
         }
-
-        TODO()
+        return Result.failure(PollingError.Timeout())
     }
 
     private suspend fun readState(
         paths: List<ICPStateTreePathApiModel>,
         canister: ICPPrincipal,
         sender: ICPSigningPrincipal? = null
-    ) {
+    ): Result<Map<ICPStateTreePathApiModel, ByteArray?>> {
         val request = ICPRequest.init(
             requestType = ICPRequestApiModel.ReadState(paths),
             canister = canister.toDataModel(),
@@ -160,9 +178,38 @@ internal class ICPCanisterRepositoryImpl(
             body = request.envelope
         ).apply {
             if(!isSuccessful) {
-                TODO()
+                return Result.failure(
+                    RemoteClientError.HttpError(
+                        errorCode = code(),
+                        errorMessage = errorBody().toString()
+                    )
+                )
             }
+            val body = body() ?: return Result.failure(RemoteClientError.MissingBody())
+            val pathResponses = paths.mapNotNull { path ->
+                    body.tree.getValue(path)?.let { value -> path to value }
+                }.toMap()
+            return Result.success(pathResponses)
         }
+    }
+
+    private fun stringValueForPath(
+        status: Map<ICPStateTreePathApiModel, ByteArray?>,
+        suffix: String
+    ): String? {
+        val data = rawValueForPath(status, suffix) ?: return null
+        return String(data, Charsets.UTF_8)
+    }
+
+    private fun rawValueForPath(
+        status: Map<ICPStateTreePathApiModel, ByteArray?>,
+        suffix: String
+    ): ByteArray? {
+        return status.filter {
+            it.key.components.lastOrNull()?.stringValue == suffix
+        }
+            .toList()
+            .firstOrNull()?.second
     }
 }
 

@@ -10,11 +10,9 @@ import com.bity.icp_kotlin_kit.domain.usecase.ICPLedgerCanisterUseCase
 import com.bity.icp_kotlin_kit.util.jackson.CborConverterFactory
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 
@@ -35,31 +33,16 @@ private val rosettaConverterFactory = JacksonConverterFactory.create(
 )
 
 private val httpClient= OkHttpClient().newBuilder().build()
-private val loggedHttpClient= OkHttpClient().newBuilder()
-    .addInterceptor(
-        HttpLoggingInterceptor()
-            .apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
-    )
-    .build()
 
-fun provideICPLedgerCanisterUseCase(debug: Boolean): ICPLedgerCanisterUseCase =
+fun provideICPLedgerCanisterUseCase(): ICPLedgerCanisterUseCase =
     ICPLedgerCanisterUseCase(
-        icpCanisterRepository = provideICPCanisterRepository(debug)
+        icpCanisterRepository = provideICPCanisterRepository()
     )
 
-internal fun provideICPCanisterRepository(debug: Boolean): ICPCanisterRepository =
+internal fun provideICPCanisterRepository(): ICPCanisterRepository =
     ICPCanisterRepositoryImpl(
-        icpRetrofitService = if(debug) provideLoggedICPRetrofitService() else provideICPRetrofitService()
+        icpRetrofitService = provideICPRetrofitService(),
     )
-
-private fun provideLoggedICPRetrofitService(): ICPRetrofitService =
-    Retrofit
-        .Builder()
-        .baseUrl(BASE_URL)
-        .client(loggedHttpClient)
-        .addConverterFactory(cborConverterFactory)
-        .build()
-        .create(ICPRetrofitService::class.java)
 
 private fun provideICPRetrofitService(): ICPRetrofitService =
     Retrofit
@@ -73,24 +56,15 @@ private fun provideICPRetrofitService(): ICPRetrofitService =
 /**
  * Rosetta
  */
-internal fun provideICPRosettaRepository(debug: Boolean): ICPRosettaRepository =
+internal fun provideICPRosettaRepository(): ICPRosettaRepository =
     ICPRosettaRepositoryImpl(
-        client = if(debug) provideLoggedICPRosettaService() else provideICPRosettaService()
+        client = provideICPRosettaService()
     )
 private fun provideICPRosettaService(): ICPRosettaService =
     Retrofit
         .Builder()
         .baseUrl(ROSETTA_BASE_URL)
         .client(httpClient)
-        .addConverterFactory(rosettaConverterFactory)
-        .build()
-        .create(ICPRosettaService::class.java)
-
-private fun provideLoggedICPRosettaService(): ICPRosettaService =
-    Retrofit
-        .Builder()
-        .baseUrl(ROSETTA_BASE_URL)
-        .client(loggedHttpClient)
         .addConverterFactory(rosettaConverterFactory)
         .build()
         .create(ICPRosettaService::class.java)

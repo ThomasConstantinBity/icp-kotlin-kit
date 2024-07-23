@@ -1,4 +1,4 @@
-package com.bity.icp_kotlin_kit.data.datasource.api.response.model
+package com.bity.icp_kotlin_kit.data.datasource.api.response.model.enum
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

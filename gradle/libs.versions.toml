@@ -8,6 +8,8 @@ material-compose = "1.2.1"
 compose = "1.6.8"
 lifecycle = "2.8.3"
 
+kotlinx-coroutines-core = "1.8.0-RC2"
+
 retrofit = "2.11.0"
 retrofitConverter = "2.7.2"
 jackson-dataformat-cbor = "2.14.2"
@@ -34,6 +36,8 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 
 koin = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koin" }
+
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
 
 livedata-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 compose-material = { module = "androidx.compose.material3:material3", version.ref = "material-compose" }
