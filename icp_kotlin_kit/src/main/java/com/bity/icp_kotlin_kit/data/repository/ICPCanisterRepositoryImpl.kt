@@ -212,5 +212,3 @@ internal class ICPCanisterRepositoryImpl(
             .firstOrNull()?.second
     }
 }
-
-
