@@ -7,7 +7,7 @@ import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.util.ICPRequestUtil
 
 internal class ICPRequest private constructor(
-    requestId: ByteArray,
+    val requestId: ByteArray,
     val urlPath: String,
     val envelope: ICPRequestEnvelope,
 ) {

@@ -6,7 +6,7 @@ import java.time.Instant
 
 fun icpTimestampNow(): CandidValue =
     Instant.now()
-        .epochSecond.
-        toULong()
+        .epochSecond
+        .toULong()
         .times(1_000_000_000UL)
         .icpTimestamp()

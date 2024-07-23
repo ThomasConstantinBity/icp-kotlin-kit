@@ -47,11 +47,9 @@ fun provideICPLedgerCanisterUseCase(debug: Boolean): ICPLedgerCanisterUseCase =
         icpCanisterRepository = provideICPCanisterRepository(debug)
     )
 
-private fun provideICPCanisterRepository(debug: Boolean): ICPCanisterRepository =
+internal fun provideICPCanisterRepository(debug: Boolean): ICPCanisterRepository =
     ICPCanisterRepositoryImpl(
-        icpRetrofitService = if(debug)
-            provideLoggedICPRetrofitService()
-        else provideICPRetrofitService()
+        icpRetrofitService = if(debug) provideLoggedICPRetrofitService() else provideICPRetrofitService()
     )
 
 private fun provideLoggedICPRetrofitService(): ICPRetrofitService =

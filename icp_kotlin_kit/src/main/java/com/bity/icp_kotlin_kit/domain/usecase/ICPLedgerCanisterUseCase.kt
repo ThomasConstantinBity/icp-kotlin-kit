@@ -1,7 +1,6 @@
 package com.bity.icp_kotlin_kit.domain.usecase
 
 import com.bity.icp_candid.domain.model.CandidDictionary
-import com.bity.icp_candid.domain.model.CandidOption
 import com.bity.icp_candid.domain.model.CandidValue
 import com.bity.icp_cryptography.ICPCryptography
 import com.bity.icp_kotlin_kit.domain.model.ICPAccount
