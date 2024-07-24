@@ -66,8 +66,7 @@ dependencies {
 
     val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
     implementation(composeBom)
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation(libs.tooling.preview)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.livedata.runtime)

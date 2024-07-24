@@ -2,9 +2,22 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/appNavGraph"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/sendFragment">
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.bity.icpkotlinkit.presentation.icp_account.ICPAccountFragment"
-        android:label="MainFragment" />
+        android:label="MainFragment" >
+        <action
+            android:id="@+id/action_mainFragment_to_sendFragment"
+            app:destination="@id/sendFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/sendFragment"
+        android:name="com.bity.icpkotlinkit.presentation.send.SendFragment"
+        android:label="SendFragment">
+        <argument
+            android:name="publicKey"
+            app:argType="string" />
+    </fragment>
 </navigation>

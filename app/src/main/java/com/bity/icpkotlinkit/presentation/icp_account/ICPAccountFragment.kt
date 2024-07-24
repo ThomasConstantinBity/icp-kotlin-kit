@@ -98,8 +98,7 @@ private fun MainScreen(viewModel: ICPAccountViewModel) {
         }
         Button(
             onClick = {
-                val privateKey = BuildConfig.ICP_PRIV_KEY
-                viewModel.send(privateKey)
+                viewModel.onSendClick()
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)

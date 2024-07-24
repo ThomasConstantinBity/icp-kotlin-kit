@@ -12,6 +12,7 @@ import com.bity.icp_kotlin_kit.domain.model.RosettaTransaction
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
 import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.usecase.ICPLedgerCanisterUseCase
+import com.bity.icpkotlinkit.presentation.nav.NavManager
 import com.bity.icpkotlinkit.util.ext_function.toICPBalance
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,7 @@ import java.math.BigDecimal
 import java.math.BigInteger
 
 class ICPAccountViewModel(
+    private val navManager: NavManager,
     private val icpLedgerCanisterUseCase: ICPLedgerCanisterUseCase
 ): ViewModel() {
 
@@ -46,6 +48,13 @@ class ICPAccountViewModel(
 
             balanceDeferred.await()
             transactionDeferred.await()
+        }
+    }
+
+    fun onSendClick() {
+        publicKey?.let {
+            val navDirections = SendFra
+            navManager.navigate(navDirections)
         }
     }
 
