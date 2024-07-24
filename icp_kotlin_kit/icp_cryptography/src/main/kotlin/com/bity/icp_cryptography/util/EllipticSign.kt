@@ -24,20 +24,7 @@ object EllipticSign {
         HALF_CURVE_ORDER = params.n.shiftRight(1)
     }
 
-    operator fun invoke(
-        domainSeparatorData: ByteArray,
-        key: BigInteger
-    ): ByteArray {
-        val hashedMessage = SHA256.sha256(domainSeparatorData)
-        val signature = ellipticSign(
-            messageToSign = hashedMessage,
-            privateKey = key
-        )
-        signature[64] = (signature[64] + 0x1b).toByte()
-        return signature
-    }
-
-    private fun ellipticSign(messageToSign: ByteArray, privateKey: BigInteger): ByteArray {
+    operator fun invoke(messageToSign: ByteArray, privateKey: BigInteger): ByteArray {
         val signer = ECDSASigner(HMacDSAKCalculator(SHA256Digest()))
         val privKeyParams = ECPrivateKeyParameters(privateKey, CURVE)
         signer.init(true, privKeyParams)

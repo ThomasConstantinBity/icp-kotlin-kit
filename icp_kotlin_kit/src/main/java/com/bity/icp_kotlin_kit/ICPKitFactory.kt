@@ -36,7 +36,8 @@ private val httpClient= OkHttpClient().newBuilder().build()
 
 fun provideICPLedgerCanisterUseCase(): ICPLedgerCanisterUseCase =
     ICPLedgerCanisterUseCase(
-        icpCanisterRepository = provideICPCanisterRepository()
+        icpCanisterRepository = provideICPCanisterRepository(),
+        rosettaRepository = provideICPRosettaRepository()
     )
 
 internal fun provideICPCanisterRepository(): ICPCanisterRepository =

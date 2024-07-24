@@ -10,7 +10,7 @@ val presentationModule = module {
 
     viewModel {
         ICPAccountViewModel(
-            icpLedgerCanisterUseCase = provideICPLedgerCanisterUseCase(true)
+            icpLedgerCanisterUseCase = provideICPLedgerCanisterUseCase()
         )
     }
 

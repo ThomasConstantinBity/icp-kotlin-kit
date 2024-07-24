@@ -1,7 +1,7 @@
 package com.bity.icp_kotlin_kit.util
 
 import com.bity.icp_candid.domain.serializer.CandidSerializer
-import com.bity.icp_cryptography.model.ICPDomainSeparator
+import com.bity.icp_kotlin_kit.domain.model.ICPDomainSeparator
 import com.bity.icp_cryptography.util.DER
 import com.bity.icp_cryptography.util.secureRandomOfLength
 import com.bity.icp_kotlin_kit.data.datasource.api.enum.ContentRequestType
@@ -64,7 +64,8 @@ internal object ICPRequestUtil {
         }
 
         val requestId = content.calculateRequestId()
-        val senderSignature = sender.sign(requestId, ICPDomainSeparator("ic-request"))
+        val domainSeparatedData = ICPDomainSeparator("ic-request").domainSeparatedData(requestId)
+        val senderSignature = sender.sign(domainSeparatedData)
         val senderPublicKey = DER.serialise(sender.rawPublicKey)
         return ICPRequestEnvelope(
             content,

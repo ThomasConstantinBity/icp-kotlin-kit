@@ -19,7 +19,7 @@ class ICPRosettaRepositoryImpl(
             network = "00000000000000020101"
         )
 
-    override suspend fun searchTransactions(address: String): Result<List<RosettaTransaction>> {
+    override suspend fun accountTransactions(address: String): Result<List<RosettaTransaction>> {
 
         val requestBody = RosettaSearchTransactionRequest(
             networkIdentifier = icpNetworkIdentifier,

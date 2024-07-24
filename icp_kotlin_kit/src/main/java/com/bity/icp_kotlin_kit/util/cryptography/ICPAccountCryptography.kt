@@ -1,6 +1,6 @@
 package com.bity.icp_kotlin_kit.util.cryptography
 
-import com.bity.icp_cryptography.model.ICPDomainSeparator
+import com.bity.icp_kotlin_kit.domain.model.ICPDomainSeparator
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.error.ICPAccountError
 import com.bity.icp_cryptography.util.CRC32
@@ -10,7 +10,7 @@ object ICPAccountCryptography {
 
     private val domain = ICPDomainSeparator("account-id")
 
-    fun generateAccountId(
+    internal fun generateAccountId(
         principal: ICPPrincipal,
         subAccountId: ByteArray
     ): ByteArray {

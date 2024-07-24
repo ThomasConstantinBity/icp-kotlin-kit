@@ -42,7 +42,7 @@ internal class ICPCanisterRepositoryImpl(
                 return Result.failure(
                     RemoteClientError.HttpError(
                         errorCode = code(),
-                        errorMessage = errorBody().toString()
+                        errorMessage = errorBody()?.string()
                     )
                 )
             }
@@ -87,7 +87,7 @@ internal class ICPCanisterRepositoryImpl(
                 return Result.failure(
                     RemoteClientError.HttpError(
                         errorCode = code(),
-                        errorMessage = errorBody().toString()
+                        errorMessage = errorBody()?.string()
                     )
                 )
         }
@@ -181,7 +181,7 @@ internal class ICPCanisterRepositoryImpl(
                 return Result.failure(
                     RemoteClientError.HttpError(
                         errorCode = code(),
-                        errorMessage = errorBody().toString()
+                        errorMessage = errorBody()?.string()
                     )
                 )
             }

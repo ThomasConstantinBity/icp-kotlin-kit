@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -15,6 +17,20 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val properties = Properties().apply {
+            file("../local.properties").inputStream().use { load(it) }
+        }
+        buildConfigField(
+            "String",
+            "ICP_PUB_KEY",
+            properties["ICP_PUB_KEY"].toString()
+        )
+        buildConfigField(
+            "String",
+            "ICP_PRIV_KEY",
+            properties["ICP_PRIV_KEY"].toString()
+        )
     }
 
     buildTypes {
@@ -26,6 +42,7 @@ android {
             )
         }
     }
+
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -45,6 +62,12 @@ android {
 
 dependencies {
     implementation(project(":icp_kotlin_kit"))
+    implementation(project(":icp_kotlin_kit:icp_cryptography"))
+
+    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
+    implementation(composeBom)
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.ui:ui-tooling-preview")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.livedata.runtime)

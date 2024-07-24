@@ -5,31 +5,44 @@ import com.bity.icp_candid.domain.model.CandidValue
 import com.bity.icp_cryptography.ICPCryptography
 import com.bity.icp_kotlin_kit.domain.model.ICPAccount
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
+import com.bity.icp_kotlin_kit.domain.model.RosettaTransaction
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
 import com.bity.icp_kotlin_kit.domain.model.error.ICPLedgerCanisterError
 import com.bity.icp_kotlin_kit.domain.model.error.TransferError
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
+import com.bity.icp_kotlin_kit.domain.repository.ICPRosettaRepository
 import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.request.toDataModel
 import com.bity.icp_kotlin_kit.util.ext_function.ICPAmount
 
 class ICPLedgerCanisterUseCase(
-    private val icpCanisterRepository: ICPCanisterRepository
+    private val icpCanisterRepository: ICPCanisterRepository,
+    private val rosettaRepository: ICPRosettaRepository
 ) {
 
     suspend fun accountBalance(
         account: ICPAccount,
         certification: ICPRequestCertification = ICPRequestCertification.Certified
-    ): ULong {
+    ): Result<ULong> {
         val method = accountBalanceMethod(account)
         val result = when(certification) {
             ICPRequestCertification.Uncertified -> icpCanisterRepository.query(method)
             ICPRequestCertification.Certified -> TODO()
         }
-        return result.getOrThrow().ICPAmount ?: throw ICPLedgerCanisterError.InvalidResponse()
+        val accountBalance = result.getOrElse {
+            return Result.failure(it)
+        }.ICPAmount ?: return Result.failure(ICPLedgerCanisterError.InvalidResponse())
+        return Result.success(accountBalance)
     }
 
+    suspend fun accountTransactions(address: String): Result<List<RosettaTransaction>> =
+        rosettaRepository.accountTransactions(address)
+
+    /**
+     * @return the block index of the transaction
+     * @see [queryBlock] to fetch the block with the new transaction
+     */
     suspend fun transfer(request: TransferRequest): Result<ULong> {
         require(ICPCryptography.isValidAccountId(request.receivingAddress)) {
             throw ICPLedgerCanisterError.InvalidReceivingAddress()
