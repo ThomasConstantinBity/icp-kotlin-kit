@@ -53,26 +53,9 @@ internal class ICPCanisterRepositoryImpl(
         }
     }
 
-    override suspend fun callAndPoll(
+    override suspend fun call(
         method: ICPMethod,
         sender: ICPSigningPrincipal?
-    ): Result<ByteArray> {
-        val requestId = call(
-            method = method,
-            sender = sender
-        ).getOrElse {
-            return Result.failure(it)
-        }
-        return Result.success(requestId)
-    }
-
-    /**
-     * @return requestId of the request
-     * Use [pollRequestStatus] to to get the current status of the request
-     */
-    private suspend fun call(
-        method: ICPMethod,
-        sender: ICPSigningPrincipal? = null
     ): Result<ByteArray> {
         val request = ICPRequest.init(
             requestType = ICPRequestApiModel.Call(method.toDataModel()),

@@ -10,6 +10,7 @@ import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.RosettaTransaction
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
+import com.bity.icp_kotlin_kit.domain.request.AccountBalanceRequest
 import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.usecase.ICPLedgerCanisterUseCase
 import com.bity.icpkotlinkit.presentation.nav.NavManager
@@ -62,8 +63,10 @@ class ICPAccountViewModel(
         icpAccount?.let { account ->
             _uiAccountInformationFlow.value = UiAccountState.Loading
             val balance = icpLedgerCanisterUseCase.accountBalance(
-                account = account,
-                certification = ICPRequestCertification.Uncertified
+                request = AccountBalanceRequest(
+                    account = account,
+                    certification = ICPRequestCertification.Certified
+                )
             ).getOrElse {
                 _uiAccountInformationFlow.value = UiAccountState.Error
                 return

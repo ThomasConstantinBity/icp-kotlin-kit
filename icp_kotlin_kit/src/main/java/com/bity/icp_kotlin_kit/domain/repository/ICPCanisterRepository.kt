@@ -12,7 +12,11 @@ interface ICPCanisterRepository {
         sender: ICPSigningPrincipal? = null
     ): Result<CandidValue>
 
-    suspend fun callAndPoll(
+    /**
+     * @return requestId of the request
+     * Use [pollRequestStatus] to to get the current status of the request
+     */
+    suspend fun call(
         method: ICPMethod,
         sender: ICPSigningPrincipal? = null,
     ): Result<ByteArray>

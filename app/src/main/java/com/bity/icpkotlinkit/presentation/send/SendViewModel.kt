@@ -8,6 +8,8 @@ import com.bity.icp_cryptography.util.SHA256
 import com.bity.icp_kotlin_kit.domain.model.ICPAccount
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
+import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
+import com.bity.icp_kotlin_kit.domain.request.QueryBlockRequest
 import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.usecase.ICPLedgerCanisterUseCase
 import com.bity.icpkotlinkit.presentation.nav.NavManager
@@ -57,7 +59,13 @@ class SendViewModel(
                 }
             }
 
-            val request = TransferRequest(
+            viewModelScope.launch {
+                icpLedgerCanisterUseCase.queryBlock(
+                    request = QueryBlockRequest(index = 13068030UL)
+                )
+            }
+
+            /*val request = TransferRequest(
                 sendingAccount = it,
                 receivingAddress = receivingAccount,
                 amount = 123000U,
@@ -75,7 +83,7 @@ class SendViewModel(
                     }
                 println(response)
                 _transferStateFlow.value = UiTransferState.Completed(response)
-            }
+            }*/
         }
     }
 

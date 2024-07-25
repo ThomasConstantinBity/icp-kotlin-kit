@@ -9,16 +9,18 @@ import com.bity.icp_kotlin_kit.domain.model.ICPAccount
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
+import com.bity.icp_kotlin_kit.util.DEFAULT_POLLING_SECONDS_TIMEOUT
+import com.bity.icp_kotlin_kit.util.DEFAULT_POLLING_SECONDS_WAIT
+import com.bity.icp_kotlin_kit.util.DEFAULT_TRANSACTION_FEE
 
 class TransferRequest(
     val sendingAccount: ICPAccount,
     val receivingAddress: String,
     val amount: ULong,
     val signingPrincipal: ICPSigningPrincipal,
-    val fee: ULong = 10000U,     // 0.0001 ICP
-    val memo: ULong?,
-    val durationSeconds: Long = 120,
-    val waitDurationSeconds: Long = 2
+    val fee: ULong = DEFAULT_TRANSACTION_FEE,
+    val memo: ULong = 0UL,
+    val pollingValues: PollingValues = PollingValues()
 )
 
 @OptIn(ExperimentalStdlibApi::class)
@@ -37,7 +39,7 @@ fun TransferRequest.toDataModel(): ICPMethod =
                     "to" to CandidValue.Blob(receivingAddress.hexToByteArray()),
                     "amount" to amount.icpAmount(),
                     "fee" to fee.icpAmount(),
-                    "memo" to CandidValue.Natural64(memo ?: 0U),
+                    "memo" to CandidValue.Natural64(memo),
                     "created_at_time" to icpTimestampNow()
                 )
             )

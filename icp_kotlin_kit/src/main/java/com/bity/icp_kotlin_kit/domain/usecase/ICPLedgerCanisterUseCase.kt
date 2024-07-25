@@ -1,17 +1,23 @@
 package com.bity.icp_kotlin_kit.domain.usecase
 
 import com.bity.icp_candid.domain.model.CandidDictionary
+import com.bity.icp_candid.domain.model.CandidFunction
 import com.bity.icp_candid.domain.model.CandidValue
 import com.bity.icp_cryptography.ICPCryptography
-import com.bity.icp_kotlin_kit.domain.model.ICPAccount
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
+import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
+import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.RosettaTransaction
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
-import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
 import com.bity.icp_kotlin_kit.domain.model.error.ICPLedgerCanisterError
 import com.bity.icp_kotlin_kit.domain.model.error.TransferError
+import com.bity.icp_kotlin_kit.domain.model.block_query_candid_response.BlockQueryCandidResponse
+import com.bity.icp_kotlin_kit.domain.model.block_query_candid_response.ICPBlock
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
 import com.bity.icp_kotlin_kit.domain.repository.ICPRosettaRepository
+import com.bity.icp_kotlin_kit.domain.request.AccountBalanceRequest
+import com.bity.icp_kotlin_kit.domain.request.PollingValues
+import com.bity.icp_kotlin_kit.domain.request.QueryBlockRequest
 import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.request.toDataModel
 import com.bity.icp_kotlin_kit.util.ext_function.ICPAmount
@@ -21,23 +27,41 @@ class ICPLedgerCanisterUseCase(
     private val rosettaRepository: ICPRosettaRepository
 ) {
 
-    suspend fun accountBalance(
-        account: ICPAccount,
-        certification: ICPRequestCertification = ICPRequestCertification.Certified
-    ): Result<ULong> {
-        val method = accountBalanceMethod(account)
-        val result = when(certification) {
+    private suspend fun query(
+        method: ICPMethod,
+        certification: ICPRequestCertification,
+        sender: ICPSigningPrincipal? = null,
+        pollingValues: PollingValues
+    ): Result<CandidValue> =
+        when(certification) {
             ICPRequestCertification.Uncertified -> icpCanisterRepository.query(method)
-            ICPRequestCertification.Certified -> TODO()
+            ICPRequestCertification.Certified -> {
+                val requestId = icpCanisterRepository.call(
+                    method = method,
+                    sender = sender
+                ).getOrElse { return Result.failure(it) }
+                icpCanisterRepository.pollRequestStatus(
+                    requestId = requestId,
+                    canister = method.canister,
+                    sender = sender,
+                    durationSeconds = pollingValues.durationSeconds,
+                    waitDurationSeconds = pollingValues.waitDurationSeconds
+                )
+            }
         }
-        val accountBalance = result.getOrElse {
-            return Result.failure(it)
-        }.ICPAmount ?: return Result.failure(ICPLedgerCanisterError.InvalidResponse())
+
+    suspend fun accountBalance(request: AccountBalanceRequest): Result<ULong> {
+        val method = request.toDataModel()
+        val result = query(
+            method = method,
+            certification = request.certification,
+            pollingValues = request.pollingValues
+        )
+        val accountBalance = result
+            .getOrElse { return Result.failure(it) }
+            .ICPAmount ?: return Result.failure(ICPLedgerCanisterError.InvalidResponse())
         return Result.success(accountBalance)
     }
-
-    suspend fun accountTransactions(address: String): Result<List<RosettaTransaction>> =
-        rosettaRepository.accountTransactions(address)
 
     /**
      * @return the block index of the transaction
@@ -48,33 +72,107 @@ class ICPLedgerCanisterUseCase(
             throw ICPLedgerCanisterError.InvalidReceivingAddress()
         }
         val method = request.toDataModel()
-        val requestId = icpCanisterRepository.callAndPoll(
+        val response = query(
             method = method,
-            sender = request.signingPrincipal
-        ).getOrElse { return Result.failure(it) }
-
-        val response = icpCanisterRepository.pollRequestStatus(
-            requestId = requestId,
-            canister = method.canister,
+            certification = ICPRequestCertification.Certified,
             sender = request.signingPrincipal,
-            durationSeconds = request.durationSeconds,
-            waitDurationSeconds = request.waitDurationSeconds
+            pollingValues = request.pollingValues
         ).getOrElse { return Result.failure(it) }
         return parseTransferResponse(response)
     }
 
-    private fun accountBalanceMethod(account: ICPAccount): ICPMethod =
-        ICPMethod(
-            canister = ICPSystemCanisters.Ledger.icpPrincipal,
-            methodName = "account_balance",
+    // TODO, need to add certificate request
+    suspend fun accountTransactions(address: String): Result<List<RosettaTransaction>> =
+        rosettaRepository.accountTransactions(address)
+
+    suspend fun queryBlock(request: QueryBlockRequest): Result<ICPBlock> {
+        val method = request.toDataModel()
+        val response = query(
+            method = method,
+            certification = request.certification,
+            pollingValues = request.pollingValues
+        ).getOrElse { return Result.failure(it) }
+
+        val queryBlockResponse = try {
+            BlockQueryCandidResponse(response)
+        } catch (err: ICPLedgerCanisterError) {
+            return Result.failure(err)
+        }
+
+        return when {
+            queryBlockResponse.blocks.isNotEmpty() ->
+                Result.success(queryBlockResponse.blocks.first())
+
+            queryBlockResponse.archivedBlocks.isNotEmpty() -> {
+                val archivedBlock = queryBlockResponse.archivedBlocks.first()
+                val archivedBlockMethod = archivedBlock.callback.method
+                    ?: return Result.failure(ICPLedgerCanisterError.InvalidResponse())
+                val archivedBlockList = try {
+                    queryArchivedBlock(
+                        certification = request.certification,
+                        method = archivedBlockMethod,
+                        pollingValues = request.pollingValues,
+                        start = archivedBlock.start,
+                        length = archivedBlock.length
+                    )
+                } catch (err: Error) {
+                    return Result.failure(err)
+                }
+
+                return if(archivedBlockList.isNotEmpty()) {
+                    Result.success(archivedBlockList.first())
+                } else {
+                    Result.failure(ICPLedgerCanisterError.BlockNotFound())
+                }
+            }
+            else -> Result.failure(ICPLedgerCanisterError.BlockNotFound())
+        }
+    }
+
+    private suspend fun queryArchivedBlock(
+        certification: ICPRequestCertification,
+        method: CandidFunction.ServiceMethod,
+        pollingValues: PollingValues,
+        start: ULong,
+        length: ULong,
+    ): List<ICPBlock> {
+        val queryArchiveMethod = queryArchivedBlockMethod(
+            method = method,
+            start = start,
+            length = length
+        )
+        val archiveResponse = query(
+            method = queryArchiveMethod,
+            certification = certification,
+            sender = null,
+            pollingValues = pollingValues
+        ).getOrThrow()
+
+        val archive = archiveResponse.variantValue ?: throw ICPLedgerCanisterError.InvalidResponse()
+        val ok = archive["Ok"]?.recordValue ?: throw ICPLedgerCanisterError.InvalidResponse()
+        val blocks = ok["blocks"]?.vectorValue?.values ?: throw ICPLedgerCanisterError.InvalidResponse()
+        return blocks.map { ICPBlock(it) }
+    }
+
+    private fun queryArchivedBlockMethod(
+        method: CandidFunction.ServiceMethod,
+        start: ULong,
+        length: ULong
+    ): ICPMethod {
+        val archivePrincipal = ICPPrincipal.init(method.principalId)
+        return ICPMethod(
+            canister = archivePrincipal,
+            methodName = method.name,
             args = CandidValue.Record(
                 CandidDictionary(
                     hashMapOf(
-                        "account" to CandidValue.Blob(account.accountId)
+                        "start" to CandidValue.Natural64(start),
+                        "length" to CandidValue.Natural64(length)
                     )
                 )
             )
         )
+    }
 
     private fun parseTransferResponse(response: CandidValue): Result<ULong> {
         val variant = response.variantValue
@@ -104,7 +202,7 @@ class ICPLedgerCanisterUseCase(
             }
 
             error["TxCreatedInFuture"]?.let {
-                    return Result.failure(TransferError.TransactionCreatedInFuture())
+                return Result.failure(TransferError.TransactionCreatedInFuture())
             }
 
             error["TxDuplicate"]?.recordValue?.let { txDuplicate ->
@@ -112,7 +210,7 @@ class ICPLedgerCanisterUseCase(
                     return Result.failure(TransferError.TransactionDuplicate(blockIndex))
                 }
             }
-                        Result.failure(ICPLedgerCanisterError.InvalidResponse())
+            Result.failure(ICPLedgerCanisterError.InvalidResponse())
         } else Result.success(blockIndex)
     }
 }

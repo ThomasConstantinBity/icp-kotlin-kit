@@ -8,7 +8,7 @@ class CandidVariant(
     val valueIndex: ULong
 ) {
 
-    private val hashedKey: ULong = candidTypes[valueIndex.toInt()].hashedKey
+    val hashedKey: ULong = candidTypes[valueIndex.toInt()].hashedKey
 
     constructor(
         candidTypes: HashMap<String, CandidType>,
