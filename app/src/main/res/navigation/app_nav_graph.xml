@@ -2,13 +2,14 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/appNavGraph"
-    app:startDestination="@id/sendFragment">
+    app:startDestination="@id/mainFragment">
+
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.bity.icpkotlinkit.presentation.icp_account.ICPAccountFragment"
         android:label="MainFragment" >
         <action
-            android:id="@+id/action_mainFragment_to_sendFragment"
+            android:id="@+id/actionAccountFragmentToSendFragment"
             app:destination="@id/sendFragment" />
     </fragment>
 

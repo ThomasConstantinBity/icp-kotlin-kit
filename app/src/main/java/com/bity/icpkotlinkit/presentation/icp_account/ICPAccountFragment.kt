@@ -47,7 +47,6 @@ class ICPAccountFragment: Fragment() {
     private val model: ICPAccountViewModel by koinNavGraphViewModel(R.id.appNavGraph)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        Log.d(TAG, "onCreateView: $model")
         return ComposeView(requireContext()).apply {
             setContent {
                 MainScreen(model)
@@ -58,10 +57,6 @@ class ICPAccountFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val publicKey = BuildConfig.ICP_PUB_KEY
         model.onEnter(publicKey)
-    }
-
-        companion object {
-        private const val TAG = "ICPAccountFragment"
     }
 }
 

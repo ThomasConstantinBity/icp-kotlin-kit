@@ -53,39 +53,8 @@ class ICPAccountViewModel(
 
     fun onSendClick() {
         publicKey?.let {
-            val navDirections = SendFra
+            val navDirections = ICPAccountFragmentDirections.actionAccountFragmentToSendFragment(it)
             navManager.navigate(navDirections)
-        }
-    }
-
-    @OptIn(ExperimentalStdlibApi::class)
-    fun send(privateKey: String) {
-        icpAccount?.let { account ->
-
-            val signingPrincipal = object : ICPSigningPrincipal {
-                override val principal: ICPPrincipal = ICPPrincipal.selfAuthenticatingPrincipal(publicKey!!.hexToByteArray())
-                override val rawPublicKey: ByteArray = publicKey!!.hexToByteArray()
-                override suspend fun sign(message: ByteArray): ByteArray {
-                    val hashedMessage = SHA256.sha256(message)
-                    val signature = EllipticSign(
-                        messageToSign = hashedMessage,
-                        privateKey = BigInteger(privateKey)
-                    )
-                    signature[64] = (signature[64] + 0x1b).toByte()
-                    return signature.dropLast(1).toByteArray()
-                }
-            }
-
-            val request = TransferRequest(
-                sendingAccount = account,
-                receivingAddress = account.address,
-                amount = 10000U,
-                signingPrincipal = signingPrincipal,
-                memo = 300U
-            )
-            viewModelScope.launch {
-                icpLedgerCanisterUseCase.transfer(request).getOrThrow()
-            }
         }
     }
 
@@ -136,9 +105,5 @@ class ICPAccountViewModel(
         ): UiTransactionsAccount()
         data object Loading: UiTransactionsAccount()
         data object Error: UiTransactionsAccount()
-    }
-
-    companion object {
-        private const val TAG = "ICPAccountViewModel"
     }
 }

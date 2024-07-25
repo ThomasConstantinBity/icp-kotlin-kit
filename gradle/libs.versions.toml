@@ -10,6 +10,7 @@ lifecycle = "2.8.3"
 
 kotlinx-coroutines-core = "1.8.0-RC2"
 
+navigationSafeArgsGradlePlugin = "2.7.7"
 retrofit = "2.11.0"
 retrofitConverter = "2.7.2"
 jackson-dataformat-cbor = "2.14.2"
@@ -30,6 +31,7 @@ foundationLayoutAndroid = "1.6.8"
 uiToolingPreviewAndroid = "1.6.8"
 
 [libraries]
+androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationSafeArgsGradlePlugin" }
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec-version" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "bouncycastle-version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin-reflect" }
