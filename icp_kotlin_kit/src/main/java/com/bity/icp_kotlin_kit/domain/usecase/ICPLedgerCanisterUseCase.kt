@@ -22,9 +22,6 @@ import com.bity.icp_kotlin_kit.domain.request.QueryBlockRequest
 import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.request.toDataModel
 import com.bity.icp_kotlin_kit.util.ext_function.ICPAmount
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 
 class ICPLedgerCanisterUseCase(
     private val icpCanisterRepository: ICPCanisterRepository,
