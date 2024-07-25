@@ -3,15 +3,12 @@ package com.bity.icpkotlinkit.presentation.icp_account
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bity.icp_cryptography.util.EllipticSign
-import com.bity.icp_cryptography.util.SHA256
 import com.bity.icp_kotlin_kit.domain.model.ICPAccount
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
-import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
-import com.bity.icp_kotlin_kit.domain.model.RosettaTransaction
+import com.bity.icp_kotlin_kit.domain.model.ICPTransaction
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
 import com.bity.icp_kotlin_kit.domain.request.AccountBalanceRequest
-import com.bity.icp_kotlin_kit.domain.request.TransferRequest
+import com.bity.icp_kotlin_kit.domain.request.AccountTransactionRequest
 import com.bity.icp_kotlin_kit.domain.usecase.ICPLedgerCanisterUseCase
 import com.bity.icpkotlinkit.presentation.nav.NavManager
 import com.bity.icpkotlinkit.util.ext_function.toICPBalance
@@ -20,7 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.math.BigInteger
+import kotlin.coroutines.CoroutineContext
 
 class ICPAccountViewModel(
     private val navManager: NavManager,
@@ -81,7 +78,12 @@ class ICPAccountViewModel(
     private suspend fun fetchTransactions() {
         icpAccount?.let {
             _uiAccountTransactionsFlow.value = UiTransactionsAccount.Loading
-            val transactions = icpLedgerCanisterUseCase.accountTransactions(it.address).getOrElse {
+            val transactions = icpLedgerCanisterUseCase.accountTransactions(
+                request = AccountTransactionRequest(
+                    address = it.address,
+                    certification = ICPRequestCertification.Certified
+                )
+            ).getOrElse {
                 _uiAccountTransactionsFlow.value = UiTransactionsAccount.Error
                 return
             }
@@ -104,7 +106,7 @@ class ICPAccountViewModel(
     @Immutable
     sealed class UiTransactionsAccount {
         data class Content(
-            val transactions: List<RosettaTransaction>
+            val transactions: List<ICPTransaction>
         ): UiTransactionsAccount()
         data object Loading: UiTransactionsAccount()
         data object Error: UiTransactionsAccount()

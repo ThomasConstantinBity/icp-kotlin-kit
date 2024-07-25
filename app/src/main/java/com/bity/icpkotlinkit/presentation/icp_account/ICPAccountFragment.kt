@@ -1,7 +1,6 @@
 package com.bity.icpkotlinkit.presentation.icp_account
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import com.bity.icpkotlinkit.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bity.icp_kotlin_kit.domain.model.RosettaTransaction
-import com.bity.icp_kotlin_kit.domain.model.RosettaTransactionType
+import com.bity.icp_kotlin_kit.domain.model.ICPTransaction
+import com.bity.icp_kotlin_kit.domain.model.ICPTransactionType
 import com.bity.icpkotlinkit.BuildConfig
 import com.bity.icpkotlinkit.common.res.Dimen
 import com.bity.icpkotlinkit.util.ext_function.toICPBalance
@@ -133,7 +132,7 @@ private fun TransactionList(
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
-fun Transaction(transaction: RosettaTransaction, modifier: Modifier = Modifier) {
+fun Transaction(transaction: ICPTransaction, modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier.padding(vertical = Dimen.paddingSmall)
     ) {
@@ -167,7 +166,7 @@ fun Transaction(transaction: RosettaTransaction, modifier: Modifier = Modifier) 
                     .fillMaxWidth(0.33F)
                     .align(Alignment.CenterVertically)
             )
-            Text(text = "${transaction.fee.toICPBalance()} ICP")
+            Text(text = "${transaction.fee?.toICPBalance()} ICP")
         }
 
         Row(modifier.fillMaxWidth()) {
@@ -258,8 +257,8 @@ class UiTxPreviewParameterProvider: PreviewParameterProvider<ICPAccountViewModel
     override val values = sequenceOf(
         ICPAccountViewModel.UiTransactionsAccount.Content(
             transactions = listOf(
-                RosettaTransaction(
-                    type = RosettaTransactionType.Send(
+                ICPTransaction(
+                    type = ICPTransactionType.Send(
                         from = "From address",
                         to = "To address"
                     ),

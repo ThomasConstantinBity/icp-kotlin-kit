@@ -7,7 +7,7 @@ import com.bity.icp_cryptography.ICPCryptography
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
-import com.bity.icp_kotlin_kit.domain.model.RosettaTransaction
+import com.bity.icp_kotlin_kit.domain.model.ICPTransaction
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
 import com.bity.icp_kotlin_kit.domain.model.error.ICPLedgerCanisterError
 import com.bity.icp_kotlin_kit.domain.model.error.TransferError
@@ -16,11 +16,15 @@ import com.bity.icp_kotlin_kit.domain.model.block_query_candid_response.ICPBlock
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
 import com.bity.icp_kotlin_kit.domain.repository.ICPRosettaRepository
 import com.bity.icp_kotlin_kit.domain.request.AccountBalanceRequest
+import com.bity.icp_kotlin_kit.domain.request.AccountTransactionRequest
 import com.bity.icp_kotlin_kit.domain.request.PollingValues
 import com.bity.icp_kotlin_kit.domain.request.QueryBlockRequest
 import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.request.toDataModel
 import com.bity.icp_kotlin_kit.util.ext_function.ICPAmount
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class ICPLedgerCanisterUseCase(
     private val icpCanisterRepository: ICPCanisterRepository,
@@ -81,9 +85,31 @@ class ICPLedgerCanisterUseCase(
         return parseTransferResponse(response)
     }
 
-    // TODO, need to add certificate request
-    suspend fun accountTransactions(address: String): Result<List<RosettaTransaction>> =
-        rosettaRepository.accountTransactions(address)
+    // TODO: improve using asyncMap
+    suspend fun accountTransactions(request: AccountTransactionRequest): Result<List<ICPTransaction>> {
+        val rosettaResponse = rosettaRepository.accountTransactions(request.address)
+        return when (request.certification) {
+            ICPRequestCertification.Uncertified -> rosettaResponse
+            ICPRequestCertification.Certified -> {
+                val transactions = rosettaResponse.getOrElse { return Result.failure(it) }
+                    .map { transaction ->
+                        println("Querying block with index ${transaction.blockIndex}")
+                        val block = queryBlock(
+                            request = QueryBlockRequest(
+                                certification = request.certification,
+                                index = transaction.blockIndex.toLong().toULong(),
+                                pollingValues = request.pollingValues
+                            )
+                        ).getOrElse { return Result.failure(it) }
+                        block.getICPTransaction(
+                            blockIndex = transaction.blockIndex.toLong().toUInt(),
+                            hash = transaction.hash
+                        )
+                    }
+                Result.success(transactions)
+            }
+        }
+    }
 
     suspend fun queryBlock(request: QueryBlockRequest): Result<ICPBlock> {
         val method = request.toDataModel()

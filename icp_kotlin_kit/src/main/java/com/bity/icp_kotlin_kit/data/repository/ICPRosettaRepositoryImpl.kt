@@ -6,7 +6,7 @@ import com.bity.icp_kotlin_kit.data.datasource.api.request.model.NetworkIdentifi
 import com.bity.icp_kotlin_kit.data.datasource.api.response.model.toDomainModel
 import com.bity.icp_kotlin_kit.data.datasource.api.service.ICPRosettaService
 import com.bity.icp_kotlin_kit.data.model.RemoteClientError
-import com.bity.icp_kotlin_kit.domain.model.RosettaTransaction
+import com.bity.icp_kotlin_kit.domain.model.ICPTransaction
 import com.bity.icp_kotlin_kit.domain.repository.ICPRosettaRepository
 
 class ICPRosettaRepositoryImpl(
@@ -19,7 +19,7 @@ class ICPRosettaRepositoryImpl(
             network = "00000000000000020101"
         )
 
-    override suspend fun accountTransactions(address: String): Result<List<RosettaTransaction>> {
+    override suspend fun accountTransactions(address: String): Result<List<ICPTransaction>> {
 
         val requestBody = RosettaSearchTransactionRequest(
             networkIdentifier = icpNetworkIdentifier,
