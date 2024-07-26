@@ -1,5 +1,8 @@
 package com.bity.icp_kotlin_kit.data.datasource.api.model
 
+import com.bity.icp_cryptography.util.SHA256
+import com.bity.icp_kotlin_kit.domain.model.ICPDomainSeparator
+
 /**
  * see https://internetcomputer.org/docs/current/references/ic-interface-spec/#certification
  * see https://internetcomputer.org/docs/current/references/ic-interface-spec/#certificate
@@ -67,6 +70,18 @@ sealed class HashTreeNode {
             is Leaf -> node.data
             else -> null
         }
+    }
+
+    fun hash(): ByteArray {
+        val dataToHash = when (this) {
+            Empty -> ICPDomainSeparator("ic-hashtree-empty").data
+            is Fork -> ICPDomainSeparator("ic-hashtree-fork").data + left.hash() + right.hash()
+            is Labeled -> ICPDomainSeparator("ic-hashtree-labeled").data + label + child.hash()
+            is Leaf -> ICPDomainSeparator("ic-hashtree-leaf").data + data
+            is Pruned -> return data // already hashed, just return it
+
+        }
+        return SHA256.sha256(dataToHash)
     }
 
     companion object {

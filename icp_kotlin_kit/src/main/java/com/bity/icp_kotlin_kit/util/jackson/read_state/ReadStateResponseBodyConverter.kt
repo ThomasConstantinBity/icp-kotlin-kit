@@ -21,16 +21,15 @@ class ReadStateResponseBodyConverter(
 
             val signature = certificate["signature"] as? ByteArray
                 ?: throw ParsingError.InvalidCertificateStructure("Missing signature")
-
-            // TODO, verifySignature
-
             val root = certificate["tree"]
                 ?: throw ParsingError.InvalidCertificateStructure("Missing tree")
 
-            return StateCertificateResponse(
+            val stateCertificateResponse =  StateCertificateResponse(
                 signature = signature,
                 tree = buildTree(root)
             )
+            stateCertificateResponse.verifySignature()
+            return stateCertificateResponse
         }
     }
 
