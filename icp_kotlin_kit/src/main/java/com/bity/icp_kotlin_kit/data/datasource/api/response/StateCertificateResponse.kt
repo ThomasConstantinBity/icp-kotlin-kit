@@ -3,6 +3,7 @@ package com.bity.icp_kotlin_kit.data.datasource.api.response
 import com.bity.icp_kotlin_kit.RustBindings
 import com.bity.icp_kotlin_kit.data.datasource.api.model.HashTreeNode
 import com.bity.icp_kotlin_kit.domain.model.ICPDomainSeparator
+import com.bity.icp_kotlin_kit.domain.model.error.RustBindingsError
 
 class StateCertificateResponse(
     val signature: ByteArray,
@@ -11,11 +12,14 @@ class StateCertificateResponse(
 
     fun verifySignature() {
         val message = ICPDomainSeparator("ic-state-root").data + tree.hash()
-        RustBindings.blsVerify(
+        val signatureResult = RustBindings.blsVerify(
             autograph = signature,
             message = message,
             key = ICP_ROOT_RAW_PUBLIC_KEY
         )
+        require(signatureResult == 1) {
+            throw RustBindingsError.WrongSignature()
+        }
         // TODO: handle delegation
         // TODO: verify object identifiers for public key in case of delegation
     }

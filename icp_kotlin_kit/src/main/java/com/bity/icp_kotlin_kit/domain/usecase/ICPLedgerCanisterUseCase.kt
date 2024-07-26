@@ -90,7 +90,6 @@ class ICPLedgerCanisterUseCase(
             ICPRequestCertification.Certified -> {
                 val transactions = rosettaResponse.getOrElse { return Result.failure(it) }
                     .map { transaction ->
-                        println("Querying block with index ${transaction.blockIndex}")
                         val block = queryBlock(
                             request = QueryBlockRequest(
                                 certification = request.certification,

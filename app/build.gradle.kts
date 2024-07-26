@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("androidx.navigation.safeargs.kotlin")
+    id("com.github.willir.rust.cargo-ndk-android")
 }
 
 android {
@@ -59,6 +60,15 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+
+cargoNdk {
+    targets = arrayListOf("arm64", "arm", "x86", "x86_64")
+    module = "icp_kotlin_kit/rust/bls12381"
+    targetDirectory = "target"
+    buildType = "release"
+    // extraCargoEnv = ["CARGO_TARGET_DIR": System.getProperty("user.dir") + "/rust/bls12381/target/"]
+    verbose = false
 }
 
 dependencies {

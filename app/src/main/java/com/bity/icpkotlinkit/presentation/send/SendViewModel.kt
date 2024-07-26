@@ -81,7 +81,6 @@ class SendViewModel(
                         _transferStateFlow.value = UiTransferState.Error(t.message)
                         return@launch
                     }
-                println(response)
                 _transferStateFlow.value = UiTransferState.Completed(response)
             }*/
         }
