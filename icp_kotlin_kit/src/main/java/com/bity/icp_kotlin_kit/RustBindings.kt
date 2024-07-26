@@ -1,16 +1,17 @@
 package com.bity.icp_kotlin_kit
 
+import com.bity.icp_kotlin_kit.domain.model.error.RustBindingsError
+
 object RustBindings {
 
-    var blsInstance: Int? = null
-        private set
-
     init {
-        println("Loading library...")
-        System.loadLibrary("bls12381")
-        println("Result: ${blsInstantiate()}")
-        if(blsInstantiate() == 1) {
-            blsInstance = 1
+        try {
+            System.loadLibrary("bls12381")
+        } catch (error: UnsatisfiedLinkError) {
+            throw RustBindingsError.LibraryNotInstantiated("bls12381")
+        }
+        require(blsInstantiate() == 1) {
+            throw RustBindingsError.LibraryNotInstantiated("bls12381")
         }
     }
 

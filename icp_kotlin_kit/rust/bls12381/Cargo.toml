@@ -1,0 +1,16 @@
+[workspace]
+members = ["."]
+
+[package]
+name = "bls12381"
+version = "0.1.0"
+authors = ["levi <levifeldman37@gmail.com>", "kosta <kosta@bity.com>", "thomas <thomas.constantin@bity.com"]
+edition = "2018"
+
+[dependencies]
+jni = "0.19.0"
+hex = "0.4.3"
+
+[lib]
+name = "bls12381"
+crate-type = ["dylib"]

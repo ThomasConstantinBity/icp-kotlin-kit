@@ -15,6 +15,7 @@ import com.bity.icp_kotlin_kit.data.model.RemoteClientError
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
+import com.bity.icp_kotlin_kit.domain.model.error.RustBindingsError
 import com.bity.icp_kotlin_kit.domain.model.toDataModel
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
 import kotlinx.coroutines.delay
@@ -156,23 +157,27 @@ internal class ICPCanisterRepositoryImpl(
             canister = canister.toDataModel(),
             sender = sender
         )
-        icpRetrofitService.readState(
-            urlPath = request.urlPath,
-            body = request.envelope
-        ).apply {
-            if(!isSuccessful) {
-                return Result.failure(
-                    RemoteClientError.HttpError(
-                        errorCode = code(),
-                        errorMessage = errorBody()?.string()
+        try {
+            icpRetrofitService.readState(
+                urlPath = request.urlPath,
+                body = request.envelope
+            ).apply {
+                if(!isSuccessful) {
+                    return Result.failure(
+                        RemoteClientError.HttpError(
+                            errorCode = code(),
+                            errorMessage = errorBody()?.string()
+                        )
                     )
-                )
-            }
-            val body = body() ?: return Result.failure(RemoteClientError.MissingBody())
-            val pathResponses = paths.mapNotNull { path ->
+                }
+                val body = body() ?: return Result.failure(RemoteClientError.MissingBody())
+                val pathResponses = paths.mapNotNull { path ->
                     body.tree.getValue(path)?.let { value -> path to value }
                 }.toMap()
-            return Result.success(pathResponses)
+                return Result.success(pathResponses)
+            }
+        } catch (err: RustBindingsError) {
+            return Result.failure(err)
         }
     }
 
