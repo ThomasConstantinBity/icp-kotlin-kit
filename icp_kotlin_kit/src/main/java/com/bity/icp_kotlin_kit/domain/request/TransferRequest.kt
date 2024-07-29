@@ -19,7 +19,7 @@ class TransferRequest(
     val amount: ULong,
     val signingPrincipal: ICPSigningPrincipal,
     val fee: ULong = DEFAULT_TRANSACTION_FEE,
-    val memo: ULong = 0UL,
+    val memo: ULong? = 0UL,
     val pollingValues: PollingValues = PollingValues()
 )
 
@@ -39,7 +39,7 @@ fun TransferRequest.toDataModel(): ICPMethod =
                     "to" to CandidValue.Blob(receivingAddress.hexToByteArray()),
                     "amount" to amount.icpAmount(),
                     "fee" to fee.icpAmount(),
-                    "memo" to CandidValue.Natural64(memo),
+                    "memo" to CandidValue.Natural64(memo ?: 0UL),
                     "created_at_time" to icpTimestampNow()
                 )
             )
