@@ -1,6 +1,6 @@
 package com.bity.icp_kotlin_kit.data.datasource.api.model
 
-import com.bity.icp_cryptography.util.SHA256
+import com.bity.icp_kotlin_kit.cryptography.SHA256
 import com.bity.icp_kotlin_kit.domain.model.ICPDomainSeparator
 
 /**

@@ -1,9 +1,9 @@
 package com.bity.icp_kotlin_kit.domain.usecase
 
-import com.bity.icp_candid.domain.model.CandidDictionary
-import com.bity.icp_candid.domain.model.CandidFunction
-import com.bity.icp_candid.domain.model.CandidValue
-import com.bity.icp_cryptography.ICPCryptography
+import com.bity.icp_kotlin_kit.candid.model.CandidDictionary
+import com.bity.icp_kotlin_kit.candid.model.CandidFunction
+import com.bity.icp_kotlin_kit.candid.model.CandidValue
+import com.bity.icp_kotlin_kit.cryptography.ICPCryptography
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
@@ -21,9 +21,11 @@ import com.bity.icp_kotlin_kit.domain.request.PollingValues
 import com.bity.icp_kotlin_kit.domain.request.QueryBlockRequest
 import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.request.toDataModel
+import com.bity.icp_kotlin_kit.provideICPCanisterRepository
+import com.bity.icp_kotlin_kit.provideICPRosettaRepository
 import com.bity.icp_kotlin_kit.util.ext_function.ICPAmount
 
-class ICPLedgerCanisterUseCase(
+class ICPLedgerCanisterUseCase private constructor(
     private val icpCanisterRepository: ICPCanisterRepository,
     private val rosettaRepository: ICPRosettaRepository
 ) {
@@ -234,5 +236,13 @@ class ICPLedgerCanisterUseCase(
             }
             Result.failure(ICPLedgerCanisterError.InvalidResponse())
         } else Result.success(blockIndex)
+    }
+
+    companion object {
+        fun init(): ICPLedgerCanisterUseCase =
+            ICPLedgerCanisterUseCase(
+                icpCanisterRepository = provideICPCanisterRepository(),
+                rosettaRepository = provideICPRosettaRepository()
+            )
     }
 }

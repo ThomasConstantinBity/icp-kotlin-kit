@@ -1,10 +1,10 @@
 package com.bity.icp_kotlin_kit.util.cryptography
 
+import com.bity.icp_kotlin_kit.cryptography.CRC32
 import com.bity.icp_kotlin_kit.domain.model.ICPDomainSeparator
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.error.ICPAccountError
-import com.bity.icp_cryptography.util.CRC32
-import com.bity.icp_cryptography.util.SHA224
+import com.bity.icp_kotlin_kit.cryptography.SHA224
 
 object ICPAccountCryptography {
 

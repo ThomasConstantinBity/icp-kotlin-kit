@@ -22,5 +22,3 @@ dependencyResolutionManagement {
 rootProject.name = "ICP Kotlin Kit"
 include(":app")
 include(":icp_kotlin_kit")
-include(":icp_kotlin_kit:icp_cryptography")
-include(":icp_kotlin_kit:icp_candid")

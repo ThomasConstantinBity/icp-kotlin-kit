@@ -1,8 +1,7 @@
 package com.bity.icp_kotlin_kit.data.repository
 
-import com.bity.icp_candid.domain.deserializer.CandidDeserializer
-import com.bity.icp_candid.domain.model.CandidValue
-import com.bity.icp_candid.util.ext_function.toInt
+import com.bity.icp_kotlin_kit.candid.deserializer.CandidDeserializer
+import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPRequestApiModel
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPStateTreePathApiModel
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPStateTreePathComponentApiModel
@@ -18,6 +17,7 @@ import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.error.RustBindingsError
 import com.bity.icp_kotlin_kit.domain.model.toDataModel
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
+import com.bity.icp_kotlin_kit.util.ext_function.toInt
 import kotlinx.coroutines.delay
 import java.util.Date
 

@@ -1,6 +1,6 @@
 package com.bity.icp_kotlin_kit.domain.model
 
-import com.bity.icp_cryptography.util.LEB128
+import com.bity.icp_kotlin_kit.cryptography.LEB128
 
 internal class ICPDomainSeparator(
     val domain: String

@@ -1,6 +1,6 @@
 package com.bity.icp_kotlin_kit.domain.model.block_query_candid_response
 
-import com.bity.icp_candid.domain.model.CandidValue
+import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.domain.model.error.ICPLedgerCanisterError
 
 internal class BlockQueryCandidResponse(

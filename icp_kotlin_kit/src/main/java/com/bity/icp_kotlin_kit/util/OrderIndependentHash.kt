@@ -1,7 +1,7 @@
 package com.bity.icp_kotlin_kit.util
 
-import com.bity.icp_cryptography.util.LEB128
-import com.bity.icp_cryptography.util.SHA256
+import com.bity.icp_kotlin_kit.cryptography.LEB128
+import com.bity.icp_kotlin_kit.cryptography.SHA256
 import com.bity.icp_kotlin_kit.data.datasource.api.enum.ContentRequestType
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ContentApiModel
 import com.bity.icp_kotlin_kit.domain.model.error.OrderIndependentHashError

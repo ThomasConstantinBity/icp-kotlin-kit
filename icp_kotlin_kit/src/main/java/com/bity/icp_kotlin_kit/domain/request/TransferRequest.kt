@@ -1,17 +1,15 @@
 package com.bity.icp_kotlin_kit.domain.request
 
-import com.bity.icp_candid.domain.model.CandidDictionary
-import com.bity.icp_candid.domain.model.CandidOption
-import com.bity.icp_candid.domain.model.CandidValue
-import com.bity.icp_candid.util.ext_function.icpAmount
-import com.bity.icp_candid.util.icpTimestampNow
+import com.bity.icp_kotlin_kit.candid.model.CandidDictionary
+import com.bity.icp_kotlin_kit.candid.model.CandidOption
+import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.domain.model.ICPAccount
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
-import com.bity.icp_kotlin_kit.util.DEFAULT_POLLING_SECONDS_TIMEOUT
-import com.bity.icp_kotlin_kit.util.DEFAULT_POLLING_SECONDS_WAIT
 import com.bity.icp_kotlin_kit.util.DEFAULT_TRANSACTION_FEE
+import com.bity.icp_kotlin_kit.util.ext_function.icpAmount
+import com.bity.icp_kotlin_kit.util.icpTimestampNow
 
 class TransferRequest(
     val sendingAccount: ICPAccount,
@@ -24,7 +22,7 @@ class TransferRequest(
 )
 
 @OptIn(ExperimentalStdlibApi::class)
-fun TransferRequest.toDataModel(): ICPMethod =
+internal fun TransferRequest.toDataModel(): ICPMethod =
     ICPMethod(
         canister = ICPSystemCanisters.Ledger.icpPrincipal,
         methodName = "transfer",

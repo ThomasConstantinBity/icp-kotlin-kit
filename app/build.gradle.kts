@@ -73,7 +73,6 @@ cargoNdk {
 
 dependencies {
     implementation(project(":icp_kotlin_kit"))
-    implementation(project(":icp_kotlin_kit:icp_cryptography"))
 
     val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
     implementation(composeBom)

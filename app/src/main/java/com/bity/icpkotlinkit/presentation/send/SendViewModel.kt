@@ -3,14 +3,12 @@ package com.bity.icpkotlinkit.presentation.send
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bity.icp_cryptography.util.EllipticSign
+import com.bity.icp_kotlin_kit.cryptography.EllipticSign
 import com.bity.icp_cryptography.util.SHA256
 import com.bity.icp_kotlin_kit.domain.model.ICPAccount
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
-import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
 import com.bity.icp_kotlin_kit.domain.request.QueryBlockRequest
-import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.usecase.ICPLedgerCanisterUseCase
 import com.bity.icpkotlinkit.presentation.nav.NavManager
 import kotlinx.coroutines.flow.MutableStateFlow

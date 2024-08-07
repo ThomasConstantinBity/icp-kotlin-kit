@@ -1,9 +1,9 @@
 package com.bity.icp_kotlin_kit.util
 
-import com.bity.icp_candid.domain.serializer.CandidSerializer
+import com.bity.icp_kotlin_kit.candid.serializer.CandidSerializer
 import com.bity.icp_kotlin_kit.domain.model.ICPDomainSeparator
-import com.bity.icp_cryptography.util.DER
-import com.bity.icp_cryptography.util.secureRandomOfLength
+import com.bity.icp_kotlin_kit.cryptography.DER
+import com.bity.icp_kotlin_kit.cryptography.secureRandomOfLength
 import com.bity.icp_kotlin_kit.data.datasource.api.enum.ContentRequestType
 import com.bity.icp_kotlin_kit.data.datasource.api.model.CallApiModel
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ContentApiModel

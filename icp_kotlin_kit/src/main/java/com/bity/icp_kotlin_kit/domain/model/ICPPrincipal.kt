@@ -1,8 +1,8 @@
 package com.bity.icp_kotlin_kit.domain.model
 
-import com.bity.icp_cryptography.ICPCryptography
-import com.bity.icp_cryptography.util.DER
-import com.bity.icp_cryptography.util.SHA224
+import com.bity.icp_kotlin_kit.cryptography.DER
+import com.bity.icp_kotlin_kit.cryptography.ICPCryptography
+import com.bity.icp_kotlin_kit.cryptography.SHA224
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPPrincipalApiModel
 
 // Source:  from https://internetcomputer.org/docs/current/references/ic-interface-spec/#principal

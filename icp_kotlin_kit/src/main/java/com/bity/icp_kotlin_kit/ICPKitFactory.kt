@@ -34,12 +34,6 @@ private val rosettaConverterFactory = JacksonConverterFactory.create(
 
 private val httpClient= OkHttpClient().newBuilder().build()
 
-fun provideICPLedgerCanisterUseCase(): ICPLedgerCanisterUseCase =
-    ICPLedgerCanisterUseCase(
-        icpCanisterRepository = provideICPCanisterRepository(),
-        rosettaRepository = provideICPRosettaRepository()
-    )
-
 internal fun provideICPCanisterRepository(): ICPCanisterRepository =
     ICPCanisterRepositoryImpl(
         icpRetrofitService = provideICPRetrofitService(),

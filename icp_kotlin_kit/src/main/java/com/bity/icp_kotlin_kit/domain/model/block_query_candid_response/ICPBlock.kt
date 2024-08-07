@@ -1,10 +1,10 @@
 package com.bity.icp_kotlin_kit.domain.model.block_query_candid_response
 
-import com.bity.icp_candid.domain.model.CandidValue
-import com.bity.icp_candid.util.ext_function.ICPTimestamp
+import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.domain.model.ICPTransaction
 import com.bity.icp_kotlin_kit.domain.model.ICPTransactionType
 import com.bity.icp_kotlin_kit.domain.model.error.ICPLedgerCanisterError
+import com.bity.icp_kotlin_kit.util.ext_function.ICPTimestamp
 import java.math.BigInteger
 
 class ICPBlock internal constructor(

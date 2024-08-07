@@ -1,7 +1,7 @@
 package com.bity.icp_kotlin_kit.domain.request
 
-import com.bity.icp_candid.domain.model.CandidDictionary
-import com.bity.icp_candid.domain.model.CandidValue
+import com.bity.icp_kotlin_kit.candid.model.CandidDictionary
+import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
@@ -12,7 +12,7 @@ class QueryBlockRequest(
     val pollingValues: PollingValues = PollingValues()
 )
 
-fun QueryBlockRequest.toDataModel(): ICPMethod =
+internal fun QueryBlockRequest.toDataModel(): ICPMethod =
     ICPMethod(
         canister = ICPSystemCanisters.Ledger.icpPrincipal,
         methodName = "query_blocks",
