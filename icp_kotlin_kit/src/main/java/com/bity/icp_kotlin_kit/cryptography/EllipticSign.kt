@@ -13,7 +13,7 @@ import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.BigIntegers
 import java.math.BigInteger
 
-internal object EllipticSign {
+object EllipticSign {
 
     private val CURVE: ECDomainParameters
     private val HALF_CURVE_ORDER: BigInteger

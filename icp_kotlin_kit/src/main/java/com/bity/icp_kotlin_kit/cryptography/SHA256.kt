@@ -2,7 +2,7 @@ package com.bity.icp_kotlin_kit.cryptography
 
 import java.security.MessageDigest
 
-internal object SHA256 {
+object SHA256 {
 
     private const val SHA_256_ALGORITHM_NAME = "SHA-256"
 
