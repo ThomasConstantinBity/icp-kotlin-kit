@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "ICP Kotlin Kit"
 include(":app")
 include(":icp_kotlin_kit")
+include(":candid_parser")
