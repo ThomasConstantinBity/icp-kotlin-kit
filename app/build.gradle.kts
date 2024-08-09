@@ -7,6 +7,13 @@ plugins {
     id("com.github.willir.rust.cargo-ndk-android")
 }
 
+// apply(plugin = "com.bity.candid_parser")
+buildscript {
+    dependencies {
+        classpath(files("../candid_parser/build/myCustomFolder/com/bity/candid_parser/1.0.0/candid_parser-1.0.0.jar"))
+    }
+}
+
 android {
     namespace = "com.bity.icpkotlinkit"
     compileSdk = 34
