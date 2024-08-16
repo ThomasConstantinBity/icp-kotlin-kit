@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinJvm)
     `java-gradle-plugin`
     `kotlin-dsl`
-    // `maven-publish`
 }
 
 publishing {

@@ -1,4 +1,4 @@
-package com.bity.candid_parser
+package com.bity.icp_kotlin_kit.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
