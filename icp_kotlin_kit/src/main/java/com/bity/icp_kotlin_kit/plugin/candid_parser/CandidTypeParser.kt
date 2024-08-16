@@ -1,11 +1,11 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLTypeDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLTypeList
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFunc
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.lexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.expect
@@ -21,28 +21,8 @@ internal object CandidTypeParser {
     private val typeParser = niwenParser {
 
         IDLTypeDeclaration root {
-
-            // Single type
-            either {
-                expect(Token.Type)
-                expect(Token.Id) storeIn IDLTypeDeclaration::typeId
-                expect(Token.Equals)
-                expect(IDLTypeList) storeIn IDLTypeDeclaration::idlTypeList
-                expect(Token.Semi)
-            } or {
-                expect(Token.Type)
-                expect(Token.Id) storeIn IDLTypeDeclaration::typeId
-                expect(Token.Equals)
-                // Type func
-                expect(IDLTypeFunc) transform { IDLTypeList(listOf(it)) } storeIn IDLTypeDeclaration::idlTypeList
-                expect(Token.Semi)
-            }
-        }
-
-        IDLTypeList {
-            repeated {
-                expect(IDLType) storeIn item
-            } storeIn IDLTypeList::types
+            expect(Token.Type)
+            expect(IDLType) storeIn IDLTypeDeclaration::type
         }
 
         IDLType {
@@ -52,13 +32,36 @@ internal object CandidTypeParser {
                 expect(IDLTypeNat64) storeIn self()
             } or {
                 expect(IDLTypeFunc) storeIn self()
+            } or {
+                expect(IDLTypeRecord) storeIn self()
             }
         }
 
-        IDLTypeBlob { expect(Token.Blob) }
-        IDLTypeNat64 { expect(Token.Nat64) }
+        IDLTypeBlob {
+            expect(Token.Id) storeIn IDLTypeBlob::typeId
+            either {
+                expect(Token.Colon)
+            } or {
+                expect(Token.Equals)
+            }
+            expect(Token.Blob)
+            expect(Token.Semi)
+        }
+
+        IDLTypeNat64 {
+            expect(Token.Id) storeIn IDLTypeNat64::typeId
+            either {
+                expect(Token.Colon)
+            } or {
+                expect(Token.Equals)
+            }
+            expect(Token.Nat64)
+            expect(Token.Semi)
+        }
 
         IDLTypeFunc {
+            expect(Token.Id) storeIn IDLTypeFunc::typeId
+            expect(Token.Equals)
             expect(Token.Func)
             expect(Token.LParen)
 
@@ -82,6 +85,19 @@ internal object CandidTypeParser {
             optional {
                 expect(Token.Query) storeIn IDLTypeFunc::funcType
             }
+            expect(Token.Semi)
+        }
+
+        IDLTypeRecord {
+            expect(Token.Id) storeIn IDLTypeRecord::typeId
+            expect(Token.Equals)
+            expect(Token.Record)
+            expect(Token.LBrace)
+            repeated {
+                expect(IDLType) storeIn item
+            } storeIn IDLTypeRecord::records
+            expect(Token.RBrace)
+            expect(Token.Semi)
         }
     }
 

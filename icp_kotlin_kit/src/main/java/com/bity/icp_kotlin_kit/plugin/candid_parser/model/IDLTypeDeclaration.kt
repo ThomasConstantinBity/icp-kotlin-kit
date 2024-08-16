@@ -6,12 +6,7 @@ import guru.zoroark.tegral.niwen.parser.dsl.subtype
 import guru.zoroark.tegral.niwen.parser.reflective
 
 internal data class IDLTypeDeclaration(
-    val typeId: String,
-    val idlTypeList: IDLTypeList,
+    val type: IDLType,
 ) {
     companion object : ParserNodeDeclaration<IDLTypeDeclaration> by reflective()
-}
-
-internal data class IDLTypeList(val types: List<IDLType>) {
-    companion object : ParserNodeDeclaration<IDLTypeList> by reflective()
 }
