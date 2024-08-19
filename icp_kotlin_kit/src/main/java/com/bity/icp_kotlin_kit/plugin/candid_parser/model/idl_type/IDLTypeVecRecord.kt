@@ -3,10 +3,10 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
-internal class IDLTypeRecord(
+internal class IDLTypeVecRecord(
     typeId: String?,
     isOptional: Boolean = false,
-    val records: List<IDLType>
+    val value: String
 ) : IDLType(typeId, isOptional) {
 
     override fun equals(other: Any?): Boolean {
@@ -14,16 +14,16 @@ internal class IDLTypeRecord(
         if (javaClass != other?.javaClass) return false
         if (!super.equals(other)) return false
 
-        other as IDLTypeRecord
+        other as IDLTypeVecRecord
 
-        return records == other.records
+        return value == other.value
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + records.hashCode()
+        result = 31 * result + value.hashCode()
         return result
     }
 
-    companion object : ParserNodeDeclaration<IDLTypeRecord> by reflective()
+    companion object : ParserNodeDeclaration<IDLTypeVecRecord> by reflective()
 }

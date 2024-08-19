@@ -19,8 +19,12 @@ internal val lexer = niwenLexer {
         ":" isToken Token.Colon
         "->" isToken Token.Arrow
         "null" isToken Token.Null
-        "vec" isToken Token.Vec
+        "text" isToken Token.Text
+
+        matches("vec record \\{[^}]+\\}") isToken Token.VecRecord
+        matches ("vec [^;]+") isToken Token.Vec
         "record" isToken Token.Record
+
         "variant" isToken Token.Variant
         "func" isToken Token.Func
         "service" isToken Token.Service
@@ -38,8 +42,8 @@ internal val lexer = niwenLexer {
 
         "int" isToken Token.Int
 
-        "nat" isToken Token.Nat
         "nat64" isToken Token.Nat64
+        "nat" isToken Token.Nat
 
         matches("true|false") isToken Token.Boolean
         matches("[+-]") isToken Token.Sign
@@ -50,7 +54,8 @@ internal val lexer = niwenLexer {
         matches("[0-9]*\\.[0-9]*") isToken Token.Float
         matches("[0-9]+(\\.[0-9]*)?[eE][+-]?[0-9]+") isToken Token.Float
         matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
-        matches("\".*? ?\"") isToken Token.Text
+
+        // matches("\".*? ?\"") isToken Token.String
         matches("[ \t\r\n]+").ignore
         matches("//[^\n]*").ignore
     }

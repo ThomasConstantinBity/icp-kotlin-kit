@@ -4,9 +4,10 @@ import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
 internal class IDLTypeCustom(
-    typeId: String,
+    typeId: String? = null,
+    isOptional: Boolean = false,
     val typeDef: String
-) : IDLType(typeId) {
+) : IDLType(typeId, isOptional) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

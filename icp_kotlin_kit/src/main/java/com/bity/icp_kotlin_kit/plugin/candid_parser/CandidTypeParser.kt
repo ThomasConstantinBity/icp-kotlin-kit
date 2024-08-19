@@ -13,8 +13,10 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVecRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.lexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
+import guru.zoroark.tegral.niwen.parser.dsl.emit
 import guru.zoroark.tegral.niwen.parser.dsl.expect
 import guru.zoroark.tegral.niwen.parser.dsl.item
 import guru.zoroark.tegral.niwen.parser.dsl.niwenParser
@@ -62,6 +64,8 @@ internal object CandidTypeParser {
                 expect(IDLTypeVariant) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
+            } or {
+                expect(IDLTypeVecRecord) storeIn self()
             }
         }
 
@@ -82,6 +86,10 @@ internal object CandidTypeParser {
                 expect(Token.Colon)
             } or {
                 expect(Token.Equals)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeBlob::isOptional
             }
             expect(Token.Blob)
             expect(Token.Semi)
@@ -137,16 +145,20 @@ internal object CandidTypeParser {
             expect(Token.Semi)
         }
 
+        /**
+         * Type Vec
+         */
         IDLTypeVec {
             expect(Token.Id) storeIn IDLTypeVec::typeId
             expect(Token.Colon)
-            expect(Token.Vec)
+            expect(Token.Vec) transform { it.removeRange(0..3) } storeIn IDLTypeVec::value
+            expect(Token.Semi)
+        }
 
-            // TODO, complete list
-            either {
-                expect(Token.Id) storeIn IDLTypeVec::vecType
-            }
-
+        IDLTypeVecRecord {
+            expect(Token.Id) storeIn IDLTypeVecRecord::typeId
+            expect(Token.Colon)
+            expect(Token.VecRecord) transform { it.removeRange(0..10) } storeIn IDLTypeVecRecord::value
             expect(Token.Semi)
         }
 

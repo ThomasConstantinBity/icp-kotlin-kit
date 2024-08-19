@@ -4,9 +4,10 @@ import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
 internal class IDLTypeVec(
-    typeId: String,
-    val vecType: String
-) : IDLType(typeId) {
+    typeId: String?,
+    isOptional: Boolean = false,
+    val value: String
+) : IDLType(typeId, isOptional) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -15,15 +16,14 @@ internal class IDLTypeVec(
 
         other as IDLTypeVec
 
-        return vecType == other.vecType
+        return value == other.value
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + vecType.hashCode()
+        result = 31 * result + value.hashCode()
         return result
     }
 
     companion object : ParserNodeDeclaration<IDLTypeVec> by reflective()
-
 }

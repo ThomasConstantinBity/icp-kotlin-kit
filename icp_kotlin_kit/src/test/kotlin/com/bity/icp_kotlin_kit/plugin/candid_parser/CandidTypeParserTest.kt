@@ -12,6 +12,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVecRecord
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -51,6 +52,11 @@ internal class CandidTypeParserTest {
             ),
 
             Arguments.of(
+                "type AccountIdentifier = opt blob;",
+                IDLTypeBlob("AccountIdentifier", true)
+            ),
+
+            Arguments.of(
                 "type Memo = nat64;",
                 IDLTypeNat64("Memo")
             ),
@@ -82,8 +88,8 @@ internal class CandidTypeParserTest {
                     };
                 """.trimIndent(),
                 IDLTypeRecord(
-                    "Tokens",
-                    listOf(
+                    typeId = "Tokens",
+                    records = listOf(
                         IDLTypeNat64("e8s")
                     )
                 )
@@ -180,6 +186,7 @@ internal class CandidTypeParserTest {
                         Nat : nat;
                         Int : int;
                         Array : vec Value;
+                        Map : vec record { text; Value };
                     };
                 """.trimIndent(),
                 IDLTypeDeclaration(
@@ -193,7 +200,11 @@ internal class CandidTypeParserTest {
                             IDLTypeInt("Int"),
                             IDLTypeVec(
                                 typeId = "Array",
-                                vecType = "Value"
+                                value = "Value"
+                            ),
+                            IDLTypeVecRecord(
+                                typeId = "Map",
+                                value = "{ text; Value }"
                             )
                         )
                     )

@@ -4,7 +4,8 @@ import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
 internal class IDLTypeText(
-    typeId: String,
-) : IDLType(typeId) {
+    typeId: String?,
+    isOptional: Boolean = false,
+) : IDLType(typeId, isOptional) {
     companion object : ParserNodeDeclaration<IDLTypeText> by reflective()
 }

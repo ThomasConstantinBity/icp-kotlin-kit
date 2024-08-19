@@ -4,18 +4,27 @@ import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.dsl.subtype
 
 internal sealed class IDLType(
-    val typeId: String
+    val typeId: String?,
+    val isOptional: Boolean
 ) {
-
     override fun equals(other: Any?): Boolean {
-        return (other as? IDLType)?.let {
-            it.typeId == typeId
-        } ?: false
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as IDLType
+
+        if (typeId != other.typeId) return false
+        if (isOptional != other.isOptional) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return typeId.hashCode()
+        var result = typeId?.hashCode() ?: 0
+        result = 31 * result + isOptional.hashCode()
+        return result
     }
 
     companion object : ParserNodeDeclaration<IDLType> by subtype()
+
 }
