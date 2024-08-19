@@ -36,6 +36,9 @@ internal val lexer = niwenLexer {
         "!:" isToken Token.NotDecode
         "principal" isToken Token.Principal
 
+        "int" isToken Token.Int
+
+        "nat" isToken Token.Nat
         "nat64" isToken Token.Nat64
 
         matches("true|false") isToken Token.Boolean

@@ -41,5 +41,8 @@ internal enum class Token: TokenType {
     Float,
     Boolean,
 
+    Int,
+
+    Nat,
     Nat64
 }

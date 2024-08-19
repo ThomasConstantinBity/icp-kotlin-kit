@@ -1,12 +1,17 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLTypeDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFunc
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -15,19 +20,31 @@ import kotlin.test.assertEquals
 internal class CandidTypeParserTest {
 
     @ParameterizedTest
-    @MethodSource("singleTypeDeclaration")
-    fun parseTypeTest (
+    @MethodSource("typeDeclaration")
+    fun `parse types` (
         input: String,
         expectedResult: IDLType
     ) {
         val typeDeclaration = CandidTypeParser.parseType(input)
         assertEquals(expectedResult, typeDeclaration.type)
+        assertEquals(emptyList(), typeDeclaration.comments)
+    }
+
+    @ParameterizedTest
+    @MethodSource("typeDeclarationWithComments")
+    fun `parse types with comments` (
+        input: String,
+        expectedResult: IDLTypeDeclaration
+    ) {
+        val typeDeclaration = CandidTypeParser.parseType(input)
+        assertEquals(expectedResult.type, typeDeclaration.type)
+        assertEquals(expectedResult.comments, typeDeclaration.comments)
     }
 
     companion object {
 
         @JvmStatic
-        private fun singleTypeDeclaration() = listOf(
+        private fun typeDeclaration() = listOf(
             Arguments.of(
                 "type AccountIdentifier = blob;",
                 IDLTypeBlob("AccountIdentifier")
@@ -134,6 +151,49 @@ internal class CandidTypeParserTest {
                                     typeId = "amount",
                                     typeDef = "Tokens"
                                 ),
+                            )
+                        )
+                    )
+                )
+            )
+        )
+
+        @JvmStatic
+        private fun typeDeclarationWithComments() = listOf(
+            Arguments.of(
+                """
+                    // This is a simple comment
+                    type Subaccount = blob;
+                """.trimIndent(),
+                IDLTypeDeclaration(
+                    comments = listOf("This is a simple comment"),
+                    type = IDLTypeBlob("Subaccount")
+                )
+            ),
+
+            Arguments.of(
+                """
+                    // Generic value in accordance with ICRC-3
+                    type Value = variant {
+                        Blob : blob;
+                        Text : text;
+                        Nat : nat;
+                        Int : int;
+                        Array : vec Value;
+                    };
+                """.trimIndent(),
+                IDLTypeDeclaration(
+                    comments = listOf("Generic value in accordance with ICRC-3"),
+                    type = IDLTypeVariant(
+                        typeId = "Value",
+                        types = listOf(
+                            IDLTypeBlob("Blob"),
+                            IDLTypeText("Text"),
+                            IDLTypeNat("Nat"),
+                            IDLTypeInt("Int"),
+                            IDLTypeVec(
+                                typeId = "Array",
+                                vecType = "Value"
                             )
                         )
                     )

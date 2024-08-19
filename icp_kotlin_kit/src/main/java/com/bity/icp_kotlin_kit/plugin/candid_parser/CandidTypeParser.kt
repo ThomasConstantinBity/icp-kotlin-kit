@@ -1,13 +1,18 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLTypeDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFunc
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.lexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.expect
@@ -23,15 +28,30 @@ internal object CandidTypeParser {
     private val typeParser = niwenParser {
 
         IDLTypeDeclaration root {
+            optional {
+                expect(IDLSingleLineComment) transform { it.commentLines } storeIn IDLTypeDeclaration::comments
+            }
             expect(Token.Type)
             expect(IDLType) storeIn IDLTypeDeclaration::type
+        }
+
+        IDLSingleLineComment {
+            repeated {
+                expect(Token.SingleLineComment) transform { it.replace("//", "").trim() } storeIn item
+            } storeIn IDLSingleLineComment::commentLines
         }
 
         IDLType {
             either {
                 expect(IDLTypeCustom) storeIn self()
             } or {
+              expect(IDLTypeText) storeIn self()
+            } or {
                 expect(IDLTypeBlob) storeIn self()
+            } or {
+                expect(IDLTypeInt) storeIn self()
+            } or {
+                expect(IDLTypeNat) storeIn self()
             } or {
                 expect(IDLTypeNat64) storeIn self()
             } or {
@@ -40,6 +60,8 @@ internal object CandidTypeParser {
                 expect(IDLTypeRecord) storeIn self()
             } or {
                 expect(IDLTypeVariant) storeIn self()
+            } or {
+                expect(IDLTypeVec) storeIn self()
             }
         }
 
@@ -65,6 +87,45 @@ internal object CandidTypeParser {
             expect(Token.Semi)
         }
 
+        IDLTypeText {
+            expect(Token.Id) storeIn IDLTypeText::typeId
+            either {
+                expect(Token.Colon)
+            } or {
+                expect(Token.Equals)
+            }
+            expect(Token.Text)
+            expect(Token.Semi)
+        }
+
+        /**
+         * Type Int
+         */
+        IDLTypeInt {
+            expect(Token.Id) storeIn IDLTypeInt::typeId
+            either {
+                expect(Token.Colon)
+            } or {
+                expect(Token.Equals)
+            }
+            expect(Token.Int)
+            expect(Token.Semi)
+        }
+
+        /**
+         * Type Nat
+         */
+        IDLTypeNat {
+            expect(Token.Id) storeIn IDLTypeNat::typeId
+            either {
+                expect(Token.Colon)
+            } or {
+                expect(Token.Equals)
+            }
+            expect(Token.Nat)
+            expect(Token.Semi)
+        }
+
         IDLTypeNat64 {
             expect(Token.Id) storeIn IDLTypeNat64::typeId
             either {
@@ -73,6 +134,19 @@ internal object CandidTypeParser {
                 expect(Token.Equals)
             }
             expect(Token.Nat64)
+            expect(Token.Semi)
+        }
+
+        IDLTypeVec {
+            expect(Token.Id) storeIn IDLTypeVec::typeId
+            expect(Token.Colon)
+            expect(Token.Vec)
+
+            // TODO, complete list
+            either {
+                expect(Token.Id) storeIn IDLTypeVec::vecType
+            }
+
             expect(Token.Semi)
         }
 

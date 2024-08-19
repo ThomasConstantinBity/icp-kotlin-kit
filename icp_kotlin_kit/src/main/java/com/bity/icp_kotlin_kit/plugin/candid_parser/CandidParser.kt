@@ -1,6 +1,5 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLArgs
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.lexer
 
 internal object CandidParser {
@@ -14,12 +13,6 @@ internal object CandidParser {
         val tokens = lexer.tokenize(string)
         tokens.forEachIndexed { index, token ->
             println("[$index]: ${token.tokenType}('${token.string}')")
-        }
-    }
-
-    fun debug(idlArgs: IDLArgs) {
-        idlArgs.args.forEach {
-            println(it)
         }
     }
 }
