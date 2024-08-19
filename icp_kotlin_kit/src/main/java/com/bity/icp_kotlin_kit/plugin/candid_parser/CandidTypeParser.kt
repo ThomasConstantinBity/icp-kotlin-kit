@@ -3,9 +3,11 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLTypeDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFunc
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.lexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.expect
@@ -27,6 +29,8 @@ internal object CandidTypeParser {
 
         IDLType {
             either {
+                expect(IDLTypeCustom) storeIn self()
+            } or {
                 expect(IDLTypeBlob) storeIn self()
             } or {
                 expect(IDLTypeNat64) storeIn self()
@@ -34,7 +38,20 @@ internal object CandidTypeParser {
                 expect(IDLTypeFunc) storeIn self()
             } or {
                 expect(IDLTypeRecord) storeIn self()
+            } or {
+                expect(IDLTypeVariant) storeIn self()
             }
+        }
+
+        IDLTypeCustom {
+            expect(Token.Id) storeIn IDLTypeCustom::typeId
+            either {
+                expect(Token.Colon)
+            } or {
+                expect(Token.Equals)
+            }
+            expect(Token.Id) storeIn IDLTypeCustom::typeDef
+            expect(Token.Semi)
         }
 
         IDLTypeBlob {
@@ -90,12 +107,30 @@ internal object CandidTypeParser {
 
         IDLTypeRecord {
             expect(Token.Id) storeIn IDLTypeRecord::typeId
-            expect(Token.Equals)
+
+            either {
+                expect(Token.Equals)
+            } or {
+                expect(Token.Colon)
+            }
+
             expect(Token.Record)
             expect(Token.LBrace)
             repeated {
                 expect(IDLType) storeIn item
             } storeIn IDLTypeRecord::records
+            expect(Token.RBrace)
+            expect(Token.Semi)
+        }
+
+        IDLTypeVariant {
+            expect(Token.Id) storeIn IDLTypeVariant::typeId
+            expect(Token.Equals)
+            expect(Token.Variant)
+            expect(Token.LBrace)
+            repeated {
+                expect(IDLType) storeIn item
+            } storeIn IDLTypeVariant::types
             expect(Token.RBrace)
             expect(Token.Semi)
         }

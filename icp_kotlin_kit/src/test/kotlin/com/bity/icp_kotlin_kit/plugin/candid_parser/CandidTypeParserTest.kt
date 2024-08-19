@@ -2,9 +2,11 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFunc
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -64,6 +66,93 @@ internal class CandidTypeParserTest {
         assertEquals(1, recordTypeList.size)
         val firstRecordType = recordTypeList.first()
         assertEquals(IDLTypeNat64("e8s"), firstRecordType)
+    }
+
+    @Test
+    fun `type variant`() {
+        val input = """
+            type Transfer = variant {
+                Mint: record {
+                    to: AccountIdentifier;
+                    amount: Tokens;
+                };
+                Burn: record {
+                     from: AccountIdentifier;
+                     amount: Tokens;
+               };
+                Send: record {
+                    from: AccountIdentifier;
+                    to: AccountIdentifier;
+                    amount: Tokens;
+                };
+            };
+        """.trimIndent()
+        val typeDeclaration = CandidTypeParser.parseType(input)
+
+        val typeVariant = typeDeclaration.type
+        assertTrue(typeVariant is IDLTypeVariant)
+        assertEquals("Transfer", typeVariant.typeId)
+
+        val types = typeVariant.types
+        assertEquals(3, types.size)
+
+        val mint = types.first()
+        assertEquals(
+            IDLTypeRecord(
+                typeId =  "Mint",
+                records = listOf(
+                    IDLTypeCustom(
+                        typeId = "to",
+                        typeDef = "AccountIdentifier"
+                    ),
+                    IDLTypeCustom(
+                        typeId = "amount",
+                        typeDef = "Tokens"
+                    ),
+                )
+            ),
+            mint
+        )
+
+        val burn = types[1]
+        assertEquals(
+            IDLTypeRecord(
+                typeId =  "Burn",
+                records = listOf(
+                    IDLTypeCustom(
+                        typeId = "from",
+                        typeDef = "AccountIdentifier"
+                    ),
+                    IDLTypeCustom(
+                        typeId = "amount",
+                        typeDef = "Tokens"
+                    ),
+                )
+            ),
+            burn
+        )
+
+        val send = types.last()
+        assertEquals(
+            IDLTypeRecord(
+                typeId =  "Send",
+                records = listOf(
+                    IDLTypeCustom(
+                        typeId = "from",
+                        typeDef = "AccountIdentifier"
+                    ),
+                    IDLTypeCustom(
+                        typeId = "to",
+                        typeDef = "AccountIdentifier"
+                    ),
+                    IDLTypeCustom(
+                        typeId = "amount",
+                        typeDef = "Tokens"
+                    ),
+                )
+            ),
+            send
+        )
     }
 
     companion object {
