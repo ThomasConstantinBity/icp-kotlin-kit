@@ -7,5 +7,22 @@ internal class IDLTypeCustom(
     typeId: String,
     val typeDef: String
 ) : IDLType(typeId) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as IDLTypeCustom
+
+        return typeDef == other.typeDef
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + typeDef.hashCode()
+        return result
+    }
+
     companion object : ParserNodeDeclaration<IDLTypeCustom> by reflective()
 }

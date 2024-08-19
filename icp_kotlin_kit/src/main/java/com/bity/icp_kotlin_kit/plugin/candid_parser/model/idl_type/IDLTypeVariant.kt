@@ -7,5 +7,22 @@ internal class IDLTypeVariant(
     typeId: String,
     val types: List<IDLType>
 ) : IDLType(typeId) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as IDLTypeVariant
+
+        return types == other.types
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + types.hashCode()
+        return result
+    }
+
     companion object : ParserNodeDeclaration<IDLTypeVariant> by reflective()
 }
