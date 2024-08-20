@@ -36,6 +36,4 @@ internal data class IDLTypeDeclaration(
         result = 31 * result + type.hashCode()
         return result
     }
-
-
 }

@@ -149,7 +149,11 @@ internal class CandidTypeParserTest {
                 IDLTypeDeclaration(
                     id = "Tokens",
                     type = IDLTypeRecord(
-                        recordDeclaration = "record { e8s : nat64; }"
+                        recordDeclaration = """
+                            record {
+                                e8s : nat64;
+                            }
+                        """.trimIndent()
                     )
                 )
             ),
@@ -164,7 +168,35 @@ internal class CandidTypeParserTest {
                 IDLTypeDeclaration(
                     comment = IDLSingleLineComment(listOf("Timestamps are represented as nanoseconds from the UNIX epoch in UTC timezone")),
                     id = "TimeStamp",
-                    type = IDLTypeRecord("record { timestamp_nanos: nat64; }")
+                    type = IDLTypeRecord("""
+                        record {
+                            timestamp_nanos: nat64;
+                        }
+                    """.trimIndent())
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type TransferArg = record {
+                        from_subaccount: opt blob; // The subaccount to transfer the token from
+                        to : Account;
+                        token_id : nat;
+                        memo : opt blob;
+                        created_at_time : opt nat64;
+                    };
+                """.trimIndent(),
+                IDLTypeDeclaration(
+                    id = "TransferArg",
+                    type = IDLTypeRecord("""
+                        record {
+                            from_subaccount: opt blob; // The subaccount to transfer the token from
+                            to : Account;
+                            token_id : nat;
+                            memo : opt blob;
+                            created_at_time : opt nat64;
+                        }
+                    """.trimIndent())
                 )
             )
         )
@@ -192,7 +224,23 @@ internal class CandidTypeParserTest {
                 IDLTypeDeclaration(
                     id = "Transfer",
                     type = IDLTypeVariant(
-                        variantDeclaration = "variant { Mint: record { to: AccountIdentifier; amount: Tokens; }; Burn: record { from: AccountIdentifier; amount: Tokens; }; Send: record { from: AccountIdentifier; to: AccountIdentifier; amount: Tokens; }; }"
+                        variantDeclaration = """
+                            variant {
+                                Mint: record {
+                                    to: AccountIdentifier;
+                                    amount: Tokens;
+                                };
+                                Burn: record {
+                                     from: AccountIdentifier;
+                                     amount: Tokens;
+                               };
+                                Send: record {
+                                    from: AccountIdentifier;
+                                    to: AccountIdentifier;
+                                    amount: Tokens;
+                                };
+                            }
+                        """.trimIndent()
                     )
                 )
             ),
@@ -211,7 +259,16 @@ internal class CandidTypeParserTest {
                 IDLTypeDeclaration(
                     id = "Transfer",
                     type = IDLTypeVariant(
-                        variantDeclaration = "variant { // This is a comment Mint: record { // Second comment to: AccountIdentifier; amount: Tokens; }; }"
+                        variantDeclaration = """
+                            variant {
+                                // This is a comment
+                                Mint: record {
+                                    // Second comment
+                                    to: AccountIdentifier;
+                                    amount: Tokens;
+                                };
+                            }
+                        """.trimIndent()
                     )
                 )
             ),
@@ -231,7 +288,16 @@ internal class CandidTypeParserTest {
                 IDLTypeDeclaration(
                     comment = IDLSingleLineComment(listOf("Generic value in accordance with ICRC-3")),
                     id = "Value",
-                    type = IDLTypeVariant("variant { Blob : blob; Text : text; Nat : nat; Int : int; Array : vec Value; Map : vec record { text; Value }; }")
+                    type = IDLTypeVariant("""
+                        variant {
+                            Blob : blob;
+                            Text : text;
+                            Nat : nat;
+                            Int : int;
+                            Array : vec Value;
+                            Map : vec record { text; Value };
+                        }
+                    """.trimIndent())
                 )
             ),
 
@@ -244,7 +310,12 @@ internal class CandidTypeParserTest {
                 """.trimIndent(),
                 IDLTypeDeclaration(
                     id = "TransferResult",
-                    type = IDLTypeVariant("variant { Ok : nat; // Transaction index for successful transfer Err : TransferError; }")
+                    type = IDLTypeVariant("""
+                        variant {
+                            Ok : nat; // Transaction index for successful transfer
+                            Err : TransferError;
+                        }
+                    """.trimIndent())
                 )
             )
         )

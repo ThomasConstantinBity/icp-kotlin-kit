@@ -14,7 +14,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.declarationToSingleLine
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.lexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.emit
@@ -100,8 +99,8 @@ internal object CandidTypeParser {
 
         IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
         IDLTypeFunc { expect(Token.Func) storeIn IDLTypeFunc::funcDeclaration }
-        IDLTypeRecord { expect(Token.Record) transform { it.declarationToSingleLine() } storeIn IDLTypeRecord::recordDeclaration }
-        IDLTypeVariant { expect(Token.Variant) transform { it.declarationToSingleLine() } storeIn IDLTypeVariant::variantDeclaration }
+        IDLTypeRecord { expect(Token.Record) storeIn IDLTypeRecord::recordDeclaration }
+        IDLTypeVariant { expect(Token.Variant) storeIn IDLTypeVariant::variantDeclaration }
     }
 
     fun parseType(input: String): IDLTypeDeclaration {
