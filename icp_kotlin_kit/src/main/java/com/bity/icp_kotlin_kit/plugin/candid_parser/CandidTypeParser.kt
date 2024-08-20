@@ -1,7 +1,8 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLSingleLineComment
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLTypeDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
@@ -13,7 +14,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVecRecord
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.declarationToSingleLine
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.lexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.emit
@@ -31,14 +32,29 @@ internal object CandidTypeParser {
 
         IDLTypeDeclaration root {
             optional {
-                expect(IDLSingleLineComment) transform { it.commentLines } storeIn IDLTypeDeclaration::comments
+                expect(IDLComment) storeIn IDLTypeDeclaration::comment
             }
             expect(Token.Type)
+            expect(Token.Id) storeIn IDLTypeDeclaration::id
+            expect(Token.Equals)
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeDeclaration::isOptional
+            }
             expect(IDLType) storeIn IDLTypeDeclaration::type
+            expect(Token.Semi)
         }
 
+        /**
+         * Comment
+         */
+        IDLComment {
+            either {
+                expect(IDLSingleLineComment) storeIn self()
+            }
+        }
         IDLSingleLineComment {
-            repeated {
+            repeated(min = 1) {
                 expect(Token.SingleLineComment) transform { it.replace("//", "").trim() } storeIn item
             } storeIn IDLSingleLineComment::commentLines
         }
@@ -64,162 +80,28 @@ internal object CandidTypeParser {
                 expect(IDLTypeVariant) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
-            } or {
-                expect(IDLTypeVecRecord) storeIn self()
             }
         }
 
-        IDLTypeCustom {
-            expect(Token.Id) storeIn IDLTypeCustom::typeId
-            either {
-                expect(Token.Colon)
-            } or {
-                expect(Token.Equals)
-            }
-            expect(Token.Id) storeIn IDLTypeCustom::typeDef
-            expect(Token.Semi)
-        }
-
-        IDLTypeBlob {
-            expect(Token.Id) storeIn IDLTypeBlob::typeId
-            either {
-                expect(Token.Colon)
-            } or {
-                expect(Token.Equals)
-            }
-            optional {
-                expect(Token.Opt)
-                emit(true) storeIn IDLTypeBlob::isOptional
-            }
-            expect(Token.Blob)
-            expect(Token.Semi)
-        }
-
-        IDLTypeText {
-            expect(Token.Id) storeIn IDLTypeText::typeId
-            either {
-                expect(Token.Colon)
-            } or {
-                expect(Token.Equals)
-            }
-            expect(Token.Text)
-            expect(Token.Semi)
-        }
+        IDLTypeBlob { expect(Token.Blob) }
+        IDLTypeText { expect(Token.Text) }
+        IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
 
         /**
          * Type Int
          */
-        IDLTypeInt {
-            expect(Token.Id) storeIn IDLTypeInt::typeId
-            either {
-                expect(Token.Colon)
-            } or {
-                expect(Token.Equals)
-            }
-            expect(Token.Int)
-            expect(Token.Semi)
-        }
+        IDLTypeInt { expect(Token.Int) }
 
         /**
          * Type Nat
          */
-        IDLTypeNat {
-            expect(Token.Id) storeIn IDLTypeNat::typeId
-            either {
-                expect(Token.Colon)
-            } or {
-                expect(Token.Equals)
-            }
-            expect(Token.Nat)
-            expect(Token.Semi)
-        }
+        IDLTypeNat { expect(Token.Nat) }
+        IDLTypeNat64 { expect(Token.Nat64) }
 
-        IDLTypeNat64 {
-            expect(Token.Id) storeIn IDLTypeNat64::typeId
-            either {
-                expect(Token.Colon)
-            } or {
-                expect(Token.Equals)
-            }
-            expect(Token.Nat64)
-            expect(Token.Semi)
-        }
-
-        /**
-         * Type Vec
-         */
-        IDLTypeVec {
-            expect(Token.Id) storeIn IDLTypeVec::typeId
-            expect(Token.Colon)
-            expect(Token.Vec) transform { it.removeRange(0..3) } storeIn IDLTypeVec::value
-            expect(Token.Semi)
-        }
-
-        IDLTypeVecRecord {
-            expect(Token.Id) storeIn IDLTypeVecRecord::typeId
-            expect(Token.Colon)
-            expect(Token.VecRecord) transform { it.removeRange(0..10) } storeIn IDLTypeVecRecord::value
-            expect(Token.Semi)
-        }
-
-        IDLTypeFunc {
-            expect(Token.Id) storeIn IDLTypeFunc::typeId
-            expect(Token.Equals)
-            expect(Token.Func)
-            expect(Token.LParen)
-
-            // TODO: Can be improved for single param and multiple param
-            repeated {
-                expect(Token.Id) storeIn item
-                optional { expect(Token.Comma) }
-            } storeIn IDLTypeFunc::inputParams
-            expect(Token.RParen)
-
-            expect(Token.Arrow)
-            expect(Token.LParen)
-
-            // TODO: Can be improved for single param and multiple param
-            repeated {
-                expect(Token.Id) storeIn item
-                optional { expect(Token.Comma) }
-            } storeIn IDLTypeFunc::outputParams
-            expect(Token.RParen)
-
-            optional {
-                expect(Token.Query) storeIn IDLTypeFunc::funcType
-            }
-            expect(Token.Semi)
-        }
-
-        IDLTypeRecord {
-            expect(Token.Id) storeIn IDLTypeRecord::typeId
-
-            either {
-                expect(Token.Equals)
-            } or {
-                expect(Token.Colon)
-            }
-
-            expect(Token.Record)
-            expect(Token.LBrace)
-            repeated {
-                expect(IDLType) storeIn item
-            } storeIn IDLTypeRecord::records
-            expect(Token.RBrace)
-            expect(Token.Semi)
-        }
-
-        IDLTypeVariant {
-            expect(Token.Id) storeIn IDLTypeVariant::typeId
-            expect(Token.Equals)
-            expect(Token.Variant)
-            expect(Token.LBrace)
-            repeated {
-                expect(IDLType) storeIn item
-            } storeIn IDLTypeVariant::types
-            expect(Token.RBrace)
-            expect(Token.Semi)
-        }
+        IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
+        IDLTypeFunc { expect(Token.Func) storeIn IDLTypeFunc::funcDeclaration }
+        IDLTypeRecord { expect(Token.Record) transform { it.declarationToSingleLine() } storeIn IDLTypeRecord::recordDeclaration }
+        IDLTypeVariant { expect(Token.Variant) transform { it.declarationToSingleLine() } storeIn IDLTypeVariant::variantDeclaration }
     }
 
     fun parseType(input: String): IDLTypeDeclaration {

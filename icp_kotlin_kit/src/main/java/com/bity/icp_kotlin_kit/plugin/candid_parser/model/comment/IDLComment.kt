@@ -1,11 +1,10 @@
-package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
+package com.bity.icp_kotlin_kit.plugin.candid_parser.model.comment
 
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
-import guru.zoroark.tegral.niwen.parser.reflective
+import guru.zoroark.tegral.niwen.parser.dsl.subtype
 
-internal class IDLTypeNat64 : IDLType() {
-
-    companion object : ParserNodeDeclaration<IDLTypeNat64> by reflective()
+internal sealed class IDLComment {
+    companion object : ParserNodeDeclaration<IDLComment> by subtype()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

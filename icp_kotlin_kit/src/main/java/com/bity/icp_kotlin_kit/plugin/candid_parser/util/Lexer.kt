@@ -23,10 +23,10 @@ internal val lexer = niwenLexer {
 
         matches("vec record \\{[^}]+\\}") isToken Token.VecRecord
         matches ("vec [^;]+") isToken Token.Vec
-        "record" isToken Token.Record
+        matches("record \\{[^}]+\\}") isToken Token.Record
+        matches("variant\\s*\\{[^{}]*+(?:\\{[^{}]*+}[^{}]*+)*}") isToken Token.Variant
+        matches("func \\([^}]+\\)( query)?") isToken Token.Func
 
-        "variant" isToken Token.Variant
-        "func" isToken Token.Func
         "service" isToken Token.Service
         "oneway" isToken Token.Oneway
         "query" isToken Token.Query
