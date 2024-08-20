@@ -14,26 +14,4 @@ internal data class IDLTypeDeclaration(
     val type: IDLType,
 ) {
     companion object : ParserNodeDeclaration<IDLTypeDeclaration> by reflective()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as IDLTypeDeclaration
-
-        if (comment != other.comment) return false
-        if (isOptional != other.isOptional) return false
-        if (id != other.id) return false
-        if (type != other.type) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = comment?.hashCode() ?: 0
-        result = 31 * result + isOptional.hashCode()
-        result = 31 * result + id.hashCode()
-        result = 31 * result + type.hashCode()
-        return result
-    }
 }
