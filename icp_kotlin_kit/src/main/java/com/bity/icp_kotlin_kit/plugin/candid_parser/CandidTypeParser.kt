@@ -105,7 +105,6 @@ internal object CandidTypeParser {
     }
 
     fun parseType(input: String): IDLTypeDeclaration {
-        CandidParser.debug(input)
         return typeParser.parse(lexer.tokenize(input))
     }
 }
