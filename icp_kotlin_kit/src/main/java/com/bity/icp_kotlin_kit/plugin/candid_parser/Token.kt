@@ -4,6 +4,7 @@ import guru.zoroark.tegral.niwen.lexer.TokenType
 
 internal enum class Token: TokenType {
     SingleLineComment,
+    EndOfLineComment,
     StartComment,
     Equals,
     LParen,

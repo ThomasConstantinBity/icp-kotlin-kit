@@ -54,7 +54,7 @@ internal object CandidTypeParser {
         }
         IDLSingleLineComment {
             repeated(min = 1) {
-                expect(Token.SingleLineComment) transform { it.replace("//", "").trim() } storeIn item
+                expect(Token.SingleLineComment) transform { it.removeRange(0..2).trim() } storeIn item
             } storeIn IDLSingleLineComment::commentLines
         }
 

@@ -160,6 +160,18 @@ internal class CandidTypeParserTest {
 
             Arguments.of(
                 """
+                    type Account = record { owner : principal; subaccount : opt Subaccount };
+                """.trimIndent(),
+                IDLTypeDeclaration(
+                    id = "Account",
+                    type = IDLTypeRecord(
+                        recordDeclaration = "record { owner : principal; subaccount : opt Subaccount }"
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
                     // Timestamps are represented as nanoseconds from the UNIX epoch in UTC timezone
                     type TimeStamp = record {
                         timestamp_nanos: nat64;
