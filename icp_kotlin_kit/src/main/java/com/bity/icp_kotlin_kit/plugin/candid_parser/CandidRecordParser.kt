@@ -38,6 +38,8 @@ internal object CandidRecordParser {
             "opt" isToken Token.Opt
 
             "principal" isToken Token.Principal
+
+            // TODO, is it possible to have nested records?
             "record" isToken Token.Record
 
             "text" isToken Token.Text
