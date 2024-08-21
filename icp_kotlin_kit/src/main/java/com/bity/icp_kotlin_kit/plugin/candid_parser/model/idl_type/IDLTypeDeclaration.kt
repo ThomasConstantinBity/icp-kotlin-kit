@@ -1,10 +1,7 @@
-package com.bity.icp_kotlin_kit.plugin.candid_parser.model
+package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.comment.IDLComment
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.comment.IDLSingleLineComment
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
-import guru.zoroark.tegral.niwen.parser.dsl.subtype
 import guru.zoroark.tegral.niwen.parser.reflective
 
 internal data class IDLTypeDeclaration(

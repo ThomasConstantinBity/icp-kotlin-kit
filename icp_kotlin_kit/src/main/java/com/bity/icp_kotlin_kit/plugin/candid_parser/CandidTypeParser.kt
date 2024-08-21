@@ -1,7 +1,7 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.comment.IDLSingleLineComment
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.IDLTypeDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
