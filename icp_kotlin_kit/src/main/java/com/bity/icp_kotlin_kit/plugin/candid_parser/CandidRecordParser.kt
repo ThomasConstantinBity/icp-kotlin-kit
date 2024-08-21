@@ -146,16 +146,6 @@ internal object CandidRecordParser {
         IDLTypeNat64 { expect(Token.Nat64) }
     }
 
-    fun parseRecord(input: String): IDLRecordDeclaration {
-        debug(input)
-        return recordParser.parse(recordLexer.tokenize(input))
-    }
-
-    // TODO, remove
-    private fun debug(string: String) {
-        val tokens = recordLexer.tokenize(string)
-        tokens.forEachIndexed { index, token ->
-            println("[$index]: ${token.tokenType}('${token.string}')")
-        }
-    }
+    fun parseRecord(input: String): IDLRecordDeclaration =
+        recordParser.parse(recordLexer.tokenize(input))
 }
