@@ -14,7 +14,8 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.candid_parser.util.lexer
+import guru.zoroark.tegral.niwen.lexer.matchers.matches
+import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.emit
 import guru.zoroark.tegral.niwen.parser.dsl.expect
@@ -26,6 +27,63 @@ import guru.zoroark.tegral.niwen.parser.dsl.repeated
 import guru.zoroark.tegral.niwen.parser.dsl.self
 
 internal object CandidTypeParser {
+
+    private val typeLexer = niwenLexer {
+        state {
+            matches("//.*") isToken Token.SingleLineComment
+            "/*" isToken Token.StartComment
+            "=" isToken Token.Equals
+            "(" isToken Token.LParen
+            ")" isToken Token.RParen
+            "{" isToken Token.LBrace
+            "}" isToken Token.RBrace
+            ";" isToken Token.Semi
+            "," isToken Token.Comma
+            "." isToken Token.Dot
+            ":" isToken Token.Colon
+            "->" isToken Token.Arrow
+            "null" isToken Token.Null
+            "text" isToken Token.Text
+
+            matches("vec record \\{[^}]+\\}") isToken Token.VecRecord
+            matches ("vec [^;]+") isToken Token.Vec
+            matches("record \\{[^}]+\\}") isToken Token.Record
+            matches("variant\\s*\\{[^{}]*+(?:\\{[^{}]*+}[^{}]*+)*}") isToken Token.Variant
+            matches("func \\([^}]+\\)( query)?") isToken Token.Func
+
+            "service" isToken Token.Service
+            "oneway" isToken Token.Oneway
+            "query" isToken Token.Query
+            "composite_query" isToken Token.CompositeQuery
+            "blob" isToken Token.Blob
+            "type" isToken Token.Type
+            "import" isToken Token.Import
+            "opt" isToken Token.Opt
+            "==" isToken Token.TestEqual
+            "!=" isToken Token.NotEqual
+            "!:" isToken Token.NotDecode
+            "principal" isToken Token.Principal
+
+            "int" isToken Token.Int
+
+            "nat64" isToken Token.Nat64
+            "nat" isToken Token.Nat
+
+            matches("true|false") isToken Token.Boolean
+            matches("[+-]") isToken Token.Sign
+
+
+            matches("0[xX][0-9a-fA-F][_0-9a-fA-F]*") isToken Token.Hex
+            matches("[0-9][_0-9]*") isToken Token.Decimal
+            matches("[0-9]*\\.[0-9]*") isToken Token.Float
+            matches("[0-9]+(\\.[0-9]*)?[eE][+-]?[0-9]+") isToken Token.Float
+            matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
+
+            // matches("\".*? ?\"") isToken Token.String
+            matches("[ \t\r\n]+").ignore
+            matches("//[^\n]*").ignore
+        }
+    }
 
     private val typeParser = niwenParser {
 
@@ -103,7 +161,6 @@ internal object CandidTypeParser {
         IDLTypeVariant { expect(Token.Variant) storeIn IDLTypeVariant::variantDeclaration }
     }
 
-    fun parseType(input: String): IDLTypeDeclaration {
-        return typeParser.parse(lexer.tokenize(input))
-    }
+    fun parseType(input: String): IDLTypeDeclaration =
+        typeParser.parse(typeLexer.tokenize(input))
 }

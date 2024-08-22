@@ -144,7 +144,6 @@ internal object CandidVariantParser {
     }
 
     fun parseVariant(input: String): IDLVariantDeclaration {
-        debug(input)
         return variantParser.parse(variantLexer.tokenize(input))
     }
 
@@ -169,14 +168,6 @@ internal object CandidVariantParser {
 
                 else -> "${indent.repeat(currentIndent)}$trimmedLine"
             }
-        }
-    }
-
-    // TODO, remove
-    private fun debug(string: String) {
-        val tokens = variantLexer.tokenize(string)
-        tokens.forEachIndexed { index, token ->
-            println("[$index]: ${token.tokenType}('${token.string}')")
         }
     }
 }
