@@ -6,6 +6,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
@@ -43,6 +44,7 @@ internal object CandidRecordParser {
             "record" isToken Token.Record
 
             "text" isToken Token.Text
+            "bool" isToken Token.Boolean
             "blob" isToken Token.Blob
 
             "int" isToken Token.Int
@@ -50,7 +52,7 @@ internal object CandidRecordParser {
             "nat64" isToken Token.Nat64
             "nat" isToken Token.Nat
 
-            matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
+            matches("\"([a-zA-Z_][a-zA-Z0-9_]*)\"|([a-zA-Z_][a-zA-Z0-9_]*)") isToken Token.Id
             matches("[ \t\r\n]+").ignore
             matches("//[^\n]*").ignore
         }
@@ -126,9 +128,12 @@ internal object CandidRecordParser {
                 expect(IDLTypeNat64) storeIn self()
             } or {
                 expect(IDLTypePrincipal) storeIn self()
+            } or {
+                expect(IDLTypeBoolean) storeIn self()
             }
         }
 
+        IDLTypeBoolean { expect(Token.Boolean) }
         IDLTypeBlob { expect(Token.Blob) }
         IDLTypeText { expect(Token.Text) }
         IDLTypePrincipal { expect(Token.Principal) }

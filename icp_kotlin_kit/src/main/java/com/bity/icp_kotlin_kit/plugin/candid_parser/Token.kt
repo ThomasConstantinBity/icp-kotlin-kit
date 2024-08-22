@@ -22,6 +22,7 @@ internal enum class Token: TokenType {
     Record,
     Variant,
     Func,
+    ServiceArgs,
     Service,
     Oneway,
     Query,

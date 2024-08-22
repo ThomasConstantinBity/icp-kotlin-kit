@@ -4,6 +4,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleL
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_record.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_record.IDLRecordDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
@@ -140,6 +141,40 @@ internal class CandidRecordParserTest {
                             id = "subaccount",
                             isOptional = true,
                             type = IDLTypeCustom("Subaccount")
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    record {
+                        providerId : nat64;
+                        chainId: opt nat64;
+                        "service": opt RpcService;
+                        primary : opt bool;
+                    }
+                """.trimIndent(),
+                IDLRecordDeclaration(
+                    records = listOf(
+                        IDLRecord(
+                            id = "providerId",
+                            type = IDLTypeNat64()
+                        ),
+                        IDLRecord(
+                            id = "chainId",
+                            isOptional = true,
+                            type = IDLTypeNat64()
+                        ),
+                        IDLRecord(
+                            id = "\"service\"",
+                            isOptional = true,
+                            type = IDLTypeCustom("RpcService")
+                        ),
+                        IDLRecord(
+                            id = "primary",
+                            isOptional = true,
+                            type = IDLTypeBoolean()
                         )
                     )
                 )
