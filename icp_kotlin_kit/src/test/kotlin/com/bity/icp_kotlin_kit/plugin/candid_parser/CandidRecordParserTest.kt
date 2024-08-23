@@ -9,6 +9,8 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_vec.IDLVec
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -120,6 +122,54 @@ internal class CandidRecordParserTest {
                             id = "e8s",
                             type = IDLTypeNat64(),
                             comment = IDLSingleLineComment(listOf("Comment with multiple spaces"))
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    record {
+                        // A prefix of the requested block range.
+                        // The index of the first block is equal to [GetBlocksArgs.from].
+                        //
+                        // Note that the number of blocks might be less than the requested
+                        // [GetBlocksArgs.len] for various reasons, for example:
+                        //
+                        // 1. The query might have hit the replica with an outdated state
+                        //    that doesn't have the full block range yet.
+                        // 2. The requested range is too large to fit into a single reply.
+                        //
+                        // NOTE: the list of blocks can be empty if:
+                        // 1. [GetBlocksArgs.len] was zero.
+                        // 2. [GetBlocksArgs.from] was larger than the last block known to the canister.
+                        blocks : vec Block;
+                    }
+                """.trimIndent(),
+                IDLRecordDeclaration(
+                    records = listOf(
+                        IDLRecord(
+                            comment = IDLSingleLineComment(
+                                listOf(
+                                    "A prefix of the requested block range.",
+                                    "The index of the first block is equal to [GetBlocksArgs.from].",
+                                    "",
+                                    "Note that the number of blocks might be less than the requested",
+                                    "[GetBlocksArgs.len] for various reasons, for example:",
+                                    "",
+                                    "1. The query might have hit the replica with an outdated state",
+                                    "that doesn't have the full block range yet.",
+                                    "2. The requested range is too large to fit into a single reply.",
+                                    "",
+                                    "NOTE: the list of blocks can be empty if:",
+                                    "1. [GetBlocksArgs.len] was zero.",
+                                    "2. [GetBlocksArgs.from] was larger than the last block known to the canister."
+                                )
+                            ),
+                            id = "blocks",
+                            type = IDLTypeVec(
+                                vecDeclaration = "vec Block"
+                            )
                         )
                     )
                 )

@@ -8,10 +8,13 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariantDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimEndOfLineComment
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
@@ -42,6 +45,7 @@ internal object CandidVariantParser {
             // TODO, can I have nested variant?
             "variant" isToken Token.Variant
 
+            "null" isToken Token.Null
             "text" isToken Token.Text
             "blob" isToken Token.Blob
 
@@ -65,11 +69,13 @@ internal object CandidVariantParser {
                 expect(IDLVariant) storeIn item
             } storeIn IDLVariantDeclaration::variants
             expect(Token.RBrace)
+            optional { expect(Token.Semi) }
         }
 
         /**
          * IDLVariant
          */
+        // TODO, we can add an extra param for end of line comment
         IDLVariant {
             optional {
                 expect(IDLComment) storeIn IDLVariant::comment
@@ -77,6 +83,11 @@ internal object CandidVariantParser {
             expect(Token.Id) storeIn IDLVariant::id
             expect(Token.Colon)
             expect(IDLType) storeIn IDLVariant::type
+            either {
+                expect(IDLComment) storeIn IDLVariant::comment
+            } or {
+                optional { expect(Token.Semi) }
+            }
         }
 
         /**
@@ -90,11 +101,11 @@ internal object CandidVariantParser {
         IDLSingleLineComment {
             either {
                 repeated(min = 1) {
-                    expect(Token.SingleLineComment) transform { it.removeRange(0..2) } storeIn item
+                    expect(Token.SingleLineComment) transform { it.trimCommentLine() } storeIn item
                 } storeIn IDLSingleLineComment::commentLines
             } or {
                 repeated(min = 1) {
-                    expect(Token.EndOfLineComment) transform { it.removeRange(0..1).replace("\\s+".toRegex(), " ").removeRange(0..2) } storeIn item
+                    expect(Token.EndOfLineComment) transform { it.trimEndOfLineComment() } storeIn item
                 } storeIn IDLSingleLineComment::commentLines
             }
         }
@@ -117,17 +128,18 @@ internal object CandidVariantParser {
                 expect(IDLTypeNat64) storeIn self()
             } or {
                 expect(IDLTypeRecord) storeIn self()
+            } or {
+                expect(IDLTypeNull) storeIn self()
             }
         }
 
+        IDLTypeNull { expect(Token.Null) }
         IDLTypeBlob { expect(Token.Blob) }
         IDLTypeText { expect(Token.Text) }
         IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
         IDLTypeRecord {
-            expect(Token.Record) transform {
-                indentString(it)
-            } storeIn IDLTypeRecord::recordDeclaration
-            expect(Token.Semi)
+            expect(Token.Record) transform { indentString(it) } storeIn IDLTypeRecord::recordDeclaration
+            optional { expect(Token.Semi) }
         }
 
         /**
@@ -143,6 +155,7 @@ internal object CandidVariantParser {
     }
 
     fun parseVariant(input: String): IDLVariantDeclaration {
+        CandidFileParser.debug(variantLexer, input)
         return variantParser.parse(variantLexer.tokenize(input))
     }
 

@@ -2,7 +2,6 @@ package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidTypeParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

@@ -13,6 +13,9 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimEndOfLineComment
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
@@ -52,6 +55,7 @@ internal object CandidRecordParser {
             "nat64" isToken Token.Nat64
             "nat" isToken Token.Nat
 
+            matches("""vec\s+\w+""") isToken Token.Vec
             matches("\"([a-zA-Z_][a-zA-Z0-9_]*)\"|([a-zA-Z_][a-zA-Z0-9_]*)") isToken Token.Id
             matches("[ \t\r\n]+").ignore
             matches("//[^\n]*").ignore
@@ -69,6 +73,7 @@ internal object CandidRecordParser {
             } storeIn IDLRecordDeclaration::records
 
             expect(Token.RBrace)
+            optional { expect(Token.Semi) }
         }
 
         IDLRecord {
@@ -101,14 +106,16 @@ internal object CandidRecordParser {
                 expect(IDLSingleLineComment) storeIn self()
             }
         }
+
+        // TODO, can improve adding an extra variable for endOfLineComment
         IDLSingleLineComment {
             either {
                 repeated(min = 1) {
-                    expect(Token.SingleLineComment) transform { it.removeRange(0..2) } storeIn item
+                    expect(Token.SingleLineComment) transform { it.trimCommentLine() } storeIn item
                 } storeIn IDLSingleLineComment::commentLines
             } or {
                 repeated(min = 1) {
-                    expect(Token.EndOfLineComment) transform { it.removeRange(0..1).replace("\\s+".toRegex(), " ").removeRange(0..2) } storeIn item
+                    expect(Token.EndOfLineComment) transform { it.trimEndOfLineComment() } storeIn item
                 } storeIn IDLSingleLineComment::commentLines
             }
         }
@@ -130,6 +137,11 @@ internal object CandidRecordParser {
                 expect(IDLTypePrincipal) storeIn self()
             } or {
                 expect(IDLTypeBoolean) storeIn self()
+            } or {
+                expect(IDLTypeVec) storeIn self()
+            }
+            optional {
+                expect(Token.Semi)
             }
         }
 
@@ -138,6 +150,7 @@ internal object CandidRecordParser {
         IDLTypeText { expect(Token.Text) }
         IDLTypePrincipal { expect(Token.Principal) }
         IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
+        IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
 
         /**
          * Type Int
@@ -151,6 +164,7 @@ internal object CandidRecordParser {
         IDLTypeNat64 { expect(Token.Nat64) }
     }
 
-    fun parseRecord(input: String): IDLRecordDeclaration =
-        recordParser.parse(recordLexer.tokenize(input))
+    fun parseRecord(input: String): IDLRecordDeclaration {
+        return recordParser.parse(recordLexer.tokenize(input))
+    }
 }

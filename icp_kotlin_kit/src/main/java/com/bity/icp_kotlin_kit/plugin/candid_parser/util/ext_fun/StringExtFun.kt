@@ -4,3 +4,12 @@ fun String.trimCommentLine() =
     this.removeRange(0..1)
         .replace("\\s+".toRegex(), " ")
         .trimStart()
+
+fun String.trimEndOfLineComment() =
+    // Remove ;
+    removeRange(0..1)
+        // Remove extra spaces before //
+        .trimStart()
+        // Remove //
+        .removeRange(0..2)
+        .replace("\\s".toRegex(), " ")

@@ -6,6 +6,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclar
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
+import guru.zoroark.tegral.niwen.lexer.Lexer
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
@@ -81,4 +82,12 @@ internal object CandidFileParser {
 
     fun parseFile(input: String): IDLFileDeclaration =
         fileParser.parse(fileLexer.tokenize(input))
+
+    // TODO delete
+    fun debug(lexer: Lexer, input: String) {
+        lexer.tokenize(input).forEachIndexed { i, t ->
+            println("[$i] - ${t.tokenType} '${t.string}'")
+
+        }
+    }
 }
