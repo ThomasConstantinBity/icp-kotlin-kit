@@ -44,7 +44,9 @@ internal object CandidFileParser {
                 expect(IDLFileType) storeIn item
             } storeIn IDLFileDeclaration::types
 
-            expect(IDLFileService) storeIn IDLFileDeclaration::service
+            optional {
+                expect(IDLFileService) storeIn IDLFileDeclaration::service
+            }
         }
 
         IDLFileType {

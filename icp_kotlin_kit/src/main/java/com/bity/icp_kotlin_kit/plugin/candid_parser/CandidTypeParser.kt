@@ -47,7 +47,7 @@ internal object CandidTypeParser {
 
             matches("vec record \\{[^}]+\\}") isToken Token.VecRecord
             matches ("vec [^;]+") isToken Token.Vec
-            matches("record \\{[^}]+\\}") isToken Token.Record
+            matches("""record\s+\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}""") isToken Token.Record
             matches("variant\\s*\\{[^{}]*+(?:\\{[^{}]*+}[^{}]*+)*}") isToken Token.Variant
             matches("func \\([^}]+\\)( query)?") isToken Token.Func
 
@@ -161,6 +161,7 @@ internal object CandidTypeParser {
         IDLTypeVariant { expect(Token.Variant) storeIn IDLTypeVariant::variantDeclaration }
     }
 
-    fun parseType(input: String): IDLTypeDeclaration =
-        typeParser.parse(typeLexer.tokenize(input))
+    fun parseType(input: String): IDLTypeDeclaration {
+        return typeParser.parse(typeLexer.tokenize(input))
+    }
 }

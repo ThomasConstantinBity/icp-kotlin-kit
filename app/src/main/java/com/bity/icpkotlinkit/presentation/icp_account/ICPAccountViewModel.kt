@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import kotlin.coroutines.CoroutineContext
 
 class ICPAccountViewModel(
     private val navManager: NavManager,
@@ -81,7 +80,7 @@ class ICPAccountViewModel(
             val transactions = icpLedgerCanisterUseCase.accountTransactions(
                 request = AccountTransactionRequest(
                     address = it.address,
-                    certification = ICPRequestCertification.Certified
+                    certification = ICPRequestCertification.Uncertified
                 )
             ).getOrElse {
                 _uiAccountTransactionsFlow.value = UiTransactionsAccount.Error

@@ -6,8 +6,8 @@ import guru.zoroark.tegral.niwen.parser.reflective
 
 internal data class IDLFileDeclaration(
     val comment: IDLComment? = null,
-    val types: List<IDLFileType>,
-    val service: IDLFileService
+    val types: List<IDLFileType> = emptyList(),
+    val service: IDLFileService? = null
 ) {
     companion object : ParserNodeDeclaration<IDLFileDeclaration> by reflective()
 }

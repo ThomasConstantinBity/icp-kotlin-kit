@@ -210,6 +210,98 @@ internal class CandidTypeParserTest {
                         }
                     """.trimIndent())
                 )
+            ),
+
+            Arguments.of(
+                """
+                    type QueryBlocksResponse = record {
+                        // The total number of blocks in the chain.
+                        // If the chain length is positive, the index of the last block is `chain_len - 1`.
+                        chain_length : nat64;
+
+                        // System certificate for the hash of the latest block in the chain.
+                        // Only present if `query_blocks` is called in a non-replicated query context.
+                        certificate : opt blob;
+
+                        // List of blocks that were available in the ledger when it processed the call.
+                        //
+                        // The blocks form a contiguous range, with the first block having index
+                        // [first_block_index] (see below), and the last block having index
+                        // [first_block_index] + len(blocks) - 1.
+                        //
+                        // The block range can be an arbitrary sub-range of the originally requested range.
+                        blocks : vec Block;
+
+                        // The index of the first block in "blocks".
+                        // If the blocks vector is empty, the exact value of this field is not specified.
+                        first_block_index : BlockIndex;
+
+                        // Encoding of instructions for fetching archived blocks whose indices fall into the
+                        // requested range.
+                        //
+                        // For each entry `e` in [archived_blocks], `[e.from, e.from + len)` is a sub-range
+                        // of the originally requested block range.
+                        archived_blocks : vec record {
+                            // The index of the first archived block that can be fetched using the callback.
+                            start : BlockIndex;
+
+                            // The number of blocks that can be fetched using the callback.
+                            length : nat64;
+
+                            // The function that should be called to fetch the archived blocks.
+                            // The range of the blocks accessible using this function is given by [from]
+                            // and [len] fields above.
+                            callback : QueryArchiveFn;
+                        };
+                    };
+                """.trimIndent(),
+                IDLTypeDeclaration(
+                    id = "QueryBlocksResponse",
+                    type = IDLTypeRecord(
+                        recordDeclaration = """
+                            record {
+                                // The total number of blocks in the chain.
+                                // If the chain length is positive, the index of the last block is `chain_len - 1`.
+                                chain_length : nat64;
+        
+                                // System certificate for the hash of the latest block in the chain.
+                                // Only present if `query_blocks` is called in a non-replicated query context.
+                                certificate : opt blob;
+        
+                                // List of blocks that were available in the ledger when it processed the call.
+                                //
+                                // The blocks form a contiguous range, with the first block having index
+                                // [first_block_index] (see below), and the last block having index
+                                // [first_block_index] + len(blocks) - 1.
+                                //
+                                // The block range can be an arbitrary sub-range of the originally requested range.
+                                blocks : vec Block;
+        
+                                // The index of the first block in "blocks".
+                                // If the blocks vector is empty, the exact value of this field is not specified.
+                                first_block_index : BlockIndex;
+        
+                                // Encoding of instructions for fetching archived blocks whose indices fall into the
+                                // requested range.
+                                //
+                                // For each entry `e` in [archived_blocks], `[e.from, e.from + len)` is a sub-range
+                                // of the originally requested block range.
+                                archived_blocks : vec record {
+                                    // The index of the first archived block that can be fetched using the callback.
+                                    start : BlockIndex;
+        
+                                    // The number of blocks that can be fetched using the callback.
+                                    length : nat64;
+        
+                                    // The function that should be called to fetch the archived blocks.
+                                    // The range of the blocks accessible using this function is given by [from]
+                                    // and [len] fields above.
+                                    callback : QueryArchiveFn;
+                                };
+                            }
+                        """.trimIndent()
+                    )
+                )
             )
         )
 

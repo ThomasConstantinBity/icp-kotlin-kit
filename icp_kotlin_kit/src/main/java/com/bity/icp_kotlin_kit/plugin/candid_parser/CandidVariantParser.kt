@@ -125,7 +125,6 @@ internal object CandidVariantParser {
         IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
         IDLTypeRecord {
             expect(Token.Record) transform {
-                println(indentString(it))
                 indentString(it)
             } storeIn IDLTypeRecord::recordDeclaration
             expect(Token.Semi)

@@ -9,6 +9,7 @@ import com.bity.icp_kotlin_kit.domain.model.ICPAccount
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.request.QueryBlockRequest
+import com.bity.icp_kotlin_kit.domain.request.TransferRequest
 import com.bity.icp_kotlin_kit.domain.usecase.ICPLedgerCanisterUseCase
 import com.bity.icpkotlinkit.presentation.nav.NavManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +64,7 @@ class SendViewModel(
                 )
             }
 
-            /*val request = TransferRequest(
+            val request = TransferRequest(
                 sendingAccount = it,
                 receivingAddress = receivingAccount,
                 amount = 123000U,
@@ -71,8 +72,6 @@ class SendViewModel(
                 memo = 300U
             )
 
-            // 13068030
-            // 13068061
             viewModelScope.launch {
                 val response = icpLedgerCanisterUseCase.transfer(request)
                     .getOrElse { t ->
@@ -80,7 +79,7 @@ class SendViewModel(
                         return@launch
                     }
                 _transferStateFlow.value = UiTransferState.Completed(response)
-            }*/
+            }
         }
     }
 
