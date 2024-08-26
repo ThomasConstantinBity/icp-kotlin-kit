@@ -9,8 +9,10 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_vec.IDLVec
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource

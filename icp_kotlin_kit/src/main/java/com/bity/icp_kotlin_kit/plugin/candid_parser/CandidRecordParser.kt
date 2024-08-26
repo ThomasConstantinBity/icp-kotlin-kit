@@ -12,10 +12,13 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVecRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimEndOfLineComment
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimVecRecord
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
@@ -55,6 +58,7 @@ internal object CandidRecordParser {
             "nat64" isToken Token.Nat64
             "nat" isToken Token.Nat
 
+            matches("""vec\s+record\s+\{([^{}]*|\{[^{}]*\})*}""") isToken Token.VecRecord
             matches("""vec\s+\w+""") isToken Token.Vec
             matches("\"([a-zA-Z_][a-zA-Z0-9_]*)\"|([a-zA-Z_][a-zA-Z0-9_]*)") isToken Token.Id
             matches("[ \t\r\n]+").ignore
@@ -139,6 +143,8 @@ internal object CandidRecordParser {
                 expect(IDLTypeBoolean) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
+            } or {
+                expect(IDLTypeVecRecord) storeIn self()
             }
             optional {
                 expect(Token.Semi)
@@ -151,6 +157,7 @@ internal object CandidRecordParser {
         IDLTypePrincipal { expect(Token.Principal) }
         IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
         IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
+        IDLTypeVecRecord { expect(Token.VecRecord) transform { it.trimVecRecord() } storeIn IDLTypeVecRecord::recordDeclaration }
 
         /**
          * Type Int

@@ -13,3 +13,7 @@ fun String.trimEndOfLineComment() =
         // Remove //
         .removeRange(0..2)
         .replace("\\s".toRegex(), " ")
+
+fun String.trimVecRecord() =
+    removeRange(0..3)
+        .trimStart()

@@ -20,6 +20,9 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVecRecord
+import org.gradle.configurationcache.extensions.capitalized
+import java.util.Locale
 
 internal object KotlinClassGenerator {
 
@@ -105,6 +108,7 @@ internal object KotlinClassGenerator {
             variableDeclaration.append(KotlinCommentGenerator.getKotlinComment(it))
             variableDeclaration.append("\n")
         }
+        // TODO, need to move optional in function call
         variableDeclaration.append(
             """
                 val ${idlRecord.id} : ${getCorrespondingKotlinClass(idlRecord.type)}${if (idlRecord.isOptional) "?" else ""}
@@ -134,5 +138,6 @@ internal object KotlinClassGenerator {
                 else "Array<${getCorrespondingKotlinClass(idlVec.type)}>"
             }
             is IDLFun -> KotlinFunctionGenerator.invoke(idlType)
+            is IDLTypeVecRecord -> "Array<TODO()>"
         }
 }
