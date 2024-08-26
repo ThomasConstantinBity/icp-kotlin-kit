@@ -1,7 +1,7 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.IDLFun
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.IDLFunArg
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
@@ -93,11 +93,16 @@ internal class CandidFuncParserTest {
                 "func (func (int) -> ()) -> ()",
                 IDLFun(
                     inputParams = listOf(
-                        /*IDLFunArg(
-                            idlType = IDLFun()
-                        )*/
-                    ),
-                    outputParams = listOf()
+                        IDLFunArg(
+                            idlType = IDLFun(
+                                inputParams = listOf(
+                                    IDLFunArg(
+                                        idlType = IDLTypeInt()
+                                    )
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )

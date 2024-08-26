@@ -1,7 +1,7 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.IDLFun
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.IDLFunArg
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.*
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
@@ -108,9 +108,8 @@ internal object CandidFuncParser {
                 expect(IDLTypeBoolean) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
-            }
-            optional {
-                expect(Token.Semi)
+            } or {
+                expect(IDLFun) storeIn self()
             }
         }
 
@@ -134,7 +133,6 @@ internal object CandidFuncParser {
     }
 
     fun parseFunc(input: String): IDLFun {
-        CandidFileParser.debug(funcLexer, input)
         return funcParser.parse(funcLexer.tokenize(input))
     }
 }

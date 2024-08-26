@@ -4,6 +4,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidRecordParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVariantParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_record.IDLRecord
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
@@ -131,5 +132,6 @@ internal object KotlinClassGenerator {
                 if(idlVec.isOptional) "Array<${getCorrespondingKotlinClass(idlVec.type)}?>"
                 else "Array<${getCorrespondingKotlinClass(idlVec.type)}>"
             }
+            is IDLFun -> TODO()
         }
 }
