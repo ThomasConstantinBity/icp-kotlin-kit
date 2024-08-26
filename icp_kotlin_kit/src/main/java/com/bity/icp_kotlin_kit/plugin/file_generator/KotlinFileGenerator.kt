@@ -15,6 +15,11 @@ internal class KotlinFileGenerator(
 
         val fileText = StringBuilder()
 
+        // TODO, write package name?
+
+        // TODO, need to add import? use static one? ->
+        //  import com.bity.icp_kotlin_kit.domain.model.*
+
         // File header
         fileText.append(fileHeader())
         fileText.append("\n\n")

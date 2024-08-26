@@ -123,7 +123,7 @@ internal object KotlinClassGenerator {
             is IDLTypeInt -> "Int"
             is IDLTypeNat -> "UInt"
             is IDLTypeNat64 -> "ULong"
-            is IDLTypePrincipal -> TODO()
+            is IDLTypePrincipal -> "ICPPrincipal"
             is IDLTypeRecord -> typeRecordToKotlinClass(idlType)
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
