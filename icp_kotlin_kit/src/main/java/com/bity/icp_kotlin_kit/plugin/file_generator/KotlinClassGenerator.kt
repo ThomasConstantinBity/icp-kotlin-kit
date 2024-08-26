@@ -113,18 +113,19 @@ internal object KotlinClassGenerator {
         return variableDeclaration.toString()
     }
 
+    // TODO, remove null return and throw Error?
     internal fun getCorrespondingKotlinClass(idlType: IDLType): String? =
         when(idlType) {
             is IDLTypeBlob -> "ByteArray"
             is IDLTypeBoolean -> TODO()
             is IDLTypeCustom -> idlType.typeDef
             is IDLTypeFuncDeclaration -> TODO()
-            is IDLTypeInt -> TODO()
-            is IDLTypeNat -> TODO()
+            is IDLTypeInt -> "Int"
+            is IDLTypeNat -> "UInt"
             is IDLTypeNat64 -> "ULong"
             is IDLTypePrincipal -> TODO()
             is IDLTypeRecord -> typeRecordToKotlinClass(idlType)
-            is IDLTypeText -> TODO()
+            is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
             is IDLTypeNull -> null
             is IDLTypeVec -> {
@@ -132,6 +133,6 @@ internal object KotlinClassGenerator {
                 if(idlVec.isOptional) "Array<${getCorrespondingKotlinClass(idlVec.type)}?>"
                 else "Array<${getCorrespondingKotlinClass(idlVec.type)}>"
             }
-            is IDLFun -> TODO()
+            is IDLFun -> KotlinFunctionGenerator.invoke(idlType)
         }
 }
