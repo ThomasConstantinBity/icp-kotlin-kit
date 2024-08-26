@@ -11,7 +11,7 @@ internal class CandidFuncParserTest {
 
     @ParameterizedTest
     @MethodSource("funcDeclaration")
-    internal fun test(
+    internal fun parseFunc(
         funcDeclaration: String,
         expectedResult: IDLFun
     ) {
