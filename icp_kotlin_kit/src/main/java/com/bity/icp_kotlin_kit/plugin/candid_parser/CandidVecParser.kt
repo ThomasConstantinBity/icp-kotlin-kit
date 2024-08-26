@@ -5,8 +5,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleL
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFunc
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
@@ -93,7 +92,7 @@ internal object CandidVecParser {
             } or {
                 expect(IDLTypeNat64) storeIn self()
             } or {
-                expect(IDLTypeFunc) storeIn self()
+                expect(IDLTypeFuncDeclaration) storeIn self()
             } or {
                 expect(IDLTypeRecord) storeIn self()
             } or {

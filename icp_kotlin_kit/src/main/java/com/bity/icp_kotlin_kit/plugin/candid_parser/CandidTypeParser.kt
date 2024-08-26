@@ -6,7 +6,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFunc
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
@@ -130,7 +130,7 @@ internal object CandidTypeParser {
             } or {
                 expect(IDLTypeNat64) storeIn self()
             } or {
-                expect(IDLTypeFunc) storeIn self()
+                expect(IDLTypeFuncDeclaration) storeIn self()
             } or {
                 expect(IDLTypeRecord) storeIn self()
             } or {
@@ -156,7 +156,7 @@ internal object CandidTypeParser {
         IDLTypeNat64 { expect(Token.Nat64) }
 
         IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
-        IDLTypeFunc { expect(Token.Func) storeIn IDLTypeFunc::funcDeclaration }
+        IDLTypeFuncDeclaration { expect(Token.Func) storeIn IDLTypeFuncDeclaration::funcDeclaration }
         IDLTypeRecord { expect(Token.Record) storeIn IDLTypeRecord::recordDeclaration }
         IDLTypeVariant { expect(Token.Variant) storeIn IDLTypeVariant::variantDeclaration }
     }

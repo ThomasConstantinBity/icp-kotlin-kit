@@ -3,7 +3,7 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFunc
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
@@ -121,7 +121,7 @@ internal class CandidTypeParserTest {
                 "type QueryArchiveFn = func (GetBlocksArgs) -> (QueryArchiveResult) query;",
                 IDLTypeDeclaration(
                     id = "QueryArchiveFn",
-                    type = IDLTypeFunc(
+                    type = IDLTypeFuncDeclaration(
                         funcDeclaration = "func (GetBlocksArgs) -> (QueryArchiveResult) query"
                     )
                 )
@@ -131,7 +131,7 @@ internal class CandidTypeParserTest {
                 "type QueryArchiveFn = func (GetBlocksArgs) -> (QueryArchiveResult);",
                 IDLTypeDeclaration(
                     id = "QueryArchiveFn",
-                    type = IDLTypeFunc(
+                    type = IDLTypeFuncDeclaration(
                         funcDeclaration = "func (GetBlocksArgs) -> (QueryArchiveResult)"
                     )
                 )

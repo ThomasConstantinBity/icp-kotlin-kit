@@ -9,7 +9,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFunc
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
@@ -32,7 +32,10 @@ internal object KotlinClassGenerator {
 
         val definition = when(val type =idlTypeDeclaration.type) {
             is IDLTypeCustom -> TODO()
-            is IDLTypeFunc -> TODO()
+            is IDLTypeFuncDeclaration -> KotlinFunctionGenerator(
+                funId = idlTypeDeclaration.id,
+                idlTypeFunc = type
+            )
             is IDLTypePrincipal -> TODO()
             is IDLTypeRecord -> """
                 class ${idlTypeDeclaration.id} (
@@ -109,12 +112,12 @@ internal object KotlinClassGenerator {
         return variableDeclaration.toString()
     }
 
-    private fun getCorrespondingKotlinClass(idlType: IDLType): String? =
+    internal fun getCorrespondingKotlinClass(idlType: IDLType): String? =
         when(idlType) {
             is IDLTypeBlob -> "ByteArray"
             is IDLTypeBoolean -> TODO()
             is IDLTypeCustom -> idlType.typeDef
-            is IDLTypeFunc -> TODO()
+            is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeInt -> TODO()
             is IDLTypeNat -> TODO()
             is IDLTypeNat64 -> "ULong"
