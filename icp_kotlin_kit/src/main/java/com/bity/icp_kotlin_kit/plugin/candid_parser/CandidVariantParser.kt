@@ -155,7 +155,6 @@ internal object CandidVariantParser {
     }
 
     fun parseVariant(input: String): IDLVariantDeclaration {
-        CandidFileParser.debug(variantLexer, input)
         return variantParser.parse(variantLexer.tokenize(input))
     }
 
