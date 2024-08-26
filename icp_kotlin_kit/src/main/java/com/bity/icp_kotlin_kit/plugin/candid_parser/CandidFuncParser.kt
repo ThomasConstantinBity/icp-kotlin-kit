@@ -1,7 +1,8 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_func.FunType
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_func.IDLFun
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.IDLFun
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.IDLFunArg
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.*
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
@@ -22,6 +23,9 @@ internal object CandidFuncParser {
             "(" isToken Token.LParen
             ")" isToken Token.RParen
             "->" isToken Token.Arrow
+            ":" isToken Token.Colon
+            "," isToken Token.Comma
+            ";" isToken Token.Semi
 
             "query" isToken Token.Query
 
@@ -50,22 +54,38 @@ internal object CandidFuncParser {
             expect(Token.Func)
 
             expect(Token.LParen)
-            repeated<IDLFun, IDLType> {
-                expect(IDLType) storeIn item
+            repeated<IDLFun, IDLFunArg> {
+                expect(IDLFunArg) storeIn item
+                optional { expect(Token.Comma) }
             } storeIn IDLFun::inputParams
             expect(Token.RParen)
 
             expect(Token.Arrow)
 
             expect(Token.LParen)
-            repeated<IDLFun, IDLType> {
-                expect(IDLType) storeIn item
+            repeated<IDLFun, IDLFunArg> {
+                expect(IDLFunArg) storeIn item
+                optional { expect(Token.Comma) }
             } storeIn IDLFun::outputParams
             expect(Token.RParen)
 
             optional {
                 expect(Token.Query)
                 emit(FunType.Query) storeIn IDLFun::funType
+            }
+
+            optional {
+                expect(Token.Semi)
+            }
+        }
+
+        IDLFunArg {
+            either {
+                expect(Token.Id) storeIn IDLFunArg::argId
+                expect(Token.Colon)
+                expect(IDLType) storeIn IDLFunArg::idlType
+            } or {
+                expect(IDLType) storeIn IDLFunArg::idlType
             }
         }
 
@@ -114,6 +134,7 @@ internal object CandidFuncParser {
     }
 
     fun parseFunc(input: String): IDLFun {
+        CandidFileParser.debug(funcLexer, input)
         return funcParser.parse(funcLexer.tokenize(input))
     }
 }
