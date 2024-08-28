@@ -14,7 +14,6 @@ internal object KotlinFileGenerator {
     ): String {
 
         val kotlinClasses = StringBuilder()
-        val imports = mutableSetOf<String>()
 
         // Type declaration
         idlFileDeclaration.types.forEach { idlFileType ->
@@ -39,15 +38,16 @@ internal object KotlinFileGenerator {
                 kotlinClasses.append(KotlinCommentGenerator.getKotlinComment(comment))
             }
 
-            val kotlinClassDefinition = KotlinClassGenerator.kotlinClassDefinition(idlFileType.typeDefinition)
-            kotlinClasses.appendLine(kotlinClassDefinition.kotlinClassString)
-            imports.addAll(kotlinClassDefinition.import)
+            val kotlinClassDefinition = IDLTypeDeclarationConverter(idlFileType.typeDefinition)
+            kotlinClasses.appendLine(kotlinClassDefinition)
         }
 
-        val packageAndImports = StringBuilder().appendLine("// TODO, add package name\n")
-        if(imports.isNotEmpty()) {
-            packageAndImports.appendLine(imports.joinToString("\n"))
-        }
+        val packageAndImports = StringBuilder().appendLine(
+            """// TODO, add package name
+                
+               // TODO add imports
+            """.trimMargin())
+
         idlFileDeclaration.comment?.let {
             packageAndImports.appendLine(KotlinCommentGenerator.getKotlinComment(it))
         }

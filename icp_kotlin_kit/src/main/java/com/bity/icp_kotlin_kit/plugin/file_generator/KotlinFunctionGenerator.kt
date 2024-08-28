@@ -26,7 +26,7 @@ internal object KotlinFunctionGenerator {
     private fun getInputParamsDeclaration(inputParams: List<IDLFunArg>): String = TODO()
         /*inputParams
             .mapNotNull {
-                val kotlinClass = KotlinClassGenerator.getCorrespondingKotlinClass(it.idlType)
+                val kotlinClass = IDLTypeDeclarationConverter.getCorrespondingKotlinClass(it.idlType)
                 if(it.argId != null) "${it.argId}: $kotlinClass"
                 else kotlinClass
             }
@@ -38,7 +38,7 @@ internal object KotlinFunctionGenerator {
 
             1 -> TODO() /*{
                 val param = outputParams.first()
-                val argClass = KotlinClassGenerator.getCorrespondingKotlinClass(param.idlType)
+                val argClass = IDLTypeDeclarationConverter.getCorrespondingKotlinClass(param.idlType)
                 if(param.argId != null) "${param.argId} : $argClass"
                 else argClass!!
             }*/
@@ -46,7 +46,7 @@ internal object KotlinFunctionGenerator {
             else -> {
                 TODO()
                 /*val argsDeclaration = outputParams.map {
-                    val kotlinClass = KotlinClassGenerator.getCorrespondingKotlinClass(it.idlType)
+                    val kotlinClass = IDLTypeDeclarationConverter.getCorrespondingKotlinClass(it.idlType)
                     if(it.argId != null) "${it.argId}: $kotlinClass"
                     else kotlinClass
                 }.joinToString()
