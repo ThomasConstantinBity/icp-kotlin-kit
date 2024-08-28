@@ -5,7 +5,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleL
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
@@ -35,6 +34,7 @@ internal object CandidVecParser {
             "text" isToken Token.Text
 
             matches ("vec") isToken Token.Vec
+            matches("""record\s+\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}""") isToken Token.Record
 
             "service" isToken Token.Service
 
@@ -92,8 +92,6 @@ internal object CandidVecParser {
             } or {
                 expect(IDLTypeNat64) storeIn self()
             } or {
-                expect(IDLTypeFuncDeclaration) storeIn self()
-            } or {
                 expect(IDLTypeRecord) storeIn self()
             } or {
                 expect(IDLTypeVariant) storeIn self()
@@ -118,6 +116,7 @@ internal object CandidVecParser {
         IDLTypeNat64 { expect(Token.Nat64) }
 
         IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
+        IDLTypeRecord { expect(Token.Record) storeIn IDLTypeRecord::recordDeclaration }
     }
 
     fun parseVec(input: String): IDLVec {

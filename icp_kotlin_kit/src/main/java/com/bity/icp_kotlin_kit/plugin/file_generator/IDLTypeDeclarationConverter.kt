@@ -28,7 +28,9 @@ internal object IDLTypeDeclarationConverter {
         val kotlinDefinition = when(val type = idlTypeDeclaration.type) {
             is IDLFun -> TODO()
             is IDLTypeCustom -> TODO()
-            is IDLTypeFuncDeclaration -> TODO()
+            is IDLTypeFuncDeclaration -> KotlinFunctionGenerator(
+                funId = idlTypeDeclaration.id,
+                idlTypeFunc = type)
             is IDLTypePrincipal -> TODO()
             is IDLTypeRecord ->
                 typeRecordToKotlinClass(

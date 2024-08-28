@@ -11,7 +11,7 @@ internal object IDLTypeCustomHelper {
     ): String {
         val classDefinition = StringBuilder().appendLine("class $className(")
         val variableName = idlTypeCustom.typeDef
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }
+            .replaceFirstChar { it.lowercase() }
         classDefinition.appendLine("val $variableName: ${idlTypeCustom.typeDef}")
         classDefinition.append(")")
         return classDefinition.toString()

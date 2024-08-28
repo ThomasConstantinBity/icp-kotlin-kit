@@ -5,6 +5,7 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.KotlinCommentGenerator
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper.kotlinTypeVariable
 
 internal object IDLRecordHelper {
+
     internal fun idlRecordToKotlinClassVariable(
         idlRecord: IDLRecord
     ): String {
