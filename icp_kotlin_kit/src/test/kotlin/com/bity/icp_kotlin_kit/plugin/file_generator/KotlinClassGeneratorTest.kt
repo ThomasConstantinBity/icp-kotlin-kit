@@ -50,49 +50,49 @@ internal class KotlinClassGeneratorTest {
 
             Arguments.of(
                 IDLTypeDeclaration(
-                    id = "AccountIdentifier",
+                    id = "generated_candid_file.AccountIdentifier",
                     type = IDLTypeBlob()
                 ),
                 """
-                    typealias AccountIdentifier = ByteArray
+                    typealias generated_candid_file.AccountIdentifier = ByteArray
                 """.trimIndent()
             ),
 
             Arguments.of(
                 IDLTypeDeclaration(
-                    id = "AccountIdentifier",
+                    id = "generated_candid_file.AccountIdentifier",
                     isOptional = true,
                     type = IDLTypeBlob()
                 ),
                 """
-                    typealias AccountIdentifier = ByteArray?
+                    typealias generated_candid_file.AccountIdentifier = ByteArray?
                 """.trimIndent()
             ),
 
             Arguments.of(
                 IDLTypeDeclaration(
                     comment = IDLSingleLineComment(listOf("A simple typealias")),
-                    id = "AccountIdentifier",
+                    id = "generated_candid_file.AccountIdentifier",
                     isOptional = true,
                     type = IDLTypeBlob()
                 ),
                 """
                     // A simple typealias
-                    typealias AccountIdentifier = ByteArray?
+                    typealias generated_candid_file.AccountIdentifier = ByteArray?
                 """.trimIndent()
             ),
 
             Arguments.of(
                 IDLTypeDeclaration(
                     comment = IDLSingleLineComment(listOf("A simple typealias", "With an additional comment")),
-                    id = "AccountIdentifier",
+                    id = "generated_candid_file.AccountIdentifier",
                     isOptional = true,
                     type = IDLTypeBlob()
                 ),
                 """
                     // A simple typealias
                     // With an additional comment
-                    typealias AccountIdentifier = ByteArray?
+                    typealias generated_candid_file.AccountIdentifier = ByteArray?
                 """.trimIndent()
             )
         )
@@ -101,7 +101,7 @@ internal class KotlinClassGeneratorTest {
         fun typeRecord() = listOf(
             Arguments.of(
                 IDLTypeDeclaration(
-                    id = "Tokens",
+                    id = "generated_candid_file.Tokens",
                     type = IDLTypeRecord(
                         recordDeclaration = """
                             record {
@@ -111,7 +111,7 @@ internal class KotlinClassGeneratorTest {
                     )
                 ),
                 """
-                    class Tokens (
+                    class generated_candid_file.Tokens (
                         val e8s : ULong
                     )
                 """.trimIndent()
@@ -122,42 +122,42 @@ internal class KotlinClassGeneratorTest {
         fun typeVariant() = listOf(
             Arguments.of(
                 IDLTypeDeclaration(
-                    id = "Transfer",
+                    id = "generated_candid_file.Transfer",
                     type = IDLTypeVariant(
                         variantDeclaration = """
                             variant {
                                 Mint: record {
-                                    to: AccountIdentifier;
-                                    amount: Tokens;
+                                    to: generated_candid_file.AccountIdentifier;
+                                    amount: generated_candid_file.Tokens;
                                 };
                                 Burn: record {
-                                    from: AccountIdentifier;
-                                    amount: Tokens;
+                                    from: generated_candid_file.AccountIdentifier;
+                                    amount: generated_candid_file.Tokens;
                                 };
                                 Send: record {
-                                    from: AccountIdentifier;
-                                    to: AccountIdentifier;
-                                    amount: Tokens;
+                                    from: generated_candid_file.AccountIdentifier;
+                                    to: generated_candid_file.AccountIdentifier;
+                                    amount: generated_candid_file.Tokens;
                                 };
                             }
                         """.trimIndent()
                     )
                 ),
                 """
-                    sealed class Transfer {
+                    sealed class generated_candid_file.Transfer {
                         class Mint (
-                            val to : AccountIdentifier,
-                            val amount : Tokens
-                        ) : Transfer()
+                            val to : generated_candid_file.AccountIdentifier,
+                            val amount : generated_candid_file.Tokens
+                        ) : generated_candid_file.Transfer()
                         class Burn (
-                            val from : AccountIdentifier,
-                            val amount : Tokens
-                        ) : Transfer()
+                            val from : generated_candid_file.AccountIdentifier,
+                            val amount : generated_candid_file.Tokens
+                        ) : generated_candid_file.Transfer()
                         class Send (
-                            val from : AccountIdentifier,
-                            val to : AccountIdentifier,
-                            val amount : Tokens
-                        ) : Transfer()
+                            val from : generated_candid_file.AccountIdentifier,
+                            val to : generated_candid_file.AccountIdentifier,
+                            val amount : generated_candid_file.Tokens
+                        ) : generated_candid_file.Transfer()
                     }
                 """.trimIndent().replace("\t".toRegex(), "    ")
             )

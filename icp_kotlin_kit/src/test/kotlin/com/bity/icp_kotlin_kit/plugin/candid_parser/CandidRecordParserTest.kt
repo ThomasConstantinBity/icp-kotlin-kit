@@ -133,19 +133,19 @@ internal class CandidRecordParserTest {
                 """
                     record {
                         // A prefix of the requested block range.
-                        // The index of the first block is equal to [GetBlocksArgs.from].
+                        // The index of the first block is equal to [generated_candid_file.GetBlocksArgs.from].
                         //
                         // Note that the number of blocks might be less than the requested
-                        // [GetBlocksArgs.len] for various reasons, for example:
+                        // [generated_candid_file.GetBlocksArgs.len] for various reasons, for example:
                         //
                         // 1. The query might have hit the replica with an outdated state
                         //    that doesn't have the full block range yet.
                         // 2. The requested range is too large to fit into a single reply.
                         //
                         // NOTE: the list of blocks can be empty if:
-                        // 1. [GetBlocksArgs.len] was zero.
-                        // 2. [GetBlocksArgs.from] was larger than the last block known to the canister.
-                        blocks : vec Block;
+                        // 1. [generated_candid_file.GetBlocksArgs.len] was zero.
+                        // 2. [generated_candid_file.GetBlocksArgs.from] was larger than the last block known to the canister.
+                        blocks : vec generated_candid_file.Block;
                     }
                 """.trimIndent(),
                 IDLRecordDeclaration(
@@ -154,23 +154,23 @@ internal class CandidRecordParserTest {
                             comment = IDLSingleLineComment(
                                 listOf(
                                     "A prefix of the requested block range.",
-                                    "The index of the first block is equal to [GetBlocksArgs.from].",
+                                    "The index of the first block is equal to [generated_candid_file.GetBlocksArgs.from].",
                                     "",
                                     "Note that the number of blocks might be less than the requested",
-                                    "[GetBlocksArgs.len] for various reasons, for example:",
+                                    "[generated_candid_file.GetBlocksArgs.len] for various reasons, for example:",
                                     "",
                                     "1. The query might have hit the replica with an outdated state",
                                     "that doesn't have the full block range yet.",
                                     "2. The requested range is too large to fit into a single reply.",
                                     "",
                                     "NOTE: the list of blocks can be empty if:",
-                                    "1. [GetBlocksArgs.len] was zero.",
-                                    "2. [GetBlocksArgs.from] was larger than the last block known to the canister."
+                                    "1. [generated_candid_file.GetBlocksArgs.len] was zero.",
+                                    "2. [generated_candid_file.GetBlocksArgs.from] was larger than the last block known to the canister."
                                 )
                             ),
                             id = "blocks",
                             type = IDLTypeVec(
-                                vecDeclaration = "vec Block"
+                                vecDeclaration = "vec generated_candid_file.Block"
                             )
                         )
                     )
@@ -277,65 +277,65 @@ internal class CandidRecordParserTest {
             Arguments.of(
                 """
                     record {
-                        // Transaction memo.
-                        // See comments for the `Memo` type.
-                        memo: Memo;
+                        // generated_candid_file.Transaction memo.
+                        // See comments for the `generated_candid_file.Memo` type.
+                        memo: generated_candid_file.Memo;
                         // The amount that the caller wants to transfer to the destination address.
-                        amount: Tokens;
+                        amount: generated_candid_file.Tokens;
                         // The amount that the caller pays for the transaction.
                         // Must be 10000 e8s.
-                        fee: Tokens;
+                        fee: generated_candid_file.Tokens;
                         // The subaccount from which the caller wants to transfer funds.
                         // If null, the ledger uses the default (all zeros) subaccount to compute the source address.
-                        // See comments for the `SubAccount` type.
-                        from_subaccount: opt SubAccount;
+                        // See comments for the `generated_candid_file.SubAccount` type.
+                        from_subaccount: opt generated_candid_file.SubAccount;
                         // The destination account.
                         // If the transfer is successful, the balance of this address increases by `amount`.
-                        to: AccountIdentifier;
+                        to: generated_candid_file.AccountIdentifier;
                         // The point in time when the caller created this request.
                         // If null, the ledger uses current ICP time as the timestamp.
-                        created_at_time: opt TimeStamp;
+                        created_at_time: opt generated_candid_file.TimeStamp;
                     }
                 """.trimIndent(),
                 IDLRecordDeclaration(
                     records = listOf(
                         IDLRecord(
-                            comment = IDLSingleLineComment(listOf("Transaction memo.", "See comments for the `Memo` type.")),
+                            comment = IDLSingleLineComment(listOf("generated_candid_file.Transaction memo.", "See comments for the `generated_candid_file.Memo` type.")),
                             id = "memo",
-                            type = IDLTypeCustom("Memo")
+                            type = IDLTypeCustom("generated_candid_file.Memo")
                         ),
                         IDLRecord(
                             comment = IDLSingleLineComment(listOf("The amount that the caller wants to transfer to the destination address.")),
                             id = "amount",
-                            type = IDLTypeCustom("Tokens")
+                            type = IDLTypeCustom("generated_candid_file.Tokens")
                         ),
                         IDLRecord(
                             comment = IDLSingleLineComment(listOf("The amount that the caller pays for the transaction.", "Must be 10000 e8s.")),
                             id = "fee",
-                            type = IDLTypeCustom("Tokens")
+                            type = IDLTypeCustom("generated_candid_file.Tokens")
                         ),
                         IDLRecord(
                             comment = IDLSingleLineComment(
                                 listOf(
                                     "The subaccount from which the caller wants to transfer funds.",
                                     "If null, the ledger uses the default (all zeros) subaccount to compute the source address.",
-                                    "See comments for the `SubAccount` type."
+                                    "See comments for the `generated_candid_file.SubAccount` type."
                                 )
                             ),
                             id = "from_subaccount",
                             isOptional = true,
-                            type = IDLTypeCustom("SubAccount")
+                            type = IDLTypeCustom("generated_candid_file.SubAccount")
                         ),
                         IDLRecord(
                             comment = IDLSingleLineComment(listOf("The destination account.", "If the transfer is successful, the balance of this address increases by `amount`.")),
                             id = "to",
-                            type = IDLTypeCustom("AccountIdentifier")
+                            type = IDLTypeCustom("generated_candid_file.AccountIdentifier")
                         ),
                         IDLRecord(
                             comment = IDLSingleLineComment(listOf("The point in time when the caller created this request.", "If null, the ledger uses current ICP time as the timestamp.")),
                             id = "created_at_time",
                             isOptional = true,
-                            type = IDLTypeCustom("TimeStamp")
+                            type = IDLTypeCustom("generated_candid_file.TimeStamp")
                         )
                     )
                 )

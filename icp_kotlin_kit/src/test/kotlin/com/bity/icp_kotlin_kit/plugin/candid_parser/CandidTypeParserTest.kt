@@ -60,17 +60,17 @@ internal class CandidTypeParserTest {
         @JvmStatic
         private fun singleTypeDeclaration() = listOf(
             Arguments.of(
-                "type AccountIdentifier = blob;",
+                "type generated_candid_file.AccountIdentifier = blob;",
                 IDLTypeDeclaration(
-                    id = "AccountIdentifier",
+                    id = "generated_candid_file.AccountIdentifier",
                     type = IDLTypeBlob()
                 )
             ),
 
             Arguments.of(
-                "type AccountIdentifier = opt blob;",
+                "type generated_candid_file.AccountIdentifier = opt blob;",
                 IDLTypeDeclaration(
-                    id = "AccountIdentifier",
+                    id = "generated_candid_file.AccountIdentifier",
                     isOptional = true,
                     type = IDLTypeBlob()
                 )
@@ -82,22 +82,22 @@ internal class CandidTypeParserTest {
                     // is
                     // a
                     // comment
-                    type AccountIdentifier = opt blob;
+                    type generated_candid_file.AccountIdentifier = opt blob;
                 """.trimIndent(),
                 IDLTypeDeclaration(
                     comment = IDLSingleLineComment(
                         listOf("This", "is", "a", "comment")
                     ),
-                    id = "AccountIdentifier",
+                    id = "generated_candid_file.AccountIdentifier",
                     isOptional = true,
                     type = IDLTypeBlob()
                 )
             ),
 
             Arguments.of(
-                "type Memo = nat64;",
+                "type generated_candid_file.Memo = nat64;",
                 IDLTypeDeclaration(
-                    id = "Memo",
+                    id = "generated_candid_file.Memo",
                     type = IDLTypeNat64(),
                 )
             ),
@@ -118,21 +118,21 @@ internal class CandidTypeParserTest {
         @JvmStatic
         private fun funcTypeDeclaration() = listOf(
             Arguments.of(
-                "type QueryArchiveFn = func (GetBlocksArgs) -> (QueryArchiveResult) query;",
+                "type generated_candid_file.QueryArchiveFn = func (generated_candid_file.GetBlocksArgs) -> (generated_candid_file.QueryArchiveResult) query;",
                 IDLTypeDeclaration(
-                    id = "QueryArchiveFn",
+                    id = "generated_candid_file.QueryArchiveFn",
                     type = IDLTypeFuncDeclaration(
-                        funcDeclaration = "func (GetBlocksArgs) -> (QueryArchiveResult) query"
+                        funcDeclaration = "func (generated_candid_file.GetBlocksArgs) -> (generated_candid_file.QueryArchiveResult) query"
                     )
                 )
             ),
 
             Arguments.of(
-                "type QueryArchiveFn = func (GetBlocksArgs) -> (QueryArchiveResult);",
+                "type generated_candid_file.QueryArchiveFn = func (generated_candid_file.GetBlocksArgs) -> (generated_candid_file.QueryArchiveResult);",
                 IDLTypeDeclaration(
-                    id = "QueryArchiveFn",
+                    id = "generated_candid_file.QueryArchiveFn",
                     type = IDLTypeFuncDeclaration(
-                        funcDeclaration = "func (GetBlocksArgs) -> (QueryArchiveResult)"
+                        funcDeclaration = "func (generated_candid_file.GetBlocksArgs) -> (generated_candid_file.QueryArchiveResult)"
                     )
                 )
             ),
@@ -142,12 +142,12 @@ internal class CandidTypeParserTest {
         private fun recordTypeDeclaration() = listOf(
             Arguments.of(
                 """
-                    type Tokens = record {
+                    type generated_candid_file.Tokens = record {
                         e8s : nat64;
                     };
                 """.trimIndent(),
                 IDLTypeDeclaration(
-                    id = "Tokens",
+                    id = "generated_candid_file.Tokens",
                     type = IDLTypeRecord(
                         recordDeclaration = """
                             record {
@@ -173,13 +173,13 @@ internal class CandidTypeParserTest {
             Arguments.of(
                 """
                     // Timestamps are represented as nanoseconds from the UNIX epoch in UTC timezone
-                    type TimeStamp = record {
+                    type generated_candid_file.TimeStamp = record {
                         timestamp_nanos: nat64;
                     };
                 """.trimIndent(),
                 IDLTypeDeclaration(
                     comment = IDLSingleLineComment(listOf("Timestamps are represented as nanoseconds from the UNIX epoch in UTC timezone")),
-                    id = "TimeStamp",
+                    id = "generated_candid_file.TimeStamp",
                     type = IDLTypeRecord("""
                         record {
                             timestamp_nanos: nat64;
@@ -214,7 +214,7 @@ internal class CandidTypeParserTest {
 
             Arguments.of(
                 """
-                    type QueryBlocksResponse = record {
+                    type generated_candid_file.QueryBlocksResponse = record {
                         // The total number of blocks in the chain.
                         // If the chain length is positive, the index of the last block is `chain_len - 1`.
                         chain_length : nat64;
@@ -230,11 +230,11 @@ internal class CandidTypeParserTest {
                         // [first_block_index] + len(blocks) - 1.
                         //
                         // The block range can be an arbitrary sub-range of the originally requested range.
-                        blocks : vec Block;
+                        blocks : vec generated_candid_file.Block;
 
                         // The index of the first block in "blocks".
                         // If the blocks vector is empty, the exact value of this field is not specified.
-                        first_block_index : BlockIndex;
+                        first_block_index : generated_candid_file.BlockIndex;
 
                         // Encoding of instructions for fetching archived blocks whose indices fall into the
                         // requested range.
@@ -243,7 +243,7 @@ internal class CandidTypeParserTest {
                         // of the originally requested block range.
                         archived_blocks : vec record {
                             // The index of the first archived block that can be fetched using the callback.
-                            start : BlockIndex;
+                            start : generated_candid_file.BlockIndex;
 
                             // The number of blocks that can be fetched using the callback.
                             length : nat64;
@@ -251,12 +251,12 @@ internal class CandidTypeParserTest {
                             // The function that should be called to fetch the archived blocks.
                             // The range of the blocks accessible using this function is given by [from]
                             // and [len] fields above.
-                            callback : QueryArchiveFn;
+                            callback : generated_candid_file.QueryArchiveFn;
                         };
                     };
                 """.trimIndent(),
                 IDLTypeDeclaration(
-                    id = "QueryBlocksResponse",
+                    id = "generated_candid_file.QueryBlocksResponse",
                     type = IDLTypeRecord(
                         recordDeclaration = """
                             record {
@@ -275,11 +275,11 @@ internal class CandidTypeParserTest {
                                 // [first_block_index] + len(blocks) - 1.
                                 //
                                 // The block range can be an arbitrary sub-range of the originally requested range.
-                                blocks : vec Block;
+                                blocks : vec generated_candid_file.Block;
         
                                 // The index of the first block in "blocks".
                                 // If the blocks vector is empty, the exact value of this field is not specified.
-                                first_block_index : BlockIndex;
+                                first_block_index : generated_candid_file.BlockIndex;
         
                                 // Encoding of instructions for fetching archived blocks whose indices fall into the
                                 // requested range.
@@ -288,7 +288,7 @@ internal class CandidTypeParserTest {
                                 // of the originally requested block range.
                                 archived_blocks : vec record {
                                     // The index of the first archived block that can be fetched using the callback.
-                                    start : BlockIndex;
+                                    start : generated_candid_file.BlockIndex;
         
                                     // The number of blocks that can be fetched using the callback.
                                     length : nat64;
@@ -296,7 +296,7 @@ internal class CandidTypeParserTest {
                                     // The function that should be called to fetch the archived blocks.
                                     // The range of the blocks accessible using this function is given by [from]
                                     // and [len] fields above.
-                                    callback : QueryArchiveFn;
+                                    callback : generated_candid_file.QueryArchiveFn;
                                 };
                             }
                         """.trimIndent()
@@ -309,39 +309,39 @@ internal class CandidTypeParserTest {
         private fun variantTypeDeclaration() = listOf(
             Arguments.of(
                 """
-                    type Transfer = variant {
+                    type generated_candid_file.Transfer = variant {
                         Mint: record {
-                            to: AccountIdentifier;
-                            amount: Tokens;
+                            to: generated_candid_file.AccountIdentifier;
+                            amount: generated_candid_file.Tokens;
                         };
                         Burn: record {
-                             from: AccountIdentifier;
-                             amount: Tokens;
+                             from: generated_candid_file.AccountIdentifier;
+                             amount: generated_candid_file.Tokens;
                        };
                         Send: record {
-                            from: AccountIdentifier;
-                            to: AccountIdentifier;
-                            amount: Tokens;
+                            from: generated_candid_file.AccountIdentifier;
+                            to: generated_candid_file.AccountIdentifier;
+                            amount: generated_candid_file.Tokens;
                         };
                     };
                 """.trimIndent(),
                 IDLTypeDeclaration(
-                    id = "Transfer",
+                    id = "generated_candid_file.Transfer",
                     type = IDLTypeVariant(
                         variantDeclaration = """
                             variant {
                                 Mint: record {
-                                    to: AccountIdentifier;
-                                    amount: Tokens;
+                                    to: generated_candid_file.AccountIdentifier;
+                                    amount: generated_candid_file.Tokens;
                                 };
                                 Burn: record {
-                                     from: AccountIdentifier;
-                                     amount: Tokens;
+                                     from: generated_candid_file.AccountIdentifier;
+                                     amount: generated_candid_file.Tokens;
                                };
                                 Send: record {
-                                    from: AccountIdentifier;
-                                    to: AccountIdentifier;
-                                    amount: Tokens;
+                                    from: generated_candid_file.AccountIdentifier;
+                                    to: generated_candid_file.AccountIdentifier;
+                                    amount: generated_candid_file.Tokens;
                                 };
                             }
                         """.trimIndent()
@@ -351,25 +351,25 @@ internal class CandidTypeParserTest {
 
             Arguments.of(
                 """
-                    type Transfer = variant {
+                    type generated_candid_file.Transfer = variant {
                         // This is a comment
                         Mint: record {
                             // Second comment
-                            to: AccountIdentifier;
-                            amount: Tokens;
+                            to: generated_candid_file.AccountIdentifier;
+                            amount: generated_candid_file.Tokens;
                         };
                     };
                 """.trimIndent(),
                 IDLTypeDeclaration(
-                    id = "Transfer",
+                    id = "generated_candid_file.Transfer",
                     type = IDLTypeVariant(
                         variantDeclaration = """
                             variant {
                                 // This is a comment
                                 Mint: record {
                                     // Second comment
-                                    to: AccountIdentifier;
-                                    amount: Tokens;
+                                    to: generated_candid_file.AccountIdentifier;
+                                    amount: generated_candid_file.Tokens;
                                 };
                             }
                         """.trimIndent()
@@ -407,17 +407,17 @@ internal class CandidTypeParserTest {
 
             Arguments.of(
                 """
-                    type TransferResult = variant {
-                        Ok : nat; // Transaction index for successful transfer
-                        Err : TransferError;
+                    type generated_candid_file.TransferResult = variant {
+                        Ok : nat; // generated_candid_file.Transaction index for successful transfer
+                        Err : generated_candid_file.TransferError;
                     };
                 """.trimIndent(),
                 IDLTypeDeclaration(
-                    id = "TransferResult",
+                    id = "generated_candid_file.TransferResult",
                     type = IDLTypeVariant("""
                         variant {
-                            Ok : nat; // Transaction index for successful transfer
-                            Err : TransferError;
+                            Ok : nat; // generated_candid_file.Transaction index for successful transfer
+                            Err : generated_candid_file.TransferError;
                         }
                     """.trimIndent())
                 )

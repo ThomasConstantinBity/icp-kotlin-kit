@@ -30,7 +30,7 @@ internal class CandidVariantParserTest {
             Arguments.of(
                 """
                     variant {
-                        Ok : BlockRange;
+                        Ok : generated_candid_file.BlockRange;
                         Err : null;      // we don't know the values here...
                     };
                 """.trimIndent(),
@@ -38,7 +38,7 @@ internal class CandidVariantParserTest {
                     variants = listOf(
                         IDLVariant(
                             id = "Ok",
-                            type = IDLTypeCustom("BlockRange")
+                            type = IDLTypeCustom("generated_candid_file.BlockRange")
                         ),
                         IDLVariant(
                             comment = IDLSingleLineComment(listOf("we don't know the values here...")),
@@ -53,17 +53,17 @@ internal class CandidVariantParserTest {
                 """
                     variant {
                         Mint: record {
-                            to: AccountIdentifier;
-                            amount: Tokens;
+                            to: generated_candid_file.AccountIdentifier;
+                            amount: generated_candid_file.Tokens;
                         };
                         Burn: record {
-                             from: AccountIdentifier;
-                             amount: Tokens;
+                             from: generated_candid_file.AccountIdentifier;
+                             amount: generated_candid_file.Tokens;
                        };
                         Send: record {
-                            from: AccountIdentifier;
-                            to: AccountIdentifier;
-                            amount: Tokens;
+                            from: generated_candid_file.AccountIdentifier;
+                            to: generated_candid_file.AccountIdentifier;
+                            amount: generated_candid_file.Tokens;
                         };
                     }
                 """.trimIndent(),
@@ -74,8 +74,8 @@ internal class CandidVariantParserTest {
                             type = IDLTypeRecord(
                                 recordDeclaration = """
                                     record {
-                                        to: AccountIdentifier;
-                                        amount: Tokens;
+                                        to: generated_candid_file.AccountIdentifier;
+                                        amount: generated_candid_file.Tokens;
                                     }
                                 """.trimIndent()
                             )
@@ -85,8 +85,8 @@ internal class CandidVariantParserTest {
                             type = IDLTypeRecord(
                                 recordDeclaration = """
                                    record {
-                                       from: AccountIdentifier;
-                                       amount: Tokens;
+                                       from: generated_candid_file.AccountIdentifier;
+                                       amount: generated_candid_file.Tokens;
                                    }
                                 """.trimIndent()
                             )
@@ -96,9 +96,9 @@ internal class CandidVariantParserTest {
                             type = IDLTypeRecord(
                                 recordDeclaration = """
                                     record {
-                                        from: AccountIdentifier;
-                                        to: AccountIdentifier;
-                                        amount: Tokens;
+                                        from: generated_candid_file.AccountIdentifier;
+                                        to: generated_candid_file.AccountIdentifier;
+                                        amount: generated_candid_file.Tokens;
                                     }
                                 """.trimIndent()
                             )

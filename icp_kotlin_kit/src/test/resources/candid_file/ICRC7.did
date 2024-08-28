@@ -22,12 +22,12 @@
         created_at_time : opt nat64;
     };
 
-    type TransferResult = variant {
-        Ok : nat; // Transaction index for successful transfer
+    type generated_candid_file.TransferResult = variant {
+        Ok : nat; // generated_candid_file.Transaction index for successful transfer
         Err : TransferError;
     };
 
-    type TransferError = variant {
+    type generated_candid_file.TransferError = variant {
         NonExistingTokenId;
         InvalidRecipient;
         Unauthorized;
