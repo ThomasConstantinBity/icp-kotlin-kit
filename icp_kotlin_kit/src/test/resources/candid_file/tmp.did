@@ -180,6 +180,18 @@ type QueryBlocksResponse = record {
     };
 };
 
+type Archive = record {
+    canister_id: principal;
+};
+
+type Archives = record {
+    archives: vec Archive;
+};
+
+type AccountBalanceArgs = record {
+    account: AccountIdentifier;
+};
+
 service : {
     // Queries blocks in the specified range.
     query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;

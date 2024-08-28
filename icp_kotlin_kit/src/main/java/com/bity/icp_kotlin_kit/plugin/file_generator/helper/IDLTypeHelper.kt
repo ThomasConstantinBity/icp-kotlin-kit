@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
+import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
@@ -30,7 +31,7 @@ internal object IDLTypeHelper {
             is IDLTypeNat -> "UInt"
             is IDLTypeNat64 -> "ULong"
             is IDLTypeNull -> TODO()
-            is IDLTypePrincipal -> TODO()
+            is IDLTypePrincipal -> "ICPPrincipal"
             is IDLTypeRecord -> TODO()
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()

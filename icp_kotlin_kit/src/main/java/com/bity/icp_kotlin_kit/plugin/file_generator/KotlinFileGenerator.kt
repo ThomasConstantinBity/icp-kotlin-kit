@@ -48,16 +48,17 @@ internal object KotlinFileGenerator {
         val packageAndImports = StringBuilder().appendLine(
             """// TODO, add package name
                 
-               // TODO add imports
+               import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
+               
+               ${fileHeader()}
             """.trimMargin())
 
         idlFileDeclaration.comment?.let {
+            packageAndImports.appendLine()
             packageAndImports.append(KotlinCommentGenerator.getKotlinComment(it))
         }
 
         return """$packageAndImports
-            ${fileHeader().trimIndent()}
-            
             $kotlinClasses
         """.toKotlinFileString()
     }
