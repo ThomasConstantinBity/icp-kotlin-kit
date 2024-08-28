@@ -18,8 +18,7 @@ internal class KotlinClassGeneratorTest {
         input: IDLTypeDeclaration,
         expectedResult: String
     ) {
-        val kotlinClassString = KotlinClassGenerator.kotlinClass(input)
-        assertEquals(expectedResult, kotlinClassString)
+        TODO()
     }
 
     @ParameterizedTest(name = "[{index}] - {0}")
@@ -28,8 +27,7 @@ internal class KotlinClassGeneratorTest {
         input: IDLTypeDeclaration,
         expectedResult: String
     ) {
-        val kotlinClassString = KotlinClassGenerator.kotlinClass(input)
-        assertEquals(expectedResult, kotlinClassString)
+        TODO()
     }
 
     @ParameterizedTest(name = "[{index}] - {0}")
@@ -38,9 +36,7 @@ internal class KotlinClassGeneratorTest {
         input: IDLTypeDeclaration,
         expectedResult: String
     ) {
-        val kotlinClassString = KotlinClassGenerator.kotlinClass(input)
-        println(kotlinClassString)
-        assertEquals(expectedResult, kotlinClassString)
+        TODO()
     }
 
     companion object {

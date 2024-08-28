@@ -23,14 +23,14 @@ internal object KotlinFunctionGenerator {
         return "($inputArgs) -> $outputArgs"
     }
 
-    private fun getInputParamsDeclaration(inputParams: List<IDLFunArg>): String =
-        inputParams
+    private fun getInputParamsDeclaration(inputParams: List<IDLFunArg>): String = TODO()
+        /*inputParams
             .mapNotNull {
                 val kotlinClass = KotlinClassGenerator.getCorrespondingKotlinClass(it.idlType)
                 if(it.argId != null) "${it.argId}: $kotlinClass"
                 else kotlinClass
             }
-            .joinToString()
+            .joinToString()*/
 
     private fun getOutputParamsDeclaration(outputParams: List<IDLFunArg>): String {
         return when(val size = outputParams.size) {
@@ -44,12 +44,13 @@ internal object KotlinFunctionGenerator {
             }*/
 
             else -> {
-                val argsDeclaration = outputParams.map {
+                TODO()
+                /*val argsDeclaration = outputParams.map {
                     val kotlinClass = KotlinClassGenerator.getCorrespondingKotlinClass(it.idlType)
                     if(it.argId != null) "${it.argId}: $kotlinClass"
                     else kotlinClass
                 }.joinToString()
-                "NTuple${size}($argsDeclaration)"
+                "NTuple${size}($argsDeclaration)"*/
             }
         }
     }

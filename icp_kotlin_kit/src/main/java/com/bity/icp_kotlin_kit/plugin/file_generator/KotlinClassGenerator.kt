@@ -41,30 +41,62 @@ internal object KotlinClassGenerator {
 
         val classDefinition = when(val type = idlTypeDeclaration.type) {
             is IDLFun -> TODO()
-            is IDLTypeBlob -> typealiasDefinition(idlTypeDeclaration.id, "ByteArray")
-            is IDLTypeBoolean -> TODO()
             is IDLTypeCustom -> TODO()
             is IDLTypeFuncDeclaration -> TODO()
-            is IDLTypeInt -> TODO()
-            is IDLTypeNat -> TODO()
-            is IDLTypeNat64 -> TODO()
-            is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> TODO()
             is IDLTypeRecord ->
                 typeRecordToKotlinClass(
                     className = idlTypeDeclaration.id,
                     type = type
                 )
-            is IDLTypeText -> TODO()
             is IDLTypeVariant -> typeVariantToKotlinClass(idlTypeDeclaration)
-            is IDLTypeVec -> TODO()
+            is IDLTypeVec -> typealiasDefinition(
+                id = idlTypeDeclaration.id,
+                kotlinType = typeVecToKotlinClass(type).kotlinClassString
+            )
             is IDLTypeVecRecord -> TODO()
+            else -> typealiasDefinition(
+                id = idlTypeDeclaration.id,
+                kotlinType = kotlinTypeVariable(type)
+            )
         }
         kotlinClassString.appendLine(classDefinition.kotlinClassString)
 
         return KotlinClassDefinition(
             import = classDefinition.import,
             kotlinClassString = kotlinClassString.toString()
+        )
+    }
+
+    private fun kotlinTypeVariable(type: IDLType): String =
+        when(type) {
+            is IDLFun -> TODO()
+            is IDLTypeBlob -> "ByteArray"
+            is IDLTypeBoolean -> "Boolean"
+            is IDLTypeCustom -> type.typeDef
+            is IDLTypeFuncDeclaration -> TODO()
+            is IDLTypeInt -> TODO()
+            is IDLTypeNat -> TODO()
+            is IDLTypeNat64 -> "ULong"
+            is IDLTypeNull -> "Null"
+            is IDLTypePrincipal -> TODO()
+            is IDLTypeRecord -> TODO()
+            is IDLTypeText -> "String"
+            is IDLTypeVariant -> TODO()
+            is IDLTypeVec -> TODO()
+            is IDLTypeVecRecord -> TODO()
+        }
+
+    /**
+     * Type Vec to Kotlin Class
+     */
+    private fun typeVecToKotlinClass(idlTypeVec: IDLTypeVec): KotlinClassDefinition {
+        val idlVec = CandidVecParser.parseVec(idlTypeVec.vecDeclaration)
+        val kotlinClass = StringBuilder("Array<${kotlinTypeVariable(idlVec.type)}>")
+        if (idlVec.isOptional)
+            kotlinClass.append("?")
+        return KotlinClassDefinition(
+            kotlinClassString = kotlinClass.toString()
         )
     }
 
@@ -90,8 +122,20 @@ internal object KotlinClassGenerator {
             }
             val kotlinClassDefinition = when(val type = it.type) {
                 is IDLTypeRecord -> typeRecordToKotlinClass(className = it.id, type = type)
-                else -> TODO()
+                is IDLTypeNull -> KotlinClassDefinition(
+                    kotlinClassString = "data object ${it.id}"
+                )
+                is IDLTypeCustom -> KotlinClassDefinition(
+                    kotlinClassString = "class ${it.id}"
+                )
+                else -> {
+                    println("type: $type")
+                    KotlinClassDefinition(
+                        kotlinClassString = kotlinTypeVariable(type)
+                    )
+                }
             }
+            import.addAll(kotlinClassDefinition.import)
             kotlinClassString.appendLine("${kotlinClassDefinition.kotlinClassString} : ${idlTypeDeclaration.id}()")
         }
 
@@ -109,11 +153,11 @@ internal object KotlinClassGenerator {
         val kotlinClassString = StringBuilder().appendLine("class $className (")
 
         val idlRecordDeclaration = CandidRecordParser.parseRecord(type.recordDeclaration)
-        val variablesDeclaration = idlRecordDeclaration.records.map {
+        val variablesDeclaration = idlRecordDeclaration.records.joinToString(",\n") {
             val kotlinClassDefinition = idlRecordToKotlinVariable(it)
             import.addAll(kotlinClassDefinition.import)
             kotlinClassDefinition.kotlinClassString
-        }.joinToString(",\n")
+        }
         kotlinClassString.appendLine(variablesDeclaration)
 
         kotlinClassString.append(")")
@@ -123,23 +167,12 @@ internal object KotlinClassGenerator {
         )
     }
 
-    private fun typeRecordToKotlinClass(recordType: IDLTypeRecord): KotlinClassDefinition {
-        /*val classDefinition = StringBuilder()
-        val varDefinitions = CandidRecordParser.parseRecord(recordType.recordDeclaration)
-            .records
-            .joinToString(",\n") {
-                idlRecordToClassVariable(it)
-            }
-        classDefinition.append(varDefinitions)
-        return classDefinition.toString()*/
-        TODO()
-    }
-
     /**
      * Type Record
      */
     private fun idlRecordToKotlinVariable(idlRecord: IDLRecord): KotlinClassDefinition {
         val kotlinVariable = StringBuilder()
+        val import = mutableSetOf<String>()
 
         idlRecord.comment?.let {
             kotlinVariable.appendLine(KotlinCommentGenerator.getKotlinComment(it))
@@ -151,15 +184,19 @@ internal object KotlinClassGenerator {
             is IDLTypeBoolean -> TODO()
             is IDLTypeCustom -> type.typeDef
             is IDLTypeFuncDeclaration -> TODO()
-            is IDLTypeInt -> TODO()
-            is IDLTypeNat -> TODO()
+            is IDLTypeInt -> "Int"
+            is IDLTypeNat -> "UInt"
             is IDLTypeNat64 -> "ULong"
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> TODO()
             is IDLTypeRecord -> TODO()
             is IDLTypeText -> TODO()
             is IDLTypeVariant -> TODO()
-            is IDLTypeVec -> TODO()
+            is IDLTypeVec -> {
+                val kotlinClassDefinition = typeVecToKotlinClass(type)
+                import.addAll(kotlinClassDefinition.import)
+                kotlinClassDefinition.kotlinClassString
+            }
             is IDLTypeVecRecord -> TODO()
         }
         variableDefinition.append(variableType)
@@ -169,125 +206,6 @@ internal object KotlinClassGenerator {
 
         return KotlinClassDefinition(
             kotlinClassString = kotlinVariable.toString()
-        )
-    }
-
-    fun kotlinClass(idlTypeDeclaration: IDLTypeDeclaration): String {
-        val kotlinClass = StringBuilder()
-
-        // Comment
-        idlTypeDeclaration.comment?.let {
-            kotlinClass.append(KotlinCommentGenerator.getKotlinComment(it))
-        }
-
-        val definition = when(val type =idlTypeDeclaration.type) {
-            is IDLTypeCustom -> TODO()
-            is IDLTypeFuncDeclaration -> KotlinFunctionGenerator(
-                funId = idlTypeDeclaration.id,
-                idlTypeFunc = type
-            )
-            is IDLTypePrincipal -> TODO()
-            is IDLTypeRecord -> """
-                class ${idlTypeDeclaration.id} (
-                    ${typeRecordToKotlinClass(type)}
-                )
-            """.trimIndent()
-            is IDLTypeVariant -> """
-                sealed class ${idlTypeDeclaration.id} {
-                	${typeVariantToKotlinClass(type, idlTypeDeclaration.id)}
-                }
-            """.trimIndent()
-            else -> typealiasDefinition(idlTypeDeclaration)
-        }
-
-        kotlinClass.append(definition)
-        return kotlinClass.toString()
-    }
-
-    private fun typealiasDefinition(typeDeclaration: IDLTypeDeclaration) =
-        "typealias ${typeDeclaration.id} = ${getCorrespondingKotlinClass(typeDeclaration.type)}" +
-                if(typeDeclaration.isOptional) "?" else ""
-
-    /*private fun typeRecordToKotlinClass(recordType: IDLTypeRecord): String {
-        val classDefinition = StringBuilder()
-        val varDefinitions = CandidRecordParser.parseRecord(recordType.recordDeclaration)
-            .records
-            .joinToString(",\n") {
-                idlRecordToClassVariable(it)
-            }
-        classDefinition.append(varDefinitions)
-        return classDefinition.toString()
-    }*/
-
-    private fun typeVariantToKotlinClass(
-        typeVariant: IDLTypeVariant,
-        parentClassName: String
-    ): String {
-        val classDefinition = StringBuilder()
-
-        val classesDefinition = CandidVariantParser.parseVariant(typeVariant.variantDeclaration)
-            .variants.joinToString("\n") { variant ->
-
-                val correspondingKotlinClass = when(val type = variant.type) {
-                    is IDLTypeCustom -> {
-                        val clazz = type.typeDef
-                        "val ${clazz.replaceFirstChar { it.lowercase() }} : $clazz"
-                    }
-                    else -> getCorrespondingKotlinClass(type)
-                }
-
-                if (correspondingKotlinClass != null)
-                    """
-                        class ${variant.id} (
-                            $correspondingKotlinClass
-                        ) : $parentClassName()
-                    """.trimIndent()
-                else "data object ${variant.id} : $parentClassName()"
-            }
-        classDefinition.append(classesDefinition)
-        return classDefinition.toString()
-    }
-
-    private fun idlRecordToClassVariable(idlRecord: IDLRecord): String {
-        val variableDeclaration = StringBuilder()
-        idlRecord.comment?.let {
-            variableDeclaration.append(KotlinCommentGenerator.getKotlinComment(it))
-            variableDeclaration.append("\n")
-        }
-        // TODO, need to move optional in function call
-        variableDeclaration.append(
-            """
-                val ${idlRecord.id} : ${getCorrespondingKotlinClass(idlRecord.type)}${if (idlRecord.isOptional) "?" else ""}
-            """.trimIndent()
-        )
-        return variableDeclaration.toString()
-    }
-
-    // TODO, remove null return and throw Error?
-    internal fun getCorrespondingKotlinClass(idlType: IDLType): KotlinClassDefinition? {
-        val kotlinClass = when(idlType) {
-            is IDLTypeBlob -> "ByteArray"
-            is IDLTypeBoolean -> TODO()
-            is IDLTypeCustom -> idlType.typeDef
-            is IDLTypeFuncDeclaration -> TODO()
-            is IDLTypeInt -> "Int"
-            is IDLTypeNat -> "UInt"
-            is IDLTypeNat64 -> "ULong"
-            is IDLTypePrincipal -> "ICPPrincipal"
-            is IDLTypeRecord -> TODO() // typeRecordToKotlinClass(idlType)
-            is IDLTypeText -> "String"
-            is IDLTypeVariant -> TODO()
-            is IDLTypeNull -> null
-            is IDLTypeVec -> {
-                val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
-                if(idlVec.isOptional) "Array<${getCorrespondingKotlinClass(idlVec.type)}?>"
-                else "Array<${getCorrespondingKotlinClass(idlVec.type)}>"
-            }
-            is IDLFun -> KotlinFunctionGenerator.invoke(idlType)
-            is IDLTypeVecRecord -> "Array<TODO()>"
-        }
-        return KotlinClassDefinition(
-            kotlinClassString = kotlinClass!!
         )
     }
 }

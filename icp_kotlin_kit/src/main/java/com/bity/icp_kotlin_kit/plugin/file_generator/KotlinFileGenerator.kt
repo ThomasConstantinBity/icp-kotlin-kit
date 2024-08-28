@@ -8,7 +8,10 @@ import java.util.Locale
 
 internal object KotlinFileGenerator {
 
-    fun getFileText(idlFileDeclaration: IDLFileDeclaration): String {
+    fun getFileText(
+        idlFileDeclaration: IDLFileDeclaration,
+        removeCandidComment: Boolean = false
+    ): String {
 
         val kotlinClasses = StringBuilder()
         val imports = mutableSetOf<String>()
@@ -18,6 +21,10 @@ internal object KotlinFileGenerator {
 
             val candidDefinition = idlFileType.typeDefinition
                 .lines()
+                .filter {
+                    if(removeCandidComment) !it.trim().startsWith("//")
+                    else true
+                }
                 .joinToString("\n") { "* $it" }
             kotlinClasses.appendLine(
                 """
