@@ -6,11 +6,12 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.file_generator.KotlinCommentGenerator
-import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper.typeRecordToKotlinClass
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeCustomHelper
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
 
 internal object IDLTypeVariantHelper {
 
-    internal fun typeVariantToKotlinClass(
+    fun typeVariantToKotlinClass(
         className: String,
         typeVariant: IDLTypeVariant
     ): String {
@@ -22,16 +23,30 @@ internal object IDLTypeVariantHelper {
 
             // Comment
             it.comment?.let { comment ->
-                kotlinClassString.appendLine(KotlinCommentGenerator.getKotlinComment(comment))
+                kotlinClassString.append(KotlinCommentGenerator.getKotlinComment(comment))
             }
 
             val kotlinClassDefinition = when(val type = it.type) {
-                is IDLTypeRecord -> typeRecordToKotlinClass(
+                is IDLTypeRecord -> IDLTypeRecordHelper.typeRecordToKotlinClass(
                     className = it.id,
                     type = type
                 )
                 is IDLTypeNull -> "data object ${it.id}"
-                is IDLTypeCustom -> "class ${it.id}"
+
+                /**
+                 * We need to declare a single variable inside the class:
+                 *
+                 * type QueryArchiveResult = variant {
+                 *     Ok : BlockRange;
+                 *     Err : null;
+                 * };
+                 *
+                 * class Ok(val blockRange: BlockRange): QueryArchiveResult()
+                 */
+                is IDLTypeCustom -> IDLTypeCustomHelper.idlTypeCustomToKotlinClass(
+                    className = it.id,
+                    idlTypeCustom = type
+                )
                 else -> IDLTypeHelper.kotlinTypeVariable(type)
             }
 

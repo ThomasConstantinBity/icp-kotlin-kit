@@ -123,6 +123,11 @@ type BlockRange = record {
     blocks : vec Block;
 };
 
+type QueryArchiveResult = variant {
+    Ok : BlockRange;
+    Err : null;      // we don't know the values here...
+};
+
 service : {
     // Queries blocks in the specified range.
     query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;

@@ -10,6 +10,7 @@ internal object KotlinFileGenerator {
 
     fun getFileText(
         idlFileDeclaration: IDLFileDeclaration,
+        showCandidDefinition: Boolean = true,
         removeCandidComment: Boolean = false
     ): String {
 
@@ -18,20 +19,22 @@ internal object KotlinFileGenerator {
         // Type declaration
         idlFileDeclaration.types.forEach { idlFileType ->
 
-            val candidDefinition = idlFileType.typeDefinition
-                .lines()
-                .filter {
-                    if(removeCandidComment) !it.trim().startsWith("//")
-                    else true
-                }
-                .joinToString("\n") { "* $it" }
-            kotlinClasses.appendLine(
-                """
+            if(showCandidDefinition) {
+                val candidDefinition = idlFileType.typeDefinition
+                    .lines()
+                    .filter {
+                        if(removeCandidComment) !it.trim().startsWith("//")
+                        else true
+                    }
+                    .joinToString("\n") { "* $it" }
+                kotlinClasses.appendLine(
+                    """
                     /**
                      $candidDefinition
                      */
                 """.trimIndent()
-            )
+                )
+            }
 
             // Comment
             idlFileType.comment?.let { comment ->
@@ -49,7 +52,7 @@ internal object KotlinFileGenerator {
             """.trimMargin())
 
         idlFileDeclaration.comment?.let {
-            packageAndImports.appendLine(KotlinCommentGenerator.getKotlinComment(it))
+            packageAndImports.append(KotlinCommentGenerator.getKotlinComment(it))
         }
 
         return """$packageAndImports
