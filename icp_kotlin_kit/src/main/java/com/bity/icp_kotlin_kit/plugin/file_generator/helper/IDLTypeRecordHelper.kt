@@ -13,7 +13,7 @@ internal object IDLTypeRecordHelper {
         type: IDLTypeRecord
     ): String {
         // TODO, use an array
-        var innerClass: String? = null
+        val innerClasses = mutableListOf<String>()
         val kotlinClassString = StringBuilder().appendLine("class $className (")
 
         val idlRecordDeclaration = CandidRecordParser.parseRecord(type.recordDeclaration)
@@ -27,7 +27,7 @@ internal object IDLTypeRecordHelper {
                         is IDLTypeRecord -> {
                             val variableName = it.id
                             val arrayClassName = getClassNameFromVariableName(variableName)
-                            innerClass = typeRecordToKotlinClass(arrayClassName, idlVecType)
+                            innerClasses.add(typeRecordToKotlinClass(arrayClassName, idlVecType))
                             "val ${variableName}: ${IDLTypeVecHelper.kotlinDefinition(arrayClassName)}"
                         }
                         else -> idlRecordToKotlinClassVariable(it)
@@ -36,11 +36,12 @@ internal object IDLTypeRecordHelper {
             }
         kotlinClassString.appendLine(variablesDeclaration)
 
-        if(innerClass != null) {
+        if(innerClasses.isNotEmpty()) {
             kotlinClassString.appendLine(") {")
-            kotlinClassString.appendLine(innerClass)
+            innerClasses.forEach {
+                kotlinClassString.appendLine(it)
+            }
             kotlinClassString.appendLine("}")
-
         } else kotlinClassString.append(")")
         return kotlinClassString.toString()
     }
