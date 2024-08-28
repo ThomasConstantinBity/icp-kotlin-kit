@@ -11,6 +11,7 @@ fun StringBuilder.toKotlinFile(): String {
         kotlinFile.append("${"\t".repeat(indent)}${it.trim()}\n")
 
         when {
+            it.trim().startsWith("*") || it.startsWith("/*") -> { }
             it.endsWith("{") || it.endsWith("(") -> indent++
             it.endsWith("()") -> { }
             indent > 0 && (it.endsWith("}") || it.endsWith(")")) -> indent--

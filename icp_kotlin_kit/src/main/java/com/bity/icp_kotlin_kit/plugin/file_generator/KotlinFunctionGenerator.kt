@@ -36,12 +36,12 @@ internal object KotlinFunctionGenerator {
         return when(val size = outputParams.size) {
             0 -> "Unit"
 
-            1 -> {
+            1 -> TODO() /*{
                 val param = outputParams.first()
                 val argClass = KotlinClassGenerator.getCorrespondingKotlinClass(param.idlType)
                 if(param.argId != null) "${param.argId} : $argClass"
                 else argClass!!
-            }
+            }*/
 
             else -> {
                 val argsDeclaration = outputParams.map {

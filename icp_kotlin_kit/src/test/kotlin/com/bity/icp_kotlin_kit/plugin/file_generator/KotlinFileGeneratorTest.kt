@@ -10,13 +10,13 @@ class KotlinFileGeneratorTest {
 
     @Test
     fun test() {
-        val filePath = "candid_file/LedgerCanister.did"
+        val filePath = "candid_file/tmp.did"
         val classLoader = this.javaClass.classLoader
         val file = File(classLoader.getResource(filePath)!!.file)
         assertTrue(file.exists())
 
         val idlFileDeclaration = CandidFileParser.parseFile(file.readText())
-        val kotlinFileText = KotlinFileGenerator(idlFileDeclaration).getFileText()
+        val kotlinFileText = KotlinFileGenerator.getFileText(idlFileDeclaration)
         println(kotlinFileText)
 
         val kotlinFile = File("src/test/resources/generated_candid_file/tmp.kt")

@@ -1,49 +1,55 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidTypeParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFile
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-internal class KotlinFileGenerator(
-    private val idlFileDeclaration: IDLFileDeclaration
-) {
+internal object KotlinFileGenerator {
 
-    fun getFileText(): String {
+    fun getFileText(idlFileDeclaration: IDLFileDeclaration): String {
 
-        val fileText = StringBuilder()
-
-        // TODO, write package name?
-
-        // TODO, need to add import? use static one? ->
-        //  import com.bity.icp_kotlin_kit.domain.model.*
-
-        // File header
-        fileText.append(fileHeader())
-        fileText.append("\n\n")
-
-        // File comment
-        idlFileDeclaration.comment?.let {
-            fileText.append(KotlinCommentGenerator.getKotlinComment(it))
-            fileText.append("\n")
-        }
+        val kotlinClasses = StringBuilder()
+        val imports = mutableSetOf<String>()
 
         // Type declaration
         idlFileDeclaration.types.forEach { idlFileType ->
 
+            val candidDefinition = idlFileType.typeDefinition
+                .lines()
+                .joinToString("\n") { "* $it" }
+            kotlinClasses.appendLine(
+                """
+                    /**
+                     $candidDefinition
+                     */
+                """.trimIndent()
+            )
+
             // Comment
             idlFileType.comment?.let { comment ->
-                fileText.append(KotlinCommentGenerator.getKotlinComment(comment))
+                kotlinClasses.append(KotlinCommentGenerator.getKotlinComment(comment))
             }
 
-            val idlType = CandidTypeParser.parseType(idlFileType.typeDefinition)
-            fileText.append(KotlinClassGenerator.kotlinClass(idlType))
-            fileText.append("\n\n")
+            val kotlinClassDefinition = KotlinClassGenerator.kotlinClassDefinition(idlFileType.typeDefinition)
+            kotlinClasses.appendLine(kotlinClassDefinition.kotlinClassString)
+            imports.addAll(kotlinClassDefinition.import)
         }
 
-        return fileText.toKotlinFile()
+        val packageAndImports = StringBuilder().appendLine("// TODO, add package name\n")
+        if(imports.isNotEmpty()) {
+            packageAndImports.appendLine(imports.joinToString("\n"))
+        }
+        idlFileDeclaration.comment?.let {
+            packageAndImports.appendLine(KotlinCommentGenerator.getKotlinComment(it))
+        }
+
+        return """$packageAndImports
+            ${fileHeader().trimIndent()}
+            
+            $kotlinClasses
+        """.toKotlinFileString()
     }
 
     private fun fileHeader(): String {

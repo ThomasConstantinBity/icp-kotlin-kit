@@ -5,14 +5,10 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleL
 
 internal object KotlinCommentGenerator {
 
-    fun getKotlinComment(comment: IDLComment, indent: Int = 0): String {
-        val indentString = "\t".repeat(indent)
+    fun getKotlinComment(comment: IDLComment): String {
         return when (comment) {
             is IDLSingleLineComment ->
-                comment.commentLines.joinToString(
-                    separator = "\n",
-                    postfix = "\n"
-                ) { "${indentString}// $it" }
+                comment.commentLines.joinToString(separator  = "\n", postfix = "\n") { "// $it" }
         }
     }
 }

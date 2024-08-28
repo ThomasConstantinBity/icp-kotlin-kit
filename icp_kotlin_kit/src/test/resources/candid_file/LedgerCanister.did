@@ -1,24 +1,24 @@
 // https://internetcomputer.org/docs/current/references/ledger/
 
-type generated_candid_file.Tokens = record {
-     e8s : nat64;
+type Tokens = record {
+    e8s : nat64;
 };
 
 // Account identifier  is a 32-byte array.
 // The first 4 bytes is big-endian encoding of a CRC32 checksum of the last 28 bytes
-type generated_candid_file.AccountIdentifier = blob;
+type AccountIdentifier = blob;
 
 
 //There are three types of operations: minting tokens, burning tokens & transferring tokens
-type generated_candid_file.Transfer = variant {
+type Transfer = variant {
     Mint: record {
         to: AccountIdentifier;
         amount: Tokens;
     };
     Burn: record {
-         from: AccountIdentifier;
-         amount: Tokens;
-   };
+        from: AccountIdentifier;
+        amount: Tokens;
+    };
     Send: record {
         from: AccountIdentifier;
         to: AccountIdentifier;
@@ -26,37 +26,37 @@ type generated_candid_file.Transfer = variant {
     };
 };
 
-type generated_candid_file.Memo = nat64;
+type Memo = nat64;
 
-type generated_candid_file.SubAccount = blob;
+type SubAccount = blob;
 type Hash = blob;
 
 // Timestamps are represented as nanoseconds from the UNIX epoch in UTC timezone
-type generated_candid_file.TimeStamp = record {
+type TimeStamp = record {
     timestamp_nanos: nat64;
 };
 
-type generated_candid_file.Transaction = record {
+type Transaction = record {
     operation: opt Transfer;
     memo: Memo;
     created_at_time: TimeStamp;
 };
 
-type generated_candid_file.Block = record {
+type Block = record {
     parent_hash: opt Hash;
     transaction: Transaction;
     timestamp: TimeStamp;
 };
 
-type generated_candid_file.BlockIndex = nat64;
+type BlockIndex = nat64;
 
 // The ledger is a list of blocks
-type generated_candid_file.Ledger = vec Block;
+type Ledger = vec Block;
 
 // Arguments for the `transfer` call.
-type generated_candid_file.TransferArgs = record {
-    // generated_candid_file.Transaction memo.
-    // See comments for the `generated_candid_file.Memo` type.
+type TransferArgs = record {
+    // Transaction memo.
+    // See comments for the `Memo` type.
     memo: Memo;
     // The amount that the caller wants to transfer to the destination address.
     amount: Tokens;
@@ -65,7 +65,7 @@ type generated_candid_file.TransferArgs = record {
     fee: Tokens;
     // The subaccount from which the caller wants to transfer funds.
     // If null, the ledger uses the default (all zeros) subaccount to compute the source address.
-    // See comments for the `generated_candid_file.SubAccount` type.
+    // See comments for the `SubAccount` type.
     from_subaccount: opt SubAccount;
     // The destination account.
     // If the transfer is successful, the balance of this address increases by `amount`.
@@ -75,7 +75,7 @@ type generated_candid_file.TransferArgs = record {
     created_at_time: opt TimeStamp;
 };
 
-type generated_candid_file.TransferError = variant {
+type TransferError = variant {
     // The fee that the caller specified in the transfer request was not the one that ledger expects.
     // The caller can change the transfer fee to the `expected_fee` and retry the request.
     BadFee : record { expected_fee : Tokens; };
@@ -93,53 +93,53 @@ type generated_candid_file.TransferError = variant {
     TxDuplicate : record { duplicate_of: BlockIndex; }
 };
 
-type generated_candid_file.TransferResult = variant {
+type TransferResult = variant {
     Ok : BlockIndex;
     Err : TransferError;
 };
 
-type generated_candid_file.GetBlocksArgs = record {
+type GetBlocksArgs = record {
     // The index of the first block to fetch.
     start : BlockIndex;
     // Max number of blocks to fetch.
     length : nat64;
 };
 
-// A prefix of the block range specified in the [generated_candid_file.GetBlocksArgs] request.
-type generated_candid_file.BlockRange = record {
+// A prefix of the block range specified in the [GetBlocksArgs] request.
+type BlockRange = record {
     // A prefix of the requested block range.
-    // The index of the first block is equal to [generated_candid_file.GetBlocksArgs.from].
+    // The index of the first block is equal to [GetBlocksArgs.from].
     //
     // Note that the number of blocks might be less than the requested
-    // [generated_candid_file.GetBlocksArgs.len] for various reasons, for example:
+    // [GetBlocksArgs.len] for various reasons, for example:
     //
     // 1. The query might have hit the replica with an outdated state
     //    that doesn't have the full block range yet.
     // 2. The requested range is too large to fit into a single reply.
     //
     // NOTE: the list of blocks can be empty if:
-    // 1. [generated_candid_file.GetBlocksArgs.len] was zero.
-    // 2. [generated_candid_file.GetBlocksArgs.from] was larger than the last block known to the canister.
+    // 1. [GetBlocksArgs.len] was zero.
+    // 2. [GetBlocksArgs.from] was larger than the last block known to the canister.
     blocks : vec Block;
 };
 
-type generated_candid_file.QueryArchiveResult = variant {
+type QueryArchiveResult = variant {
     Ok : BlockRange;
     Err : null;      // we don't know the values here...
 };
 
 // A function that is used for fetching archived ledger blocks.
-type generated_candid_file.QueryArchiveFn = func (GetBlocksArgs) -> (QueryArchiveResult) query;
+type QueryArchiveFn = func (GetBlocksArgs) -> (QueryArchiveResult) query;
 
-// The result of a "query_blocks" call.
-//
-// The structure of the result is somewhat complicated because the main ledger canister might
-// not have all the blocks that the caller requested: One or more "archive" canisters might
-// store some of the requested blocks.
-//
-// Note: as of Q4 2021 when this interface is authored, ICP doesn't support making nested
-// query calls within a query call.
-type generated_candid_file.QueryBlocksResponse = record {
+    // The result of a "query_blocks" call.
+    //
+    // The structure of the result is somewhat complicated because the main ledger canister might
+    // not have all the blocks that the caller requested: One or more "archive" canisters might
+    // store some of the requested blocks.
+    //
+    // Note: as of Q4 2021 when this interface is authored, ICP doesn't support making nested
+    // query calls within a query call.
+type QueryBlocksResponse = record {
     // The total number of blocks in the chain.
     // If the chain length is positive, the index of the last block is `chain_len - 1`.
     chain_length : nat64;
@@ -180,27 +180,27 @@ type generated_candid_file.QueryBlocksResponse = record {
     };
 };
 
-type generated_candid_file.Archive = record {
+type Archive = record {
     canister_id: principal;
 };
 
-type generated_candid_file.Archives = record {
+type Archives = record {
     archives: vec Archive;
 };
 
-type generated_candid_file.AccountBalanceArgs = record {
+type AccountBalanceArgs = record {
     account: AccountIdentifier;
 };
 
 service : {
-  // Queries blocks in the specified range.
-  query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;
+    // Queries blocks in the specified range.
+    query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;
 
-  // Returns the existing archive canisters information.
-  archives : () -> (Archives) query;
+    // Returns the existing archive canisters information.
+    archives : () -> (Archives) query;
 
-  // Get the amount of ICP on the specified account.
-  account_balance : (AccountBalanceArgs) -> (Tokens) query;
+    // Get the amount of ICP on the specified account.
+    account_balance : (AccountBalanceArgs) -> (Tokens) query;
 
-  transfer : (TransferArgs) -> (TransferResult);
+    transfer : (TransferArgs) -> (TransferResult);
 }
