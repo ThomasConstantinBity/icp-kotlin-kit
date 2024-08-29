@@ -20,6 +20,7 @@ internal object KotlinFileGenerator {
             """// TODO, add package name
                 
                import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
+               import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.*
                
                ${fileHeader()}
             """.trimMargin())

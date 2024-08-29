@@ -1,4 +1,4 @@
-package com.bity.icp_kotlin_kit.plugin.candid_parser.util
+package com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared
 
 data class NTuple2<T1, T2>(val t1: T1, val t2: T2)
 

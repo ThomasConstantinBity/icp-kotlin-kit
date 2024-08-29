@@ -194,7 +194,7 @@ type AccountBalanceArgs = record {
 
 service : {
     // Queries blocks in the specified range.
-    query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;
+    query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse, QueryBlocksResponse, QueryBlocksResponse) query;
 
     // Returns the existing archive canisters information.
     archives : () -> (Archives) query;

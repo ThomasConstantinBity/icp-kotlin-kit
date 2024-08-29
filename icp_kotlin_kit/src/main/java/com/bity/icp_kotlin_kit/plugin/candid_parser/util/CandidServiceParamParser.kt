@@ -16,6 +16,7 @@ import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.expect
 import guru.zoroark.tegral.niwen.parser.dsl.item
 import guru.zoroark.tegral.niwen.parser.dsl.niwenParser
+import guru.zoroark.tegral.niwen.parser.dsl.optional
 import guru.zoroark.tegral.niwen.parser.dsl.or
 import guru.zoroark.tegral.niwen.parser.dsl.repeated
 import guru.zoroark.tegral.niwen.parser.dsl.self
@@ -24,6 +25,7 @@ internal object CandidServiceParamParser {
 
     private val serviceParamLexer = niwenLexer {
         state {
+            "," isToken Token.Comma
 
             "text" isToken Token.Text
             "blob" isToken Token.Blob
@@ -47,6 +49,9 @@ internal object CandidServiceParamParser {
         IDLServiceParam root {
             repeated<IDLServiceParam, IDLType> {
                 expect(IDLType) storeIn item
+                optional {
+                    expect(Token.Comma)
+                }
             } storeIn IDLServiceParam::params
         }
 

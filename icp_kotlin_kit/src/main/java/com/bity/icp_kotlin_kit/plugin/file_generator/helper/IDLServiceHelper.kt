@@ -16,14 +16,20 @@ internal object IDLServiceHelper {
                 """
                     (
                         ${inputArgsDeclaration(idlService.inputParamsDeclaration)}
-                    ):
+                    )
                 """.trimIndent()
             )
         else
-            functionDeclaration.append("():")
+            functionDeclaration.append("()")
 
         // Output args
-        functionDeclaration.appendLine("Unit {")
+        val outputKotlinDeclaration = outputArgsDeclaration(idlService.outputParamsDeclaration)
+        if(outputKotlinDeclaration.isNotEmpty())
+            functionDeclaration.append(": $outputKotlinDeclaration")
+        functionDeclaration.appendLine(" {")
+
+        // Function body
+        functionDeclaration.appendLine("TODO()")
 
         functionDeclaration.append("}")
         return functionDeclaration.toString()
@@ -42,6 +48,16 @@ internal object IDLServiceHelper {
                 primitiveTypeIndex++
                 variableName
             }
+        }
+    }
+
+    private fun outputArgsDeclaration(outputArgs: String): String {
+        val idlServiceParam = CandidServiceParamParser.parseServiceParam(outputArgs)
+        val params = idlServiceParam.params
+        return when {
+            params.isEmpty() -> ""
+            params.size == 1 -> IDLTypeHelper.kotlinTypeVariable(params.first())
+            else -> "NTuple${params.size}<${params.joinToString { IDLTypeHelper.kotlinTypeVariable(it) }}>"
         }
     }
 }
