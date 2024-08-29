@@ -70,7 +70,6 @@ internal object CandidServiceParser {
     }
 
     fun parseService(input: String): IDLServiceDeclaration {
-        CandidFileParser.debug(lexer = serviceLexer, input)
         return serviceParser.parse(serviceLexer.tokenize(input))
     }
 
