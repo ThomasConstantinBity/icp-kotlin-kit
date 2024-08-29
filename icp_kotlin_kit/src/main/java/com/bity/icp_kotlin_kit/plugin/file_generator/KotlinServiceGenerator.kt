@@ -47,6 +47,9 @@ internal object KotlinServiceGenerator {
         )
 
         idlServiceDeclaration.services.forEach { service ->
+            service.comment?.let { comment ->
+                serviceKotlinString.append(KotlinCommentGenerator.getKotlinComment(comment))
+            }
             serviceKotlinString.appendLine(
                 IDLServiceHelper.convertServiceIntoKotlinFunction(service)
             )

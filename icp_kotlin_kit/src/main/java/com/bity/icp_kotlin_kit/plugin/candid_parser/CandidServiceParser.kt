@@ -1,5 +1,7 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
@@ -12,11 +14,14 @@ import guru.zoroark.tegral.niwen.parser.dsl.item
 import guru.zoroark.tegral.niwen.parser.dsl.niwenParser
 import guru.zoroark.tegral.niwen.parser.dsl.optional
 import guru.zoroark.tegral.niwen.parser.dsl.repeated
+import guru.zoroark.tegral.niwen.parser.dsl.self
 
 internal object CandidServiceParser {
 
     private val serviceLexer = niwenLexer {
         state {
+            matches("//.*") isToken Token.SingleLineComment
+
             "service" isToken Token.Service
             ":" isToken Token.Colon
             "{" isToken Token.LBrace
@@ -55,6 +60,9 @@ internal object CandidServiceParser {
         }
 
         IDLService {
+            optional {
+                expect(IDLComment) storeIn IDLService::comment
+            }
             expect(Token.Id) storeIn IDLService::id
             expect(Token.Colon)
             expect(Token.ServiceArgs) transform { formatParamDeclaration(it) } storeIn IDLService::inputParamsDeclaration
@@ -66,6 +74,20 @@ internal object CandidServiceParser {
                     emit(IDLServiceType.Query) storeIn IDLService::serviceType
                 }
             }
+        }
+
+        /**
+         * Comment
+         */
+        IDLComment {
+            either {
+                expect(IDLSingleLineComment) storeIn self()
+            }
+        }
+        IDLSingleLineComment {
+            repeated(min = 1) {
+                expect(Token.SingleLineComment) transform { it.removeRange(0..2).trim() } storeIn item
+            } storeIn IDLSingleLineComment::commentLines
         }
     }
 

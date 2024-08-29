@@ -193,14 +193,6 @@ type AccountBalanceArgs = record {
 };
 
 service : {
-    // Queries blocks in the specified range.
-    query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse, QueryBlocksResponse, QueryBlocksResponse) query;
-
-    // Returns the existing archive canisters information.
-    archives : () -> (Archives) query;
-
     // Get the amount of ICP on the specified account.
     account_balance : (AccountBalanceArgs) -> (Tokens) query;
-
-    transfer : (TransferArgs) -> (TransferResult);
 }
