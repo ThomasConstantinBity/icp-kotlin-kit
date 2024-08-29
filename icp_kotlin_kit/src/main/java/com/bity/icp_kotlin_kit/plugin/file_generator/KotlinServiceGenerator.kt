@@ -7,6 +7,31 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLServiceHelper
 
 internal object KotlinServiceGenerator {
 
+    private val privateQueryDeclaration = """
+        private suspend fun query(
+        method: ICPMethod,
+        certification: ICPRequestCertification,
+        sender: ICPSigningPrincipal? = null,
+        pollingValues: PollingValues
+    ): Result<CandidValue> =
+        when(certification) {
+            ICPRequestCertification.Uncertified -> icpCanisterRepository.query(method)
+            ICPRequestCertification.Certified -> {
+                val requestId = icpCanisterRepository.call(
+                    method = method,
+                    sender = sender
+                ).getOrElse { return Result.failure(it) }
+                icpCanisterRepository.pollRequestStatus(
+                    requestId = requestId,
+                    canister = method.canister,
+                    sender = sender,
+                    durationSeconds = pollingValues.durationSeconds,
+                    waitDurationSeconds = pollingValues.waitDurationSeconds
+                )
+            }
+        }
+    """.trimIndent()
+
     // TODO, add service name
     fun getServiceText(
         idlFileService: IDLFileService,
@@ -16,15 +41,17 @@ internal object KotlinServiceGenerator {
         val serviceKotlinString = StringBuilder()
 
         // Candid definition
-        if(showCandidDefinition) {
+        if (showCandidDefinition) {
             serviceKotlinString.appendLine(
                 """
                     /**
-                     ${CandidDefinitionHelper
-                         .candidDefinition(
-                             definition = idlFileService.serviceDefinition, 
-                             removeCandidComment = removeCandidComment
-                         )}
+                     ${
+                    CandidDefinitionHelper
+                        .candidDefinition(
+                            definition = idlFileService.serviceDefinition,
+                            removeCandidComment = removeCandidComment
+                        )
+                }
                      */
                     """.trimIndent()
             )
@@ -36,7 +63,8 @@ internal object KotlinServiceGenerator {
             serviceKotlinString.appendLine(comment)
         }
 
-        val idlServiceDeclaration = CandidServiceParser.parseService(idlFileService.serviceDefinition)
+        val idlServiceDeclaration =
+            CandidServiceParser.parseService(idlFileService.serviceDefinition)
 
         // TODO, add initArgsDeclaration
         val constructorParams = StringBuilder(
@@ -66,14 +94,20 @@ internal object KotlinServiceGenerator {
             )
         }
 
+        serviceKotlinString.appendLine(privateQueryDeclaration)
+
         // Companion object
-        serviceKotlinString.appendLine("""
-            ${companionObjectDefinition(
-                // TODO
-                serviceClassName = "Service",
-                additionalConstructorParams = additionalConstructorParams
-            )}
-        """.trimIndent())
+        serviceKotlinString.appendLine(
+            """
+            ${
+                companionObjectDefinition(
+                    // TODO
+                    serviceClassName = "Service",
+                    additionalConstructorParams = additionalConstructorParams
+                )
+            }
+        """.trimIndent()
+        )
 
         serviceKotlinString.appendLine("}")
         return serviceKotlinString.toString()
@@ -83,9 +117,9 @@ internal object KotlinServiceGenerator {
         serviceClassName: String,
         additionalConstructorParams: String?
     ): String {
-        return if(additionalConstructorParams != null)
+        return if (additionalConstructorParams != null)
             TODO()
-         else """
+        else """
             companion object {
                 fun init(
                     canister: ICPPrincipal

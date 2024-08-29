@@ -1,18 +1,20 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.CandidServiceParamParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 
 internal object IDLServiceHelper {
 
+    // TODO, add certification
     fun convertServiceIntoKotlinFunction(idlService: IDLService): String {
         val functionDeclaration = StringBuilder().append("suspend fun ${idlService.id}")
 
         // Input args
         if(idlService.inputParamsDeclaration.isNotEmpty())
-            functionDeclaration.append("(\n${inputArgsDeclaration(idlService.inputParamsDeclaration)}\n)")
+            functionDeclaration.append("(\n${inputArgsDeclaration(idlService.inputParamsDeclaration, idlService.serviceType)}\n)")
         else
             functionDeclaration.append("()")
 
@@ -29,9 +31,18 @@ internal object IDLServiceHelper {
         return functionDeclaration.toString()
     }
 
-    private fun inputArgsDeclaration(inputArgs: String): String {
+    private fun inputArgsDeclaration(
+        inputArgs: String,
+        idlServiceType: IDLServiceType?
+    ): String {
         val idlServiceParam = CandidServiceParamParser.parseServiceParam(inputArgs)
-        if(idlServiceParam.params.isEmpty()) return "sender: ICPSigningPrincipal? = null"
+        val baseArgsDeclaration = """
+                sender: ICPSigningPrincipal? = null,
+                certification: ICPRequestCertification = ${defaultCertificationForFunction(idlServiceType)},
+                pollingValues: PollingValues = PollingValues()
+            """.trimIndent()
+        if(idlServiceParam.params.isEmpty()) 
+            return baseArgsDeclaration
         var primitiveTypeIndex = 0
         val functionInputArgs = idlServiceParam.params.joinToString(",\n") {
             val kotlinClassType = IDLTypeHelper.kotlinTypeVariable(it)
@@ -44,10 +55,17 @@ internal object IDLServiceHelper {
             }
         }
         return """
-            sender: ICPSigningPrincipal? = null,
-            $functionInputArgs
+            $functionInputArgs,
+            $baseArgsDeclaration
         """.trimIndent()
     }
+    
+    private fun defaultCertificationForFunction(idlServiceType: IDLServiceType?) =
+        when(idlServiceType) {
+            null,
+            IDLServiceType.Query -> "ICPRequestCertification.Uncertified"
+            IDLServiceType.OneWay -> TODO()
+        }
 
     private fun outputArgsDeclaration(outputArgs: String): String {
         val idlServiceParam = CandidServiceParamParser.parseServiceParam(outputArgs)
@@ -70,9 +88,18 @@ internal object IDLServiceHelper {
         )
         """.trimIndent()
 
-        val functionCall =
+        val functionCall = """
+            val result = query(
+                method = icpMethod,
+                certification = certification,
+                sender = sender,
+                pollingValues = pollingValues
+            ).getOrThrow()
+        """.trimIndent()
 
-        return """$icpMethodDeclaration
+        return """
+            $icpMethodDeclaration
+            $functionCall
         """.trimIndent()
     }
 }
