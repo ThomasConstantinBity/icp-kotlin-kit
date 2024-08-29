@@ -6,7 +6,7 @@ import guru.zoroark.tegral.niwen.parser.reflective
 
 internal data class IDLService(
     val comment: IDLComment? = null,
-    val id: String? = null,
+    val id: String,
     val inputParamsDeclaration: String,
     val outputParamsDeclaration: String,
     val serviceType: IDLServiceType? = null

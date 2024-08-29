@@ -19,8 +19,10 @@ internal object KotlinFileGenerator {
         val packageAndImports = StringBuilder().appendLine(
             """// TODO, add package name
                 
+               import com.bity.icp_kotlin_kit.domain.model.ICPMethod
                import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
                import com.bity.icp_kotlin_kit.provideICPCanisterRepository
+               import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
                import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.*
                import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
                

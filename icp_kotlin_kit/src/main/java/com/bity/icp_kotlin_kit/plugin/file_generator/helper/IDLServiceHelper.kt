@@ -12,13 +12,7 @@ internal object IDLServiceHelper {
 
         // Input args
         if(idlService.inputParamsDeclaration.isNotEmpty())
-            functionDeclaration.append(
-                """
-                    (
-                        ${inputArgsDeclaration(idlService.inputParamsDeclaration)}
-                    )
-                """.trimIndent()
-            )
+            functionDeclaration.append("(\n${inputArgsDeclaration(idlService.inputParamsDeclaration)}\n)")
         else
             functionDeclaration.append("()")
 
@@ -29,7 +23,7 @@ internal object IDLServiceHelper {
         functionDeclaration.appendLine(" {")
 
         // Function body
-        functionDeclaration.appendLine("TODO()")
+        functionDeclaration.appendLine(serviceFunctionBody(idlService.id))
 
         functionDeclaration.append("}")
         return functionDeclaration.toString()
@@ -37,18 +31,22 @@ internal object IDLServiceHelper {
 
     private fun inputArgsDeclaration(inputArgs: String): String {
         val idlServiceParam = CandidServiceParamParser.parseServiceParam(inputArgs)
-        if(idlServiceParam.params.isEmpty()) return ""
+        if(idlServiceParam.params.isEmpty()) return "sender: ICPSigningPrincipal? = null"
         var primitiveTypeIndex = 0
-        return idlServiceParam.params.joinToString(",\n") {
+        val functionInputArgs = idlServiceParam.params.joinToString(",\n") {
             val kotlinClassType = IDLTypeHelper.kotlinTypeVariable(it)
             if(it is IDLTypeCustom)
-                "${kotlinClassType.kotlinVariableName()}: $kotlinClassType"
+                "${kotlinClassType.kotlinVariableName()}: $kotlinClassType".trim()
             else {
                 val variableName = "_$primitiveTypeIndex: $kotlinClassType"
                 primitiveTypeIndex++
                 variableName
             }
         }
+        return """
+            sender: ICPSigningPrincipal? = null,
+            $functionInputArgs
+        """.trimIndent()
     }
 
     private fun outputArgsDeclaration(outputArgs: String): String {
@@ -59,5 +57,22 @@ internal object IDLServiceHelper {
             params.size == 1 -> IDLTypeHelper.kotlinTypeVariable(params.first())
             else -> "NTuple${params.size}<${params.joinToString { IDLTypeHelper.kotlinTypeVariable(it) }}>"
         }
+    }
+
+    private fun serviceFunctionBody(
+        methodName: String,
+    ): String {
+        val icpMethodDeclaration = """
+            val icpMethod = ICPMethod(
+            canister = canister,
+            methodName = "$methodName",
+            args = TODO()
+        )
+        """.trimIndent()
+
+        val functionCall =
+
+        return """$icpMethodDeclaration
+        """.trimIndent()
     }
 }

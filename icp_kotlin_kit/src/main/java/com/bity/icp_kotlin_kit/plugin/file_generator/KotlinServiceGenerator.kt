@@ -40,7 +40,10 @@ internal object KotlinServiceGenerator {
 
         // TODO, add initArgsDeclaration
         val constructorParams = StringBuilder(
-            "private val icpCanisterRepository: ICPCanisterRepository"
+            """
+                private val canister: ICPPrincipal,
+                private val icpCanisterRepository: ICPCanisterRepository
+            """.trimIndent()
         )
         val additionalConstructorParams: String? = idlServiceDeclaration.initArgsDeclaration?.let {
             TODO("Convert and add param")
@@ -84,8 +87,11 @@ internal object KotlinServiceGenerator {
             TODO()
          else """
             companion object {
-                fun init(): $serviceClassName =
+                fun init(
+                    canister: ICPPrincipal
+                ): $serviceClassName =
                     $serviceClassName(
+                        canister = canister,
                         icpCanisterRepository = provideICPCanisterRepository()
                     )
             }
