@@ -39,10 +39,18 @@ internal object KotlinServiceGenerator {
         val idlServiceDeclaration = CandidServiceParser.parseService(idlFileService.serviceDefinition)
 
         // TODO, add initArgsDeclaration
+        val constructorParams = StringBuilder(
+            "private val icpCanisterRepository: ICPCanisterRepository"
+        )
+        val additionalConstructorParams: String? = idlServiceDeclaration.initArgsDeclaration?.let {
+            TODO("Convert and add param")
+        }
 
         serviceKotlinString.appendLine(
             """
-                class Service(){
+                class Service private constructor(
+                    $constructorParams
+                ){
             """.trimIndent()
         )
 
@@ -55,7 +63,32 @@ internal object KotlinServiceGenerator {
             )
         }
 
+        // Companion object
+        serviceKotlinString.appendLine("""
+            ${companionObjectDefinition(
+                // TODO
+                serviceClassName = "Service",
+                additionalConstructorParams = additionalConstructorParams
+            )}
+        """.trimIndent())
+
         serviceKotlinString.appendLine("}")
         return serviceKotlinString.toString()
+    }
+
+    private fun companionObjectDefinition(
+        serviceClassName: String,
+        additionalConstructorParams: String?
+    ): String {
+        return if(additionalConstructorParams != null)
+            TODO()
+         else """
+            companion object {
+                fun init(): $serviceClassName =
+                    $serviceClassName(
+                        icpCanisterRepository = provideICPCanisterRepository()
+                    )
+            }
+        """.trimIndent()
     }
 }
