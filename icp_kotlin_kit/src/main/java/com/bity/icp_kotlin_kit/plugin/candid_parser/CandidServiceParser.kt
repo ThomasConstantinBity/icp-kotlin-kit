@@ -2,8 +2,11 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
+import guru.zoroark.tegral.niwen.parser.dsl.either
+import guru.zoroark.tegral.niwen.parser.dsl.emit
 import guru.zoroark.tegral.niwen.parser.dsl.expect
 import guru.zoroark.tegral.niwen.parser.dsl.item
 import guru.zoroark.tegral.niwen.parser.dsl.niwenParser
@@ -21,8 +24,9 @@ internal object CandidServiceParser {
             "->" isToken Token.Arrow
             ";" isToken Token.Semi
 
-            matches("""\((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*\)""") isToken Token.ServiceArgs
+            matches("""\bquery\b(?!_)""") isToken Token.Query
             matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
+            matches("""\((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*\)""") isToken Token.ServiceArgs
 
             matches("[ \t\r\n]+").ignore
             matches("//[^\n]*").ignore
@@ -56,16 +60,17 @@ internal object CandidServiceParser {
             expect(Token.ServiceArgs) transform { formatParamDeclaration(it) } storeIn IDLService::inputParamsDeclaration
             expect(Token.Arrow)
             expect(Token.ServiceArgs) transform { formatParamDeclaration(it) } storeIn IDLService::outputParamsDeclaration
+            optional {
+                either {
+                    expect(Token.Query)
+                    emit(IDLServiceType.Query) storeIn IDLService::serviceType
+                }
+            }
         }
     }
 
     fun parseService(input: String): IDLServiceDeclaration {
-        // TODO remove
-        serviceLexer.tokenize(input).forEachIndexed { index, token ->
-            println("""
-                [$index] - ${token.tokenType} ("${token.string}") 
-            """.trimIndent())
-        }
+        CandidFileParser.debug(lexer = serviceLexer, input)
         return serviceParser.parse(serviceLexer.tokenize(input))
     }
 

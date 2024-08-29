@@ -3,6 +3,7 @@ package com.bity.icp_kotlin_kit.plugin.file_generator
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.CandidDefinitionHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,7 +34,13 @@ internal object KotlinFileGenerator {
             removeCandidComment = removeCandidComment
         )
 
-        val kotlinService = "// TODO"
+        val kotlinService = idlFileDeclaration.service?.let {
+            KotlinServiceGenerator.getServiceText(
+                idlFileService = it,
+                showCandidDefinition = showCandidDefinition,
+                removeCandidComment = removeCandidComment
+            )
+        } ?: ""
 
         return """
             $packageAndImports
@@ -54,7 +61,11 @@ internal object KotlinFileGenerator {
                 kotlinClasses.appendLine(
                     """
                         /**
-                         ${candidDefinition(idlFileType, removeCandidComment)}
+                         ${CandidDefinitionHelper
+                             .candidDefinition(
+                                 definition = idlFileType.typeDefinition, 
+                                 removeCandidComment = removeCandidComment
+                             )}
                          */
                     """.trimIndent()
                 )
@@ -70,15 +81,6 @@ internal object KotlinFileGenerator {
         }
         return kotlinClasses.toString()
     }
-
-    private fun candidDefinition(idlFileType: IDLFileType, removeCandidComment: Boolean) =
-        idlFileType.typeDefinition
-            .lines()
-            .filter {
-                if(removeCandidComment) !it.trim().startsWith("//")
-                else true
-            }
-            .joinToString("\n") { "* $it" }
 
     private fun fileHeader(): String {
         val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault())
