@@ -1,6 +1,7 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -14,25 +15,48 @@ internal object KotlinFileGenerator {
         removeCandidComment: Boolean = false
     ): String {
 
-        val kotlinClasses = StringBuilder()
+        val packageAndImports = StringBuilder().appendLine(
+            """// TODO, add package name
+                
+               import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
+               
+               ${fileHeader()}
+            """.trimMargin())
+        idlFileDeclaration.comment?.let {
+            packageAndImports.appendLine()
+            packageAndImports.append(KotlinCommentGenerator.getKotlinComment(it))
+        }
 
-        // Type declaration
-        idlFileDeclaration.types.forEach { idlFileType ->
+        val kotlinClasses = convertIDLFileTypeToKotlinClasses(
+            types = idlFileDeclaration.types,
+            showCandidDefinition = showCandidDefinition,
+            removeCandidComment = removeCandidComment
+        )
+
+        val kotlinService = "// TODO"
+
+        return """
+            $packageAndImports
+            $kotlinClasses
+            $kotlinService
+        """.toKotlinFileString()
+    }
+
+    private fun convertIDLFileTypeToKotlinClasses(
+        types: List<IDLFileType>,
+        showCandidDefinition: Boolean,
+        removeCandidComment: Boolean
+    ): String {
+        val kotlinClasses = StringBuilder()
+        types.forEach { idlFileType ->
 
             if(showCandidDefinition) {
-                val candidDefinition = idlFileType.typeDefinition
-                    .lines()
-                    .filter {
-                        if(removeCandidComment) !it.trim().startsWith("//")
-                        else true
-                    }
-                    .joinToString("\n") { "* $it" }
                 kotlinClasses.appendLine(
                     """
-                    /**
-                     $candidDefinition
-                     */
-                """.trimIndent()
+                        /**
+                         ${candidDefinition(idlFileType, removeCandidComment)}
+                         */
+                    """.trimIndent()
                 )
             }
 
@@ -44,24 +68,17 @@ internal object KotlinFileGenerator {
             val kotlinClassDefinition = IDLTypeDeclarationConverter(idlFileType.typeDefinition)
             kotlinClasses.appendLine(kotlinClassDefinition)
         }
-
-        val packageAndImports = StringBuilder().appendLine(
-            """// TODO, add package name
-                
-               import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
-               
-               ${fileHeader()}
-            """.trimMargin())
-
-        idlFileDeclaration.comment?.let {
-            packageAndImports.appendLine()
-            packageAndImports.append(KotlinCommentGenerator.getKotlinComment(it))
-        }
-
-        return """$packageAndImports
-            $kotlinClasses
-        """.toKotlinFileString()
+        return kotlinClasses.toString()
     }
+
+    private fun candidDefinition(idlFileType: IDLFileType, removeCandidComment: Boolean) =
+        idlFileType.typeDefinition
+            .lines()
+            .filter {
+                if(removeCandidComment) !it.trim().startsWith("//")
+                else true
+            }
+            .joinToString("\n") { "* $it" }
 
     private fun fileHeader(): String {
         val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault())

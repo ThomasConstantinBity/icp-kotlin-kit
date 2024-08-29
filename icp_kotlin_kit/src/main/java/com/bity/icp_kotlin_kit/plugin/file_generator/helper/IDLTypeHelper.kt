@@ -17,7 +17,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVecRecord
 
 internal object IDLTypeHelper {
     fun kotlinTypeVariable(type: IDLType): String =
@@ -41,6 +40,5 @@ internal object IDLTypeHelper {
                 if (idlVec.isOptional) typeArray.append("?")
                 "Array<$typeArray>"
             }
-            is IDLTypeVecRecord -> TODO()
         }
 }

@@ -10,7 +10,7 @@ class KotlinFileGeneratorTest {
 
     @Test
     fun test() {
-        val filePath = "candid_file/tmp.did"
+        val filePath = "candid_file/LedgerCanister.did"
         val classLoader = this.javaClass.classLoader
         val file = File(classLoader.getResource(filePath)!!.file)
         assertTrue(file.exists())

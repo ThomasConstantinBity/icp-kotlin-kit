@@ -18,7 +18,6 @@ internal enum class Token: TokenType {
     Arrow,
     Null,
     Vec,
-    VecRecord,
     Record,
     Variant,
     Func,

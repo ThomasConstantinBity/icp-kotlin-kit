@@ -45,7 +45,6 @@ internal object CandidTypeParser {
             "null" isToken Token.Null
             "text" isToken Token.Text
 
-            matches("vec record \\{[^}]+\\}") isToken Token.VecRecord
             matches ("vec [^;]+") isToken Token.Vec
             matches("""record\s+\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}""") isToken Token.Record
             matches("variant\\s*\\{[^{}]*+(?:\\{[^{}]*+}[^{}]*+)*}") isToken Token.Variant

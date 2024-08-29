@@ -8,7 +8,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrinci
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVecRecord
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper.kotlinTypeVariable
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper.typeRecordToKotlinClass
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeVariantHelper.typeVariantToKotlinClass
@@ -45,7 +44,6 @@ internal object IDLTypeDeclarationConverter {
                 id = idlTypeDeclaration.id,
                 kotlinType = typeVecToKotlinDefinition(type)
             )
-            is IDLTypeVecRecord -> TODO()
             else -> typealiasDefinition(
                 id = idlTypeDeclaration.id,
                 kotlinType = kotlinTypeVariable(type)
