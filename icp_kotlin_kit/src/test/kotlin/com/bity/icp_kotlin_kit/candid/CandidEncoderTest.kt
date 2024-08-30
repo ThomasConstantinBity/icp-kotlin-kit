@@ -22,6 +22,7 @@ import com.bity.icp_kotlin_kit.domain.request.PollingValues
 import com.bity.icp_kotlin_kit.provideICPCanisterRepository
 import com.bity.icp_kotlin_kit.util.ext_function.ICPAmount
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Disabled
 
 /**
  * File generated at 29/08/2024 04:46:29 using ICP Kotlin Kit Plugin
@@ -34,7 +35,7 @@ import kotlinx.coroutines.test.runTest
  *     e8s : nat64;
  * };
  */
-class Tokens(
+data class Tokens constructor (
     val e8s: ULong
 )
 
@@ -460,8 +461,7 @@ class Service private constructor(
             sender = sender,
             pollingValues = pollingValues
         ).getOrThrow()
-        println(result.ICPAmount)
-        TODO()
+        return CandidDecoder(result)
     }
 
     private suspend fun query(
@@ -500,15 +500,17 @@ class Service private constructor(
 
 internal class CandidEncoderTest {
 
+    // @Disabled
     @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun test() = runTest {
         val icpPrincipal = ICPPrincipal.selfAuthenticatingPrincipal("046acf4c93dd993cd736420302eb70da254532ec3179250a21eec4ce823ff289aaa382cb19576b2c6447db09cb45926ebd69ce288b1804580fe62c343d3252ec6e".hexToByteArray())
         val icpAccount = ICPAccount.mainAccount(icpPrincipal)
         val service = Service.init(canister = ICPSystemCanisters.Ledger.icpPrincipal)
-        service.account_balance(
+        val balance = service.account_balance(
             accountBalanceArgs = AccountBalanceArgs(icpAccount.accountId)
         )
+        println(balance)
     }
 
     @ParameterizedTest(name = "[{index}] - encoding {0}")
@@ -599,11 +601,16 @@ internal class CandidEncoderTest {
     @MethodSource("nullValue")
     fun `encode null value`(
         expectedClass: Class<*>,
-        expectedResult: CandidValue
+        expectedResult: CandidValue,
+        expectedClassNullable: Boolean
     ) {
         assertEquals(
             expectedResult,
-            CandidEncoder(null, expectedClass)
+            CandidEncoder(
+                arg = null,
+                expectedClass = expectedClass,
+                expectedClassNullable = expectedClassNullable
+            )
         )
     }
 
@@ -715,14 +722,93 @@ internal class CandidEncoderTest {
                 Boolean::class.java,
                 CandidValue.Option(
                     containedType = CandidType.Primitive(CandidPrimitiveType.BOOL)
-                )
+                ),
+                false
             ),
             Arguments.of(
                 String::class.java,
                 CandidValue.Option(
                     containedType = CandidType.Primitive(CandidPrimitiveType.TEXT)
-                )
+                ),
+                false
             ),
+            Arguments.of(
+                Long::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.INTEGER64)
+                ),
+                true
+            ),
+            Arguments.of(
+                UByte::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.NATURAL8)
+                ),
+                true
+            ),
+            Arguments.of(
+                UShort::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.NATURAL16)
+                ),
+                true
+            ),
+            Arguments.of(
+                UInt::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.NATURAL32)
+                ),
+                true
+            ),
+            Arguments.of(
+                ULong::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.NATURAL64)
+                ),
+                true
+            ),
+            Arguments.of(
+                Byte::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.INTEGER8)
+                ),
+                true
+            ),
+            Arguments.of(
+                Short::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.INTEGER16)
+                ),
+                true
+            ),
+            Arguments.of(
+                Int::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.INTEGER32)
+                ),
+                true
+            ),
+            Arguments.of(
+                Long::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.INTEGER64)
+                ),
+                true
+            ),
+            Arguments.of(
+                Float::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.FLOAT32)
+                ),
+                true
+            ),
+            Arguments.of(
+                Double::class.java,
+                CandidValue.Option(
+                    containedType = CandidType.Primitive(CandidPrimitiveType.FLOAT64)
+                ),
+                true
+            )
         )
 
         /**
@@ -730,27 +816,10 @@ internal class CandidEncoderTest {
          *
          *     (BigUInt(5), .natural(5)),
          *     (BigInt(-5), .integer(-5)),
-         *     (Data([]), .blob(Data())),
-         *     (Data([1,2,3]), .blob(Data([1,2,3]))),
          *
          *     (Optional(8), .option(.integer64(8))),
-         *
-         *
-         *     (Data?.none, .option(.blob)),
-         *     (UInt8?.none, .option(.natural8)),
-         *     (UInt16?.none, .option(.natural16)),
-         *     (UInt32?.none, .option(.natural32)),
-         *     (UInt64?.none, .option(.natural64)),
-         *     (UInt?.none, .option(.natural64)),
          *     (BigUInt?.none, .option(.natural)),
-         *     (Int8?.none, .option(.integer8)),
-         *     (Int16?.none, .option(.integer16)),
-         *     (Int32?.none, .option(.integer32)),
-         *     (Int64?.none, .option(.integer64)),
-         *     (Int?.none, .option(.integer64)),
          *     (BigInt?.none, .option(.integer)),
-         *     (Float?.none, .option(.float32)),
-         *     (Double?.none, .option(.float64)),
          *     (Optional(Optional(8)), .option(.option(.integer64(8)))),
          *     (Optional(Int?.none), .option(CandidValue.option(.integer64))),
          */

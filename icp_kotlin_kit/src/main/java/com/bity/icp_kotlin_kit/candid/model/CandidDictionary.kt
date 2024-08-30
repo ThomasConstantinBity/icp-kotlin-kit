@@ -24,7 +24,8 @@ internal class CandidDictionary(
         )
     )
 
-    operator fun get(key: String): CandidValue? {
+    operator fun get(key: String?): CandidValue? {
+        key ?: return null
         val hashedKey = hash(key)
         return get(hashedKey)
     }
