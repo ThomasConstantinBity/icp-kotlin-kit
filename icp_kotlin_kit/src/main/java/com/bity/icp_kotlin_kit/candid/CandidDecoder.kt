@@ -23,9 +23,9 @@ internal object CandidDecoder {
             is CandidValue.Integer8 -> candidValue.int8
             is CandidValue.Natural -> candidValue.bigUInt
             is CandidValue.Natural16 -> candidValue.uInt16
-            is CandidValue.Natural32 -> TODO()
+            is CandidValue.Natural32 -> candidValue.uInt32
             is CandidValue.Natural64 -> candidValue.uInt64
-            is CandidValue.Natural8 -> TODO()
+            is CandidValue.Natural8 -> candidValue.uInt8
             CandidValue.Null -> TODO()
             is CandidValue.Option -> TODO()
             is CandidValue.Record -> buildObject(candidValue.dictionary, T::class)
