@@ -8,7 +8,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableN
 
 internal object IDLServiceHelper {
 
-    fun convertServiceIntoKotlinFunction(idlService: IDLService): String {
+    fun convertServiceIntoKotlinFunction(idlService: IDLService, ): String {
         val functionDeclaration = StringBuilder().append("suspend fun ${idlService.id}")
 
         // Input args

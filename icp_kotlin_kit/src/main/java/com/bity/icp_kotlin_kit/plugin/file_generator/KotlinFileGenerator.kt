@@ -12,6 +12,7 @@ internal object KotlinFileGenerator {
 
     fun getFileText(
         idlFileDeclaration: IDLFileDeclaration,
+        serviceName: String,
         showCandidDefinition: Boolean = true,
         removeCandidComment: Boolean = false
     ): String {
@@ -47,6 +48,7 @@ internal object KotlinFileGenerator {
         val kotlinService = idlFileDeclaration.service?.let {
             KotlinServiceGenerator.getServiceText(
                 idlFileService = it,
+                serviceName = serviceName,
                 showCandidDefinition = showCandidDefinition,
                 removeCandidComment = removeCandidComment
             )

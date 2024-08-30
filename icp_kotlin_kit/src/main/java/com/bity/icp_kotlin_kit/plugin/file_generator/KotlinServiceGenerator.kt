@@ -32,9 +32,9 @@ internal object KotlinServiceGenerator {
         }
     """.trimIndent()
 
-    // TODO, add service name
     fun getServiceText(
         idlFileService: IDLFileService,
+        serviceName: String,
         showCandidDefinition: Boolean = true,
         removeCandidComment: Boolean = false
     ): String {
@@ -79,7 +79,7 @@ internal object KotlinServiceGenerator {
 
         serviceKotlinString.appendLine(
             """
-                class Service private constructor(
+                class ${serviceName}Service private constructor(
                     $constructorParams
                 ){
             """.trimIndent()
@@ -101,8 +101,7 @@ internal object KotlinServiceGenerator {
             """
             ${
                 companionObjectDefinition(
-                    // TODO
-                    serviceClassName = "Service",
+                    serviceClassName = serviceName,
                     additionalConstructorParams = additionalConstructorParams
                 )
             }
@@ -123,8 +122,8 @@ internal object KotlinServiceGenerator {
             companion object {
                 fun init(
                     canister: ICPPrincipal
-                ): $serviceClassName =
-                    $serviceClassName(
+                ): ${serviceClassName}Service =
+                    ${serviceClassName}Service (
                         canister = canister,
                         icpCanisterRepository = provideICPCanisterRepository()
                     )
