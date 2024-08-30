@@ -8,15 +8,11 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableN
 
 internal object IDLServiceHelper {
 
-    // TODO, add certification
     fun convertServiceIntoKotlinFunction(idlService: IDLService): String {
         val functionDeclaration = StringBuilder().append("suspend fun ${idlService.id}")
 
         // Input args
-        if(idlService.inputParamsDeclaration.isNotEmpty())
-            functionDeclaration.append("(\n${inputArgsDeclaration(idlService.inputParamsDeclaration, idlService.serviceType)}\n)")
-        else
-            functionDeclaration.append("()")
+        functionDeclaration.append("(\n${inputArgsDeclaration(idlService.inputParamsDeclaration, idlService.serviceType)}\n)")
 
         // Output args
         val outputKotlinDeclaration = outputArgsDeclaration(idlService.outputParamsDeclaration)
@@ -25,7 +21,12 @@ internal object IDLServiceHelper {
         functionDeclaration.appendLine(" {")
 
         // Function body
-        functionDeclaration.appendLine(serviceFunctionBody(idlService.id))
+        functionDeclaration.appendLine(
+            serviceFunctionBody(
+                methodName = idlService.id,
+                inputArgs = idlService.inputParamsDeclaration
+            )
+        )
 
         functionDeclaration.append("}")
         return functionDeclaration.toString()
@@ -79,12 +80,16 @@ internal object IDLServiceHelper {
 
     private fun serviceFunctionBody(
         methodName: String,
+        inputArgs: String
     ): String {
+        val icpMethodArgs =
+            if(inputArgs.isNotEmpty()) "CandidEncoder(${inputArgs.kotlinVariableName()})"
+            else "null"
         val icpMethodDeclaration = """
             val icpMethod = ICPMethod(
             canister = canister,
             methodName = "$methodName",
-            args = TODO()
+            args = $icpMethodArgs
         )
         """.trimIndent()
 
@@ -95,6 +100,7 @@ internal object IDLServiceHelper {
                 sender = sender,
                 pollingValues = pollingValues
             ).getOrThrow()
+            return CandidDecoder(result)
         """.trimIndent()
 
         return """

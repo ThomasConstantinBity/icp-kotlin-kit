@@ -18,7 +18,9 @@ internal object KotlinFileGenerator {
 
         val packageAndImports = StringBuilder().appendLine(
             """// TODO, add package name
-                
+               
+               import com.bity.icp_kotlin_kit.candid.CandidDecoder
+               import com.bity.icp_kotlin_kit.candid.CandidEncoder
                import com.bity.icp_kotlin_kit.domain.model.ICPMethod
                import com.bity.icp_kotlin_kit.candid.model.CandidValue
                import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
