@@ -27,7 +27,7 @@ internal object CandidFileParser {
 
             // We need to match all the type definitions including function
             matches("""type\s+\w+\s*=\s*[\w\s]+(\((\w+(, \w+)*)?\) -> \((\w+(, \w+)*)\)\s*\w*|\{[^{}]*+(?:\{[^{}]*+}[^{}]*+)*})?;""") isToken Token.Type
-            matches("""service\s*:\s*\{([\s\S]*?)\}""") isToken Token.Service
+            matches("""service\s*:\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}""") isToken Token.Service
 
             matches("[ \t\r\n]+").ignore
             matches("//[^\n]*").ignore
@@ -80,8 +80,9 @@ internal object CandidFileParser {
         }
     }
 
-    fun parseFile(input: String): IDLFileDeclaration =
-        fileParser.parse(fileLexer.tokenize(input))
+    fun parseFile(input: String): IDLFileDeclaration {
+        return fileParser.parse(fileLexer.tokenize(input))
+    }
 
     // TODO delete
     fun debug(lexer: Lexer, input: String) {

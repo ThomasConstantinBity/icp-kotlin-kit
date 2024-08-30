@@ -25,7 +25,7 @@ internal object IDLTypeRecordHelper {
                     when(val idlVecType = idlVec.type) {
                         // Need to declare a new class
                         is IDLTypeRecord -> {
-                            val variableName = it.id
+                            val variableName = it.id ?: TODO()
                             val arrayClassName = getClassNameFromVariableName(variableName)
                             innerClasses.add(typeRecordToKotlinClass(arrayClassName, idlVecType))
                             "val ${variableName}: ${IDLTypeVecHelper.kotlinDefinition(arrayClassName)}"

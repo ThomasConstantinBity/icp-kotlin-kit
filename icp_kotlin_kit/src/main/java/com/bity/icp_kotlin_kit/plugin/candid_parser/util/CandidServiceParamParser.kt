@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.util
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.Token
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceParam
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
@@ -13,6 +14,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
+import guru.zoroark.tegral.niwen.parser.dsl.emit
 import guru.zoroark.tegral.niwen.parser.dsl.expect
 import guru.zoroark.tegral.niwen.parser.dsl.item
 import guru.zoroark.tegral.niwen.parser.dsl.niwenParser
@@ -25,7 +27,14 @@ internal object CandidServiceParamParser {
 
     private val serviceParamLexer = niwenLexer {
         state {
+
             "," isToken Token.Comma
+            "{" isToken Token.LBrace
+            "}" isToken Token.RBrace
+            "->" isToken Token.Arrow
+            "(" isToken Token.LParen
+            ")" isToken Token.RParen
+            ";" isToken Token.Semi
 
             "text" isToken Token.Text
             "blob" isToken Token.Blob
@@ -74,7 +83,13 @@ internal object CandidServiceParamParser {
         }
 
         IDLTypeBlob { expect(Token.Blob) }
-        IDLTypeText { expect(Token.Text) }
+        IDLTypeText {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeText::isOptional
+            }
+            expect(Token.Text)
+        }
 
         /**
          * Type Int
@@ -84,7 +99,13 @@ internal object CandidServiceParamParser {
         /**
          * Type Nat
          */
-        IDLTypeNat { expect(Token.Nat) }
+        IDLTypeNat {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeNat::isOptional
+            }
+            expect(Token.Nat)
+        }
         IDLTypeNat64 { expect(Token.Nat64) }
 
         IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }

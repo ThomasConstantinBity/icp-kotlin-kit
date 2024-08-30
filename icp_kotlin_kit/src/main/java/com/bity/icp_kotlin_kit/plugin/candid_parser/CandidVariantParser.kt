@@ -11,6 +11,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariantDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
@@ -40,6 +41,9 @@ internal object CandidVariantParser {
 
             "opt" isToken Token.Opt
 
+            // TODO join?
+            matches("""vec\s+record\s+\{([^{}]*|\{[^{}]*\})*}""") isToken Token.Vec
+            matches("""vec\s+\w+""") isToken Token.Vec
             matches("record \\{[^}]+\\}") isToken Token.Record
 
             // TODO, can I have nested variant?
@@ -80,8 +84,11 @@ internal object CandidVariantParser {
             optional {
                 expect(IDLComment) storeIn IDLVariant::comment
             }
-            expect(Token.Id) storeIn IDLVariant::id
-            expect(Token.Colon)
+            optional {
+                expect(Token.Id) storeIn IDLVariant::id
+                expect(Token.Colon)
+            }
+
             expect(IDLType) storeIn IDLVariant::type
             either {
                 expect(IDLComment) storeIn IDLVariant::comment
@@ -130,12 +137,15 @@ internal object CandidVariantParser {
                 expect(IDLTypeRecord) storeIn self()
             } or {
                 expect(IDLTypeNull) storeIn self()
+            } or {
+                expect(IDLTypeVec) storeIn self()
             }
         }
 
         IDLTypeNull { expect(Token.Null) }
         IDLTypeBlob { expect(Token.Blob) }
         IDLTypeText { expect(Token.Text) }
+        IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
         IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
         IDLTypeRecord {
             expect(Token.Record) transform { indentString(it) } storeIn IDLTypeRecord::recordDeclaration

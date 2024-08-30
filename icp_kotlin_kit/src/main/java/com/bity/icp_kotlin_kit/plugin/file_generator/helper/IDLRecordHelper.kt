@@ -16,7 +16,8 @@ internal object IDLRecordHelper {
             kotlinClassVariable.append(KotlinCommentGenerator.getKotlinComment(it))
         }
 
-        val variableDefinition = StringBuilder("val ${idlRecord.id}: ")
+        val variableName = idlRecord.id ?: kotlinTypeVariable(idlRecord.type).lowercase()
+        val variableDefinition = StringBuilder("val $variableName: ")
         variableDefinition.append(kotlinTypeVariable(idlRecord.type))
         if(idlRecord.isOptional) variableDefinition.append("?")
         kotlinClassVariable.append(variableDefinition)

@@ -7,7 +7,7 @@ import guru.zoroark.tegral.niwen.parser.reflective
 
 internal data class IDLVariant(
     val comment: IDLComment? = null,
-    val id: String,
+    val id: String? = null,
     val type: IDLType
 ) {
     companion object : ParserNodeDeclaration<IDLVariant> by reflective()

@@ -8,6 +8,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// TODO
+// - get typealias
+// - wrap class definition inside an object
+
 internal object KotlinFileGenerator {
 
     fun getFileText(
@@ -20,6 +24,7 @@ internal object KotlinFileGenerator {
         val packageAndImports = StringBuilder().appendLine(
             """// TODO, add package name
                
+               import java.math.BigInteger
                import com.bity.icp_kotlin_kit.candid.CandidDecoder
                import com.bity.icp_kotlin_kit.candid.CandidEncoder
                import com.bity.icp_kotlin_kit.domain.model.ICPMethod

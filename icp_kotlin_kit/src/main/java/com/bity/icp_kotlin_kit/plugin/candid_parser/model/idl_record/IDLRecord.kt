@@ -33,7 +33,7 @@ import guru.zoroark.tegral.niwen.parser.reflective
  */
 internal data class IDLRecord(
     val comment: IDLComment? = null,
-    val id: String,
+    val id: String? = null,
     val isOptional: Boolean = false,
     val type: IDLType,
 ) {

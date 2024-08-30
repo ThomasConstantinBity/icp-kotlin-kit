@@ -84,8 +84,10 @@ internal object CandidRecordParser {
                 expect(IDLComment) storeIn IDLRecord::comment
             }
 
-            expect(Token.Id) storeIn IDLRecord::id
-            expect(Token.Colon)
+            optional {
+                expect(Token.Id) storeIn IDLRecord::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLRecord::isOptional

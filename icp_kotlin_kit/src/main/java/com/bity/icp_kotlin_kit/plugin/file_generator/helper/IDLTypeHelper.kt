@@ -1,6 +1,5 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
-import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
@@ -19,6 +18,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVarian
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 
 internal object IDLTypeHelper {
+
     fun kotlinTypeVariable(type: IDLType): String =
         when(type) {
             is IDLFun -> TODO()
@@ -31,7 +31,10 @@ internal object IDLTypeHelper {
             is IDLTypeNat64 -> "ULong"
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> "ICPPrincipal"
-            is IDLTypeRecord -> TODO()
+            is IDLTypeRecord -> {
+                println(type)
+                TODO()
+            }
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> {
@@ -40,5 +43,34 @@ internal object IDLTypeHelper {
                 if (idlVec.isOptional) typeArray.append("?")
                 "Array<$typeArray>"
             }
+        }
+
+    fun idlTypeToKotlinClass(
+        className: String,
+        idlType: IDLType
+    ): String =
+        when(idlType) {
+            is IDLFun -> TODO()
+            is IDLTypeBlob -> TODO()
+            is IDLTypeBoolean -> TODO()
+            is IDLTypeCustom ->
+                IDLTypeCustomHelper.idlTypeCustomToKotlinClass(
+                    className = className,
+                    idlTypeCustom = idlType
+                )
+            is IDLTypeFuncDeclaration -> TODO()
+            is IDLTypeInt -> TODO()
+            is IDLTypeNat -> TODO()
+            is IDLTypeNat64 -> TODO()
+            is IDLTypeNull -> TODO()
+            is IDLTypePrincipal -> TODO()
+            is IDLTypeRecord ->
+                IDLTypeRecordHelper.typeRecordToKotlinClass(
+                    className = className,
+                    type = idlType
+                )
+            is IDLTypeText -> TODO()
+            is IDLTypeVariant -> TODO()
+            is IDLTypeVec -> TODO()
         }
 }
