@@ -56,11 +56,11 @@ internal object CandidVecParser {
     private val vecParser = niwenParser {
 
         IDLVec root {
+            expect(Token.Vec)
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLVec::isOptional
             }
-            expect(Token.Vec)
             expect(IDLType) storeIn IDLVec::type
         }
 
@@ -93,8 +93,6 @@ internal object CandidVecParser {
                 expect(IDLTypeNat64) storeIn self()
             } or {
                 expect(IDLTypeRecord) storeIn self()
-            } or {
-                expect(IDLTypeVariant) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
             }

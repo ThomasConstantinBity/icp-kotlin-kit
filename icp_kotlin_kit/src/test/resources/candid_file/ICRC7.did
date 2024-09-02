@@ -63,8 +63,5 @@ service : {
     // -> (vec nat) query;
     // icrc7_tokens_of : (account : Account, prev : opt nat, take : opt nat)
     // -> (vec nat) query;
-    // icrc7_transfer : (vec TransferArg) -> (vec opt TransferResult);
-
-    // TODO, duplicated
-    icrc7_name : () -> (text) query;
+    icrc7_transfer : (vec TransferArg) -> (vec opt TransferResult);
 }

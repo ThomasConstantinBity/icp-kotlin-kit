@@ -46,6 +46,7 @@ internal object CandidServiceParamParser {
             "nat64" isToken Token.Nat64
             "nat" isToken Token.Nat
 
+            matches ("vec [^;]+") isToken Token.Vec
             matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
 
             matches("[ \t\r\n]+").ignore

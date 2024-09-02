@@ -55,12 +55,12 @@ internal object KotlinFileGenerator {
             """object $fileName {
                     ${typeAliasesAndClasses.second.joinToString("")}
                     ${idlFileDeclaration.service?.let {
-                        KotlinServiceGenerator.getServiceText(
+                        KotlinServiceGenerator(
                             idlFileService = it,
                             serviceName = fileName,
-                            showCandidDefinition = removeCandidComment,
+                            showCandidDefinition = showCandidDefinition,
                             removeCandidComment = removeCandidComment
-                        )
+                        ).getServiceText()
                     } ?: ""}
                 }
             """
