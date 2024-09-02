@@ -18,37 +18,42 @@ internal class IDLServiceHelper(
         "pollingValues" to "PollingValues = PollingValues()"
     )
 
-    private val additionalFunctionParam = hashMapOf<String, String>()
+    private val additionalFunctionParam = hashMapOf<String, IDLType>()
+    private val resultParams = CandidServiceParamParser
+        .parseServiceParam(idlService.outputParamsDeclaration)
+        .params
 
     init {
         var primitiveTypeIndex = 0
         val idlServiceParam = CandidServiceParamParser
             .parseServiceParam(idlService.inputParamsDeclaration)
 
+        // Input params
         idlServiceParam.params.forEach {
             val kotlinClassType = IDLTypeHelper.kotlinTypeVariable(it)
             if(it is IDLTypeCustom)
-                additionalFunctionParam[kotlinClassType.kotlinVariableName()] = kotlinClassType
+                additionalFunctionParam[kotlinClassType.kotlinVariableName()] = it
             else {
                 val variableName = "_unnamedVariable$primitiveTypeIndex"
                 primitiveTypeIndex++
-                additionalFunctionParam[variableName] = kotlinClassType
+                additionalFunctionParam[variableName] = it
             }
         }
     }
+
+    private fun inputArgs(): String =
+        (baseFunctionParam.map { "${it.key}: ${it.value}" } + additionalFunctionParam.map { "${it.key}: ${IDLTypeHelper.kotlinTypeVariable(it.value)}" })
+            .joinToString(",\n")
 
     fun convertServiceIntoKotlinFunction(): String {
 
         val functionDeclaration = StringBuilder().append("suspend fun ${idlService.id}")
 
         // Input args
-        val inputArgs = (baseFunctionParam + additionalFunctionParam)
-            .map { "${it.key}: ${it.value}" }
-            .joinToString(",\n")
-        functionDeclaration.append("(\n${inputArgs}\n)")
+        functionDeclaration.append("(\n${inputArgs()}\n)")
 
         // Output args
-        val outputKotlinDeclaration = outputArgsDeclaration(idlService.outputParamsDeclaration)
+        val outputKotlinDeclaration = outputArgsDeclaration()
         if(outputKotlinDeclaration.isNotEmpty())
             functionDeclaration.append(": $outputKotlinDeclaration")
         functionDeclaration.appendLine(" {")
@@ -59,6 +64,13 @@ internal class IDLServiceHelper(
         functionDeclaration.append("}")
         return functionDeclaration.toString()
     }
+
+    private fun outputArgsDeclaration(): String =
+        when {
+            resultParams.isEmpty() -> ""
+            resultParams.size == 1 -> IDLTypeHelper.kotlinTypeVariable(resultParams.first())
+            else -> "NTuple${resultParams.size}<${resultParams.joinToString { IDLTypeHelper.kotlinTypeVariable(it) }}>"
+        }
     
     private fun defaultCertificationForFunction(idlServiceType: IDLServiceType?) =
         when(idlServiceType) {
@@ -66,16 +78,6 @@ internal class IDLServiceHelper(
             IDLServiceType.Query -> "ICPRequestCertification.Uncertified"
             IDLServiceType.OneWay -> TODO()
         }
-
-    private fun outputArgsDeclaration(outputArgs: String): String {
-        val idlServiceParam = CandidServiceParamParser.parseServiceParam(outputArgs)
-        val params = idlServiceParam.params
-        return when {
-            params.isEmpty() -> ""
-            params.size == 1 -> IDLTypeHelper.kotlinTypeVariable(params.first())
-            else -> "NTuple${params.size}<${params.joinToString { IDLTypeHelper.kotlinTypeVariable(it) }}>"
-        }
-    }
 
     private fun serviceFunctionBody(methodName: String, ): String {
         val icpMethodArgs = if(additionalFunctionParam.isNotEmpty())
@@ -96,12 +98,18 @@ internal class IDLServiceHelper(
                 sender = sender,
                 pollingValues = pollingValues
             ).getOrThrow()
-            return CandidDecoder(result)
         """.trimIndent()
 
         return """
             $icpMethodDeclaration
             $functionCall
+            ${returnTypeForFunction()}
         """.trimIndent()
+    }
+
+    private fun returnTypeForFunction(): String {
+        return if(resultParams.find { it.isOptional } != null)
+            "return CandidDecoder.decodeNullable(result)"
+        else "return CandidDecoder.decode(result)"
     }
 }

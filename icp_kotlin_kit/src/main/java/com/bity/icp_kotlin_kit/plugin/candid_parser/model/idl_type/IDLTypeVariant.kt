@@ -5,7 +5,7 @@ import guru.zoroark.tegral.niwen.parser.reflective
 
 internal data class IDLTypeVariant(
     val variantDeclaration: String
-) : IDLType() {
+) : IDLType(false) {
     companion object : ParserNodeDeclaration<IDLTypeVariant> by reflective()
 
     override fun equals(other: Any?): Boolean {

@@ -7,16 +7,17 @@ import guru.zoroark.tegral.niwen.parser.reflective
 
 // TODO, params can be null
 // TODO fun can be null
-internal data class IDLFun(
+internal class IDLFun(
     val inputParams: List<IDLFunArg> = listOf(),
     val outputParams: List<IDLFunArg> = listOf(),
-    val funType: FunType? = null
-) : IDLType() {
+    val funType: FunType? = null,
+) : IDLType(false) {
     companion object : ParserNodeDeclaration<IDLFun> by reflective()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
 
         other as IDLFun
 
@@ -28,7 +29,8 @@ internal data class IDLFun(
     }
 
     override fun hashCode(): Int {
-        var result = inputParams.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + inputParams.hashCode()
         result = 31 * result + outputParams.hashCode()
         result = 31 * result + (funType?.hashCode() ?: 0)
         return result

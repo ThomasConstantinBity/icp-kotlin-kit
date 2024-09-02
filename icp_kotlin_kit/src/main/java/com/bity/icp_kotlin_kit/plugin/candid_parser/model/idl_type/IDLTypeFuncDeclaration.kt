@@ -4,13 +4,14 @@ import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
 internal class IDLTypeFuncDeclaration(
-    val funcDeclaration: String
-) : IDLType() {
+    val funcDeclaration: String,
+) : IDLType(false) {
     companion object : ParserNodeDeclaration<IDLTypeFuncDeclaration> by reflective()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
 
         other as IDLTypeFuncDeclaration
 
@@ -18,6 +19,8 @@ internal class IDLTypeFuncDeclaration(
     }
 
     override fun hashCode(): Int {
-        return funcDeclaration.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + funcDeclaration.hashCode()
+        return result
     }
 }

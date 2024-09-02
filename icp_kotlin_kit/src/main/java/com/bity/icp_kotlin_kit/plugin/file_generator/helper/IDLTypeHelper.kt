@@ -19,8 +19,8 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 
 internal object IDLTypeHelper {
 
-    fun kotlinTypeVariable(type: IDLType, className: String? = null): String =
-        when(type) {
+    fun kotlinTypeVariable(type: IDLType, className: String? = null): String {
+        val typeDeclaration = when(type) {
             is IDLFun -> TODO()
             is IDLTypeBlob -> "ByteArray"
             is IDLTypeBoolean -> "Boolean"
@@ -44,6 +44,8 @@ internal object IDLTypeHelper {
                 "Array<$typeArray>"
             }
         }
+        return if(type.isOptional) "$typeDeclaration?" else typeDeclaration
+    }
 
     fun idlTypeToKotlinClass(
         className: String,

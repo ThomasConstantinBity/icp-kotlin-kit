@@ -5,6 +5,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.Token
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceParam
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
@@ -38,6 +39,7 @@ internal object CandidServiceParamParser {
 
             "text" isToken Token.Text
             "blob" isToken Token.Blob
+            "bool" isToken Token.Boolean
             "opt" isToken Token.Opt
             "principal" isToken Token.Principal
 
@@ -59,9 +61,6 @@ internal object CandidServiceParamParser {
         IDLServiceParam root {
             repeated<IDLServiceParam, IDLType> {
                 expect(IDLType) storeIn item
-                optional {
-                    expect(Token.Comma)
-                }
             } storeIn IDLServiceParam::params
         }
 
@@ -80,10 +79,18 @@ internal object CandidServiceParamParser {
                 expect(IDLTypeNat64) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
+            } or {
+                expect(IDLTypeBoolean) storeIn self()
             }
         }
 
-        IDLTypeBlob { expect(Token.Blob) }
+        IDLTypeBlob {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeBlob::isOptional
+            }
+            expect(Token.Blob)
+        }
         IDLTypeText {
             optional {
                 expect(Token.Opt)
@@ -109,8 +116,25 @@ internal object CandidServiceParamParser {
         }
         IDLTypeNat64 { expect(Token.Nat64) }
 
-        IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
-        IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
+        IDLTypeVec {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeVec::isOptional
+            }
+            expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
+        IDLTypeCustom {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeCustom::isOptional
+            }
+            expect(Token.Id) storeIn IDLTypeCustom::typeDef
+        }
+        IDLTypeBoolean {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeBoolean::isOptional
+            }
+            expect(Token.Boolean) }
     }
 
     fun parseServiceParam(input: String): IDLServiceParam {

@@ -12,7 +12,7 @@ internal class KotlinServiceGenerator(
     private val removeCandidComment: Boolean = false
 ) {
 
-    val idlServiceDeclaration = CandidServiceParser.parseService(idlFileService.serviceDefinition)
+    private val idlServiceDeclaration = CandidServiceParser.parseService(idlFileService.serviceDefinition)
     private val constructParams = hashMapOf(
         "canister" to "ICPPrincipal",
         "icpCanisterRepository" to "ICPCanisterRepository"
@@ -33,8 +33,7 @@ internal class KotlinServiceGenerator(
                         definition = idlFileService.serviceDefinition,
                         removeCandidComment = removeCandidComment
                     )}
-                     */
-                    """)
+                     */""")
         }
 
         // Service comment

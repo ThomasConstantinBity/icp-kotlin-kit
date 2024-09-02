@@ -5,12 +5,13 @@ import guru.zoroark.tegral.niwen.parser.reflective
 
 internal data class IDLTypeRecord(
     val recordDeclaration: String
-) : IDLType() {
+) : IDLType(false) {
     companion object : ParserNodeDeclaration<IDLTypeRecord> by reflective()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
 
         other as IDLTypeRecord
 
@@ -18,8 +19,8 @@ internal data class IDLTypeRecord(
     }
 
     override fun hashCode(): Int {
-        return recordDeclaration.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + recordDeclaration.hashCode()
+        return result
     }
-
-
 }

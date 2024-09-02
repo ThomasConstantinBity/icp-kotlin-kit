@@ -8,7 +8,12 @@ import kotlin.reflect.full.primaryConstructor
 // TODO, not able to parse nested classes
 internal object CandidDecoder {
 
-    inline operator fun <reified T : Any>invoke(candidValue: CandidValue): T {
+    inline fun <reified T : Any>decodeNullable(candidValue: CandidValue?): T? {
+        candidValue ?: return null
+        return decode(candidValue)
+    }
+
+    inline fun <reified T : Any>decode(candidValue: CandidValue): T {
         val res: Any = when(candidValue) {
             is CandidValue.Blob -> candidValue.data
             is CandidValue.Bool -> candidValue.bool
@@ -44,7 +49,7 @@ internal object CandidDecoder {
         val constructor = clazz.primaryConstructor ?: throw IllegalArgumentException("Class must have a primary constructor")
         val params = constructor.parameters.associateWith { param ->
             val candidValue = candidDictionary[param.name] ?: throw IllegalArgumentException("Missing value for parameter: ${param.name}")
-            CandidDecoder<Any>(candidValue)
+            decodeNullable<Any>(candidValue)
         }
         return constructor.callBy(params)
     }
