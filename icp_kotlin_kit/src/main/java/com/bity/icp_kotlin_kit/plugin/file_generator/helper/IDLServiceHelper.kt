@@ -2,17 +2,50 @@ package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.CandidServiceParamParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 
-internal object IDLServiceHelper {
+internal class IDLServiceHelper(
+    private val idlService: IDLService
+) {
 
-    fun convertServiceIntoKotlinFunction(idlService: IDLService, ): String {
+    private val baseFunctionParam = hashMapOf(
+        "sender" to "ICPSigningPrincipal? = null",
+        "certification" to "ICPRequestCertification = ${defaultCertificationForFunction(idlService.serviceType)}",
+        "pollingValues" to "PollingValues = PollingValues()"
+    )
+
+    private val additionalFunctionParam = hashMapOf<String, String>()
+
+    init {
+        var primitiveTypeIndex = 0
+        val idlServiceParam = CandidServiceParamParser
+            .parseServiceParam(idlService.inputParamsDeclaration)
+
+        idlServiceParam.params.forEach {
+            val kotlinClassType = IDLTypeHelper.kotlinTypeVariable(it)
+            if(it is IDLTypeCustom)
+                additionalFunctionParam[kotlinClassType.kotlinVariableName()] = kotlinClassType
+            else {
+                val variableName = "_unnamedVariable$primitiveTypeIndex"
+                primitiveTypeIndex++
+                additionalFunctionParam[variableName] = kotlinClassType
+            }
+        }
+    }
+
+    fun convertServiceIntoKotlinFunction(): String {
+
         val functionDeclaration = StringBuilder().append("suspend fun ${idlService.id}")
 
         // Input args
-        functionDeclaration.append("(\n${inputArgsDeclaration(idlService.inputParamsDeclaration, idlService.serviceType)}\n)")
+        val inputArgs = (baseFunctionParam + additionalFunctionParam)
+            .map { "${it.key}: ${it.value}" }
+            .joinToString(",\n")
+        functionDeclaration.append("(\n${inputArgs}\n)")
 
         // Output args
         val outputKotlinDeclaration = outputArgsDeclaration(idlService.outputParamsDeclaration)
@@ -21,44 +54,10 @@ internal object IDLServiceHelper {
         functionDeclaration.appendLine(" {")
 
         // Function body
-        functionDeclaration.appendLine(
-            serviceFunctionBody(
-                methodName = idlService.id,
-                inputArgs = idlService.inputParamsDeclaration
-            )
-        )
+        functionDeclaration.appendLine(serviceFunctionBody(idlService.id,))
 
         functionDeclaration.append("}")
         return functionDeclaration.toString()
-    }
-
-    private fun inputArgsDeclaration(
-        inputArgs: String,
-        idlServiceType: IDLServiceType?
-    ): String {
-        val idlServiceParam = CandidServiceParamParser.parseServiceParam(inputArgs)
-        val baseArgsDeclaration = """
-                sender: ICPSigningPrincipal? = null,
-                certification: ICPRequestCertification = ${defaultCertificationForFunction(idlServiceType)},
-                pollingValues: PollingValues = PollingValues()
-            """.trimIndent()
-        if(idlServiceParam.params.isEmpty()) 
-            return baseArgsDeclaration
-        var primitiveTypeIndex = 0
-        val functionInputArgs = idlServiceParam.params.joinToString(",\n") {
-            val kotlinClassType = IDLTypeHelper.kotlinTypeVariable(it)
-            if(it is IDLTypeCustom)
-                "${kotlinClassType.kotlinVariableName()}: $kotlinClassType".trim()
-            else {
-                val variableName = "_$primitiveTypeIndex: $kotlinClassType"
-                primitiveTypeIndex++
-                variableName
-            }
-        }
-        return """
-            $functionInputArgs,
-            $baseArgsDeclaration
-        """.trimIndent()
     }
     
     private fun defaultCertificationForFunction(idlServiceType: IDLServiceType?) =
@@ -78,13 +77,10 @@ internal object IDLServiceHelper {
         }
     }
 
-    private fun serviceFunctionBody(
-        methodName: String,
-        inputArgs: String
-    ): String {
-        val icpMethodArgs =
-            if(inputArgs.isNotEmpty()) "CandidEncoder(${inputArgs.kotlinVariableName()})"
-            else "null"
+    private fun serviceFunctionBody(methodName: String, ): String {
+        val icpMethodArgs = if(additionalFunctionParam.isNotEmpty())
+            "CandidEncoder(${additionalFunctionParam.map { it.key }.joinToString(", ")})"
+        else "null"
         val icpMethodDeclaration = """
             val icpMethod = ICPMethod(
             canister = canister,

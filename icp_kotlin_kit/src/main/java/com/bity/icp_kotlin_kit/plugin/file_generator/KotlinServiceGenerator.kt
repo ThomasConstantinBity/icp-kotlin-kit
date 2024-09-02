@@ -85,7 +85,7 @@ internal class KotlinServiceGenerator(
                 serviceKotlinString.append(KotlinCommentGenerator.getKotlinComment(comment))
             }
             serviceKotlinString.appendLine(
-                IDLServiceHelper.convertServiceIntoKotlinFunction(service)
+                IDLServiceHelper(service).convertServiceIntoKotlinFunction()
             )
         }
         return serviceKotlinString.toString()
