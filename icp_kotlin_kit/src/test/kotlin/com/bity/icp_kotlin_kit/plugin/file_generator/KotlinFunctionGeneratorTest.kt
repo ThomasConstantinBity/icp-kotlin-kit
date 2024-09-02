@@ -17,7 +17,8 @@ internal class KotlinFunctionGeneratorTest {
     ) {
         val kotlinFunction = KotlinFunctionGenerator(
             funId = functionId,
-            idlTypeFunc = idlTypeFuncDeclaration
+            idlTypeFunc = idlTypeFuncDeclaration,
+            className = "LEdgerCanister"
         )
         assertEquals(expectedResult, kotlinFunction)
     }

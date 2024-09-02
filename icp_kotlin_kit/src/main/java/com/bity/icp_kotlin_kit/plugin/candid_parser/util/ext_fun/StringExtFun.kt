@@ -18,7 +18,40 @@ fun String.trimEndOfLineComment() =
 fun String.toKotlinFileString(): String {
     val kotlinFile = StringBuilder()
     var indent = 0
+    var previousEmptyLine = -1
+
     this.lines().forEach {
+
+        val line = when {
+            it.trim().startsWith("*") -> { it.trim() }
+            else -> it.trim().replace("\\s+".toRegex(), " ")
+        }
+
+        when {
+            line.startsWith(")") || line.startsWith("}") -> indent--
+            else -> { }
+        }
+
+        val lineToAppend = when {
+            line.startsWith("*") -> " $line"
+            else -> line
+        }
+        kotlinFile.appendLine("""${"\t".repeat(indent)}$lineToAppend""")
+
+        when {
+            line.startsWith("*") -> { }
+            line.endsWith("(") || line.endsWith("{") -> indent++
+        }
+    }
+
+    return kotlinFile.toString()
+}
+
+private fun String.removeMultipleEmptyLines(): String {
+    return this
+}
+
+    /*this.lines().forEach {
 
         if(indent > 0 && (it.trimStart().startsWith(")") || it.trimStart().startsWith("}")))
             indent--
@@ -36,6 +69,4 @@ fun String.toKotlinFileString(): String {
             it.endsWith("()") -> { }
             indent > 0 && (it.endsWith("}") || it.endsWith(")")) -> indent--
         }
-    }
-    return kotlinFile.toString()
-}
+    }*/

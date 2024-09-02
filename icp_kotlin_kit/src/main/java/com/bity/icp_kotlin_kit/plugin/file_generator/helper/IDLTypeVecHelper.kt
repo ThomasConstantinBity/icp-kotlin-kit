@@ -7,9 +7,9 @@ internal object IDLTypeVecHelper {
 
     internal fun kotlinDefinition(className: String) = "Array<$className>"
 
-    internal fun typeVecToKotlinDefinition(idlTypeVec: IDLTypeVec): String {
+    internal fun typeVecToKotlinDefinition(idlTypeVec: IDLTypeVec, className: String? = null): String {
         val idlVec = CandidVecParser.parseVec(idlTypeVec.vecDeclaration)
-        val kotlinDefinition = StringBuilder("Array<${IDLTypeHelper.kotlinTypeVariable(idlVec.type)}>")
+        val kotlinDefinition = StringBuilder("Array<${IDLTypeHelper.kotlinTypeVariable(idlVec.type, className)}>")
         if (idlVec.isOptional) kotlinDefinition.append("?")
         return kotlinDefinition.toString()
     }

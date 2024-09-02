@@ -2,7 +2,6 @@ package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -17,7 +16,7 @@ class KotlinFileGeneratorTest {
         filePath: String,
         outputFilePath: String
     ) {
-        val serviceName = filePath.split("/")
+        val fileName = filePath.split("/")
             .last()
             .removeSuffix(".did")
         val classLoader = this.javaClass.classLoader
@@ -25,7 +24,7 @@ class KotlinFileGeneratorTest {
         assertTrue(file.exists())
 
         val idlFileDeclaration = CandidFileParser.parseFile(file.readText())
-        val kotlinFileText = KotlinFileGenerator.getFileText(idlFileDeclaration, serviceName)
+        val kotlinFileText = KotlinFileGenerator.generateFileText(idlFileDeclaration, fileName)
 
         val kotlinFile = File(outputFilePath)
         kotlinFile.createNewFile()

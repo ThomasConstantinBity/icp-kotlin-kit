@@ -19,22 +19,22 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 
 internal object IDLTypeHelper {
 
-    fun kotlinTypeVariable(type: IDLType): String =
+    fun kotlinTypeVariable(type: IDLType, className: String? = null): String =
         when(type) {
             is IDLFun -> TODO()
             is IDLTypeBlob -> "ByteArray"
             is IDLTypeBoolean -> "Boolean"
-            is IDLTypeCustom -> type.typeDef
+            is IDLTypeCustom -> {
+                if(className != null) "$className.${type.typeDef}"
+                else type.typeDef
+            }
             is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeInt -> "Int"
             is IDLTypeNat -> "UInt"
             is IDLTypeNat64 -> "ULong"
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> "ICPPrincipal"
-            is IDLTypeRecord -> {
-                println(type)
-                TODO()
-            }
+            is IDLTypeRecord -> TODO()
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> {

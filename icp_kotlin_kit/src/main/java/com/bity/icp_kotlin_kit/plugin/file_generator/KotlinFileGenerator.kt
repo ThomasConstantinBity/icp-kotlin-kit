@@ -1,111 +1,71 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
-import com.bity.icp_kotlin_kit.plugin.file_generator.helper.CandidDefinitionHelper
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
-// TODO
-// - get typealias
-// - wrap class definition inside an object
 
 internal object KotlinFileGenerator {
 
-    fun getFileText(
+    private const val HEADER = """
+        // TODO, add package name
+        
+        import java.math.BigInteger
+        import com.bity.icp_kotlin_kit.candid.CandidDecoder
+        import com.bity.icp_kotlin_kit.candid.CandidEncoder
+        import com.bity.icp_kotlin_kit.domain.model.ICPMethod
+        import com.bity.icp_kotlin_kit.candid.model.CandidValue
+        import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
+        import com.bity.icp_kotlin_kit.domain.request.PollingValues
+        import com.bity.icp_kotlin_kit.provideICPCanisterRepository
+        import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
+        import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.*
+        import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
+        import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
+       
+        /**
+         * File generated using ICP Kotlin Kit Plugin
+         */
+    """
+
+    fun generateFileText(
         idlFileDeclaration: IDLFileDeclaration,
-        serviceName: String,
+        fileName: String,
         showCandidDefinition: Boolean = true,
         removeCandidComment: Boolean = false
     ): String {
 
-        val packageAndImports = StringBuilder().appendLine(
-            """// TODO, add package name
-               
-               import java.math.BigInteger
-               import com.bity.icp_kotlin_kit.candid.CandidDecoder
-               import com.bity.icp_kotlin_kit.candid.CandidEncoder
-               import com.bity.icp_kotlin_kit.domain.model.ICPMethod
-               import com.bity.icp_kotlin_kit.candid.model.CandidValue
-               import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
-               import com.bity.icp_kotlin_kit.domain.request.PollingValues
-               import com.bity.icp_kotlin_kit.provideICPCanisterRepository
-               import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
-               import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.*
-               import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
-               import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
-               
-               ${fileHeader()}
-            """.trimMargin())
-        idlFileDeclaration.comment?.let {
-            packageAndImports.appendLine()
-            packageAndImports.append(KotlinCommentGenerator.getKotlinComment(it))
-        }
+        val fileText = StringBuilder(HEADER).appendLine()
 
-        val kotlinClasses = convertIDLFileTypeToKotlinClasses(
+        val typeAliasesAndClasses = KotlinClassGenerator.getTypeAliasAndClassDefinitions(
             types = idlFileDeclaration.types,
+            fileName = fileName,
             showCandidDefinition = showCandidDefinition,
             removeCandidComment = removeCandidComment
         )
 
-        val kotlinService = idlFileDeclaration.service?.let {
-            KotlinServiceGenerator.getServiceText(
-                idlFileService = it,
-                serviceName = serviceName,
-                showCandidDefinition = showCandidDefinition,
-                removeCandidComment = removeCandidComment
-            )
-        } ?: ""
+        // TypeAliases mus be declared outside object
+        fileText.appendLine(typeAliasesAndClasses.first.joinToString(""))
 
-        return """
-            $packageAndImports
-            $kotlinClasses
-            $kotlinService
-        """.toKotlinFileString()
-    }
-
-    private fun convertIDLFileTypeToKotlinClasses(
-        types: List<IDLFileType>,
-        showCandidDefinition: Boolean,
-        removeCandidComment: Boolean
-    ): String {
-        val kotlinClasses = StringBuilder()
-        types.forEach { idlFileType ->
-
-            if(showCandidDefinition) {
-                kotlinClasses.appendLine(
-                    """
-                        /**
-                         ${CandidDefinitionHelper
-                             .candidDefinition(
-                                 definition = idlFileType.typeDefinition, 
-                                 removeCandidComment = removeCandidComment
-                             )}
-                         */
-                    """.trimIndent()
-                )
-            }
-
-            // Comment
-            idlFileType.comment?.let { comment ->
-                kotlinClasses.append(KotlinCommentGenerator.getKotlinComment(comment))
-            }
-
-            val kotlinClassDefinition = IDLTypeDeclarationConverter(idlFileType.typeDefinition)
-            kotlinClasses.appendLine(kotlinClassDefinition)
+        // IDL file comment
+        idlFileDeclaration.comment?.let {
+            fileText.appendLine()
+            fileText.append(KotlinCommentGenerator.getKotlinComment(it))
         }
-        return kotlinClasses.toString()
-    }
 
-    private fun fileHeader(): String {
-        val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault())
-        val currentDate = sdf.format(Date())
-        return """
-            /**
-             * File generated at $currentDate using ICP Kotlin Kit Plugin
-             */
-        """.trimIndent()
+        fileText.appendLine(
+            """object $fileName {
+                    ${typeAliasesAndClasses.second.joinToString("")}
+                    ${idlFileDeclaration.service?.let {
+                        KotlinServiceGenerator.getServiceText(
+                            idlFileService = it,
+                            serviceName = fileName,
+                            showCandidDefinition = removeCandidComment,
+                            removeCandidComment = removeCandidComment
+                        )
+                    } ?: ""}
+                }
+            """
+        )
+
+        return fileText.toString().toKotlinFileString()
     }
 }

@@ -9,38 +9,39 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 internal object KotlinFunctionGenerator {
 
     operator fun invoke(
+        className: String?,
         funId: String,
         idlTypeFunc: IDLTypeFuncDeclaration
     ): String {
         val idlFun = CandidFuncParser.parseFunc(idlTypeFunc.funcDeclaration)
-        val inputArgs = getInputParamsDeclaration(idlFun.inputParams)
-        val outputArgs = getOutputParamsDeclaration(idlFun.outputParams)
+        val inputArgs = getInputParamsDeclaration(idlFun.inputParams, className)
+        val outputArgs = getOutputParamsDeclaration(idlFun.outputParams, className)
         return "typealias $funId = ($inputArgs) -> $outputArgs"
     }
 
-    operator fun invoke(idlFun: IDLFun): String {
-        val inputArgs = getInputParamsDeclaration(idlFun.inputParams)
-        val outputArgs = getOutputParamsDeclaration(idlFun.outputParams)
-        return "($inputArgs) -> $outputArgs"
-    }
-
-    private fun getInputParamsDeclaration(inputParams: List<IDLFunArg>): String =
+    private fun getInputParamsDeclaration(
+        inputParams: List<IDLFunArg>,
+        className: String?
+    ): String =
         inputParams.joinToString {
-            val kotlinClass = IDLTypeHelper.kotlinTypeVariable(it.idlType)
+            val kotlinClass = IDLTypeHelper.kotlinTypeVariable(it.idlType, className)
             if (it.argId != null) "${it.argId}: $kotlinClass"
             else kotlinClass
         }
 
-    private fun getOutputParamsDeclaration(outputParams: List<IDLFunArg>): String {
+    private fun getOutputParamsDeclaration(
+        outputParams: List<IDLFunArg>,
+        className: String?
+    ): String {
         return when(val size = outputParams.size) {
 
             0 -> "Unit"
 
             1 -> {
                 val param = outputParams.first()
-                val argClass = IDLTypeHelper.kotlinTypeVariable(param.idlType)
+                val argClass = IDLTypeHelper.kotlinTypeVariable(param.idlType, className)
                 if(param.argId != null) "${param.argId} : $argClass"
-                else argClass!!
+                else argClass
             }
 
             else -> {
