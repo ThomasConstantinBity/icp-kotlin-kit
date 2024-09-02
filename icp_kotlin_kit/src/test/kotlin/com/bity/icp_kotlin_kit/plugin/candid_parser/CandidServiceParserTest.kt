@@ -93,7 +93,24 @@ internal class CandidServiceParserTest {
                         )
                     )
                 )
-            )
+            ),
+
+            Arguments.of(
+                """
+                    service : {
+                        icrc7_transfer : (vec TransferArg) -> (vec opt TransferResult);
+                    }
+                """.trimIndent(),
+                IDLServiceDeclaration(
+                    services = listOf(
+                        IDLService(
+                            id = "icrc7_transfer",
+                            inputParamsDeclaration = "vec TransferArg",
+                            outputParamsDeclaration = "vec opt TransferResult"
+                        )
+                    )
+                )
+            ),
         )
     }
 }

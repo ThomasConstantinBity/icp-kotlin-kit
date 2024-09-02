@@ -80,9 +80,12 @@ internal class KotlinServiceGenerator(
     private fun serviceFunction(): String {
         val serviceKotlinString = StringBuilder()
         idlServiceDeclaration.services.forEach { service ->
+
+            // Comment
             service.comment?.let { comment ->
                 serviceKotlinString.append(KotlinCommentGenerator.getKotlinComment(comment))
             }
+
             serviceKotlinString.appendLine(
                 IDLServiceHelper(service).convertServiceIntoKotlinFunction()
             )

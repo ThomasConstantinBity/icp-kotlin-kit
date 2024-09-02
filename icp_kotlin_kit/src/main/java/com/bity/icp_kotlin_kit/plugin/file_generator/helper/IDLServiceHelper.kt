@@ -1,12 +1,15 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.CandidServiceParamParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
+import org.gradle.configurationcache.extensions.capitalized
 
 internal class IDLServiceHelper(
     private val idlService: IDLService
@@ -22,6 +25,7 @@ internal class IDLServiceHelper(
     private val resultParams = CandidServiceParamParser
         .parseServiceParam(idlService.outputParamsDeclaration)
         .params
+    private val kotlinFunctionResultClasses = mutableListOf<String>()
 
     init {
         var primitiveTypeIndex = 0
@@ -37,6 +41,19 @@ internal class IDLServiceHelper(
                 val variableName = "_unnamedVariable$primitiveTypeIndex"
                 primitiveTypeIndex++
                 additionalFunctionParam[variableName] = it
+            }
+        }
+
+        // Check for vec record in output param
+        // TODO, multiple record as result
+        resultParams.filterIsInstance<IDLTypeVec>().forEach {
+            val idlVec = CandidVecParser.parseVec(it.vecDeclaration)
+            if(idlVec.type is IDLTypeRecord) {
+                kotlinFunctionResultClasses.add(
+                    IDLTypeRecordHelper.typeRecordToKotlinClass(
+                        className = "${idlService.id.toClassName()}Response",
+                        type = idlVec.type)
+                )
             }
         }
     }
@@ -61,14 +78,24 @@ internal class IDLServiceHelper(
         // Function body
         functionDeclaration.appendLine(serviceFunctionBody(idlService.id,))
 
-        functionDeclaration.append("}")
+        functionDeclaration.appendLine("}")
+        functionDeclaration.appendLine(
+            kotlinFunctionResultClasses.joinToString(
+                prefix = "\n",
+                separator = "\n"
+            )
+        )
         return functionDeclaration.toString()
     }
 
     private fun outputArgsDeclaration(): String =
         when {
             resultParams.isEmpty() -> ""
-            resultParams.size == 1 -> IDLTypeHelper.kotlinTypeVariable(resultParams.first())
+            resultParams.size == 1 ->
+                IDLTypeHelper.kotlinTypeVariable(
+                    type = resultParams.first(),
+                    className = "${idlService.id.toClassName()}Response"
+                )
             else -> "NTuple${resultParams.size}<${resultParams.joinToString { IDLTypeHelper.kotlinTypeVariable(it) }}>"
         }
     
@@ -112,4 +139,8 @@ internal class IDLServiceHelper(
             "return CandidDecoder.decodeNullable(result)"
         else "return CandidDecoder.decode(result)"
     }
+
+    private fun String.toClassName() =
+        this.split("_")
+            .joinToString("") { it.capitalized() }
 }

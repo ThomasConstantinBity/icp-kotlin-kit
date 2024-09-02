@@ -16,10 +16,14 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import java.lang.IllegalArgumentException
 
 internal object IDLTypeHelper {
 
-    fun kotlinTypeVariable(type: IDLType, className: String? = null): String {
+    fun kotlinTypeVariable(
+        type: IDLType,
+        className: String? = null
+    ): String {
         val typeDeclaration = when(type) {
             is IDLFun -> TODO()
             is IDLTypeBlob -> "ByteArray"
@@ -34,12 +38,22 @@ internal object IDLTypeHelper {
             is IDLTypeNat64 -> "ULong"
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> "ICPPrincipal"
-            is IDLTypeRecord -> TODO()
+            is IDLTypeRecord -> {
+                requireNotNull(className) {
+                    throw IllegalArgumentException("Class name not defined for IDLTypeRecord")
+                }
+                className
+            }
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> {
                 val idlVec = CandidVecParser.parseVec(type.vecDeclaration)
-                val typeArray = StringBuilder(kotlinTypeVariable(idlVec.type))
+                val typeArray = StringBuilder(
+                    kotlinTypeVariable(
+                        type = idlVec.type,
+                        className = className
+                    )
+                )
                 if (idlVec.isOptional) typeArray.append("?")
                 "Array<$typeArray>"
             }

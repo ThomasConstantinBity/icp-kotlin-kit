@@ -33,7 +33,7 @@ internal object CandidVecParser {
 
             "text" isToken Token.Text
 
-            matches ("vec") isToken Token.Vec
+            "vec" isToken Token.Vec
             matches("""record\s+\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}""") isToken Token.Record
 
             "service" isToken Token.Service

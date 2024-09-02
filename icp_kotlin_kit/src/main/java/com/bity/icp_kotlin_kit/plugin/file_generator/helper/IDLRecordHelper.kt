@@ -6,7 +6,7 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper.kotlin
 
 internal object IDLRecordHelper {
 
-    internal fun idlRecordToKotlinClassVariable(
+    fun idlRecordToKotlinClassVariable(
         idlRecord: IDLRecord
     ): String {
         val kotlinClassVariable = StringBuilder()

@@ -39,7 +39,7 @@ type TransferError = variant {
 };
 
 service : {
-    // icrc7_collection_metadata : () -> (vec record { text; Value } ) query;
+    icrc7_collection_metadata : () -> (vec record { text; Value } ) query;
     icrc7_symbol : () -> (text) query;
     icrc7_name : () -> (text) query;
     icrc7_description : () -> (opt text) query;

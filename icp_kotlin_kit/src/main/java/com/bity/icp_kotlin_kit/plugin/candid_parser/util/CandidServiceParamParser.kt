@@ -48,7 +48,10 @@ internal object CandidServiceParamParser {
             "nat64" isToken Token.Nat64
             "nat" isToken Token.Nat
 
-            matches ("vec [^;]+") isToken Token.Vec
+            // TODO join
+            matches("""vec\s+record\s+\{([^{}]*|\{[^{}]*\})*}""") isToken Token.Vec
+            matches("""vec\s+(?:opt\s+)?\w+""") isToken Token.Vec
+
             matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
 
             matches("[ \t\r\n]+").ignore
@@ -117,11 +120,8 @@ internal object CandidServiceParamParser {
         IDLTypeNat64 { expect(Token.Nat64) }
 
         IDLTypeVec {
-            optional {
-                expect(Token.Opt)
-                emit(true) storeIn IDLTypeVec::isOptional
-            }
-            expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
+            expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration
+        }
         IDLTypeCustom {
             optional {
                 expect(Token.Opt)
@@ -138,6 +138,7 @@ internal object CandidServiceParamParser {
     }
 
     fun parseServiceParam(input: String): IDLServiceParam {
+        CandidFileParser.debug(lexer = serviceParamLexer, input)
         return serviceParamParser.parse(serviceParamLexer.tokenize(input))
     }
 }

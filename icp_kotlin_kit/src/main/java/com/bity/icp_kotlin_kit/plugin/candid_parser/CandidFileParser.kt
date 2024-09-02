@@ -86,6 +86,7 @@ internal object CandidFileParser {
 
     // TODO delete
     fun debug(lexer: Lexer, input: String) {
+        println(input)
         lexer.tokenize(input).forEachIndexed { i, t ->
             println("[$i] - ${t.tokenType} '${t.string}'")
 
