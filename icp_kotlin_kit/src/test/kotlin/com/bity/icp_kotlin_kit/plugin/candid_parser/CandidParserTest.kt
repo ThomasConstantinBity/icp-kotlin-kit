@@ -13,6 +13,16 @@ import kotlin.test.assertTrue
 
 private class CandidFileParserTest {
 
+    @MethodSource("fileInputs")
+    @ParameterizedTest
+    fun `parse file input`(
+        input: String,
+        expectedResult: IDLFileDeclaration
+    ) {
+        val fileDeclaration = CandidFileParser.parseFile(input)
+        assertEquals(expectedResult, fileDeclaration)
+    }
+
     @MethodSource("candidFilePath")
     @ParameterizedTest
     fun `parse did files`(
@@ -27,6 +37,32 @@ private class CandidFileParserTest {
     }
 
     companion object {
+
+        @JvmStatic
+        private fun fileInputs() = listOf(
+            Arguments.of(
+                """
+                    type Subaccount = blob;
+                    service : {
+                        icrc7_token_metadata : (token_ids : vec nat) -> (vec opt vec record { text; Value }) query;
+                    }
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLFileType(
+                            typeDefinition = "type Subaccount = blob;"
+                        )
+                    ),
+                    service = IDLFileService(
+                        serviceDefinition = """
+                            service : {
+                                icrc7_token_metadata : (token_ids : vec nat) -> (vec opt vec record { text; Value }) query;
+                            }
+                        """.trimIndent()
+                    )
+                )
+            )
+        )
 
         @JvmStatic
         private fun candidFilePath() = listOf(

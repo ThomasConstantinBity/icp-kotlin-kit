@@ -3,8 +3,10 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.dsl.subtype
 
+// TODO, remove = null and fix compile errors
 internal sealed class IDLType(
-    val isOptional: Boolean
+    val isOptional: Boolean,
+    val id: String? = null
 ) {
     companion object : ParserNodeDeclaration<IDLType> by subtype()
 
@@ -14,10 +16,17 @@ internal sealed class IDLType(
 
         other as IDLType
 
-        return isOptional == other.isOptional
+        if (isOptional != other.isOptional) return false
+        if (id != other.id) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return isOptional.hashCode()
+        var result = isOptional.hashCode()
+        result = 31 * result + (id?.hashCode() ?: 0)
+        return result
     }
+
+
 }

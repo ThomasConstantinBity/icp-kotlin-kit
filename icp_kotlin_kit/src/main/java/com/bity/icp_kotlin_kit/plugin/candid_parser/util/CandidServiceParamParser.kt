@@ -36,6 +36,7 @@ internal object CandidServiceParamParser {
             "(" isToken Token.LParen
             ")" isToken Token.RParen
             ";" isToken Token.Semi
+            ":" isToken Token.Colon
 
             "text" isToken Token.Text
             "blob" isToken Token.Blob
@@ -48,10 +49,7 @@ internal object CandidServiceParamParser {
             "nat64" isToken Token.Nat64
             "nat" isToken Token.Nat
 
-            // TODO join
-            matches("""vec\s+record\s+\{([^{}]*|\{[^{}]*\})*}""") isToken Token.Vec
-            matches("""vec\s+(?:opt\s+)?\w+""") isToken Token.Vec
-
+            matches("""vec\s+(\w+\s+)*\s*(\{([^{}]*|\{[^{}]*\})*})?\w*""") isToken Token.Vec
             matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
 
             matches("[ \t\r\n]+").ignore
@@ -89,12 +87,21 @@ internal object CandidServiceParamParser {
 
         IDLTypeBlob {
             optional {
+                expect(Token.Id) storeIn IDLTypeBlob::id
+                expect(Token.Colon)
+            }
+            optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeBlob::isOptional
             }
             expect(Token.Blob)
         }
+
         IDLTypeText {
+            optional {
+                expect(Token.Id) storeIn IDLTypeText::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeText::isOptional
@@ -105,31 +112,74 @@ internal object CandidServiceParamParser {
         /**
          * Type Int
          */
-        IDLTypeInt { expect(Token.Int) }
+        IDLTypeInt {
+            optional {
+                expect(Token.Id) storeIn IDLTypeInt::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeInt::isOptional
+            }
+            expect(Token.Int)
+        }
 
         /**
          * Type Nat
          */
         IDLTypeNat {
             optional {
+                expect(Token.Id) storeIn IDLTypeNat::id
+                expect(Token.Colon)
+            }
+            optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeNat::isOptional
             }
             expect(Token.Nat)
         }
-        IDLTypeNat64 { expect(Token.Nat64) }
+
+        IDLTypeNat64 {
+            optional {
+                expect(Token.Id) storeIn IDLTypeNat64::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeNat64::isOptional
+            }
+            expect(Token.Nat64)
+        }
 
         IDLTypeVec {
+            optional {
+                expect(Token.Id) storeIn IDLTypeVec::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeVec::isOptional
+            }
             expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration
         }
+
         IDLTypeCustom {
+            optional {
+                expect(Token.Id) storeIn IDLTypeCustom::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeCustom::isOptional
             }
             expect(Token.Id) storeIn IDLTypeCustom::typeDef
         }
+
         IDLTypeBoolean {
+            optional {
+                expect(Token.Id) storeIn IDLTypeBoolean::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeBoolean::isOptional
@@ -138,7 +188,6 @@ internal object CandidServiceParamParser {
     }
 
     fun parseServiceParam(input: String): IDLServiceParam {
-        CandidFileParser.debug(lexer = serviceParamLexer, input)
         return serviceParamParser.parse(serviceParamLexer.tokenize(input))
     }
 }

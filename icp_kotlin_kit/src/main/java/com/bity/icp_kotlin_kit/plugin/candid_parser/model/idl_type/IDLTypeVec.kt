@@ -5,8 +5,12 @@ import guru.zoroark.tegral.niwen.parser.reflective
 
 internal class IDLTypeVec(
     val vecDeclaration: String,
-    isOptional: Boolean = false
-) : IDLType(isOptional) {
+    isOptional: Boolean = false,
+    id: String? = null
+) : IDLType(
+    isOptional = isOptional,
+    id = id
+) {
     companion object : ParserNodeDeclaration<IDLTypeVec> by reflective()
 
     override fun equals(other: Any?): Boolean {

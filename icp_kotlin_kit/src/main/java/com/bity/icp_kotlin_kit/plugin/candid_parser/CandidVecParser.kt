@@ -31,9 +31,12 @@ internal object CandidVecParser {
         state {
             matches("//.*") isToken Token.SingleLineComment
 
+            ":" isToken Token.Colon
+
             "text" isToken Token.Text
 
-            "vec" isToken Token.Vec
+            matches("""vec\s+(?!vec)""") isToken Token.Vec
+            matches("""vec\s+(\w+\s+)*\s*(\{([^{}]*|\{[^{}]*\})*})?\w*""") isToken Token.VecDeclaration
             matches("""record\s+\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}""") isToken Token.Record
 
             "service" isToken Token.Service
@@ -56,6 +59,10 @@ internal object CandidVecParser {
     private val vecParser = niwenParser {
 
         IDLVec root {
+            optional {
+                expect(Token.Id) storeIn IDLVec::id
+                expect(Token.Colon)
+            }
             expect(Token.Vec)
             optional {
                 expect(Token.Opt)
@@ -113,11 +120,15 @@ internal object CandidVecParser {
         IDLTypeNat { expect(Token.Nat) }
         IDLTypeNat64 { expect(Token.Nat64) }
 
-        IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
+        IDLTypeVec { expect(Token.VecDeclaration) storeIn IDLTypeVec::vecDeclaration }
         IDLTypeRecord { expect(Token.Record) storeIn IDLTypeRecord::recordDeclaration }
     }
 
     fun parseVec(input: String): IDLVec {
+        CandidFileParser.debug(
+            lexer = vecLexer,
+            input = input
+        )
         return vecParser.parse(vecLexer.tokenize(input))
     }
 }
