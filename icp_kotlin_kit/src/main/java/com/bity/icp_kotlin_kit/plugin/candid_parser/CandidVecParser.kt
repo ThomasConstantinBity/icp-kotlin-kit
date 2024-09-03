@@ -125,10 +125,6 @@ internal object CandidVecParser {
     }
 
     fun parseVec(input: String): IDLVec {
-        CandidFileParser.debug(
-            lexer = vecLexer,
-            input = input
-        )
         return vecParser.parse(vecLexer.tokenize(input))
     }
 }

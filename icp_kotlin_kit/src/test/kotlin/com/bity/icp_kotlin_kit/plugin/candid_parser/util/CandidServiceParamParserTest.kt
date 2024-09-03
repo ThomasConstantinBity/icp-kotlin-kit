@@ -1,6 +1,8 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.util
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceParam
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
@@ -70,6 +72,7 @@ internal class CandidServiceParamParserTest {
 
         @JvmStatic
         private fun serviceParamWithIds() = listOf(
+
             Arguments.of(
                 "token_ids : vec nat",
                 IDLServiceParam(
@@ -77,6 +80,26 @@ internal class CandidServiceParamParserTest {
                         IDLTypeVec(
                             id = "token_ids",
                             vecDeclaration = "vec nat"
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                "account : Account, prev : opt nat, take : opt nat",
+                IDLServiceParam(
+                    params = listOf(
+                        IDLTypeCustom(
+                            id = "account",
+                            typeDef = "Account"
+                        ),
+                        IDLTypeNat(
+                            id = "prev",
+                            isOptional = true
+                        ),
+                        IDLTypeNat(
+                            id = "take",
+                            isOptional = true
                         )
                     )
                 )

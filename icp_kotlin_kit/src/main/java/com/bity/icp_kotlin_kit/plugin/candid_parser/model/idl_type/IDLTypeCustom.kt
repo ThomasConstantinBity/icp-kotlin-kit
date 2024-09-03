@@ -5,8 +5,12 @@ import guru.zoroark.tegral.niwen.parser.reflective
 
 internal class IDLTypeCustom(
     val typeDef: String,
+    id: String? = null,
     isOptional: Boolean = false
-) : IDLType(isOptional) {
+) : IDLType(
+    isOptional = isOptional,
+    id = id
+) {
 
     companion object : ParserNodeDeclaration<IDLTypeCustom> by reflective()
 

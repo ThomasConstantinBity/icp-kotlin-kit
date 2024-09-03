@@ -38,8 +38,7 @@ internal class IDLServiceHelper(
             if(it is IDLTypeCustom)
                 additionalFunctionParam[kotlinClassType.kotlinVariableName()] = it
             else {
-                val variableName = "_unnamedVariable$primitiveTypeIndex"
-                primitiveTypeIndex++
+                val variableName = it.id ?: "_${primitiveTypeIndex++}"
                 additionalFunctionParam[variableName] = it
             }
         }

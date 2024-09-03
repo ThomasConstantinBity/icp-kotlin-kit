@@ -11,7 +11,7 @@ import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-private class CandidFileParserTest {
+internal class CandidFileParserTest {
 
     @MethodSource("fileInputs")
     @ParameterizedTest

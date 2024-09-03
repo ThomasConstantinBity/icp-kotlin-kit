@@ -2,6 +2,7 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -111,6 +112,24 @@ internal class CandidServiceParserTest {
                     )
                 )
             ),
+
+            Arguments.of(
+                """
+                    service : {
+                        icrc7_tokens_of : (account : Account, prev : opt nat, take : opt nat) -> (vec nat) query;
+                    }
+                """.trimIndent(),
+                IDLServiceDeclaration(
+                    services = listOf(
+                        IDLService(
+                            id = "icrc7_tokens_of",
+                            inputParamsDeclaration = "account : Account, prev : opt nat, take : opt nat",
+                            outputParamsDeclaration = "vec nat",
+                            serviceType = IDLServiceType.Query
+                        )
+                    )
+                )
+            )
         )
     }
 }

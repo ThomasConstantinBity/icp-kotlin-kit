@@ -57,7 +57,7 @@ service : {
     // icrc7_token_metadata : (token_ids : vec nat) -> (vec opt vec record { text; Value }) query;
     icrc7_owner_of : (token_ids : vec nat) -> (vec opt Account) query;
     icrc7_balance_of : (vec Account) -> (vec nat) query;
-    // icrc7_tokens : (prev : opt nat, take : opt nat) -> (vec nat) query;
-    // icrc7_tokens_of : (account : Account, prev : opt nat, take : opt nat) -> (vec nat) query;
+    icrc7_tokens : (prev : opt nat, take : opt nat) -> (vec nat) query;
+    icrc7_tokens_of : (account : Account, prev : opt nat, take : opt nat) -> (vec nat) query;
     icrc7_transfer : (vec TransferArg) -> (vec opt TransferResult);
 }

@@ -7,6 +7,7 @@ import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import java.math.BigInteger
 import kotlin.reflect.full.memberProperties
 
+// TODO, need to support varargs
 internal object CandidEncoder {
 
     operator fun invoke(
