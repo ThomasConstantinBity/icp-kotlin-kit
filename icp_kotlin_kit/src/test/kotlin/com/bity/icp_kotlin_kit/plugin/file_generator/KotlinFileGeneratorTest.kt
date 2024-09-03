@@ -1,12 +1,10 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
-import kotlin.test.assertTrue
 
 class KotlinFileGeneratorTest {
 
@@ -16,19 +14,10 @@ class KotlinFileGeneratorTest {
         filePath: String,
         outputFilePath: String
     ) {
-        val fileName = filePath.split("/")
-            .last()
-            .removeSuffix(".did")
-        val classLoader = this.javaClass.classLoader
-        val file = File(classLoader.getResource(filePath)!!.file)
-        assertTrue(file.exists())
-
-        val idlFileDeclaration = CandidFileParser.parseFile(file.readText())
-        val kotlinFileText = KotlinFileGenerator.generateFileText(idlFileDeclaration, fileName)
-
-        val kotlinFile = File(outputFilePath)
-        kotlinFile.createNewFile()
-        kotlinFile.writeText(kotlinFileText)
+        KotlinFileGenerator(
+            didFilePath = filePath,
+            outputFilePath = outputFilePath
+        ).generateKotlinFile()
     }
 
     companion object {
@@ -43,11 +32,11 @@ class KotlinFileGeneratorTest {
         @JvmStatic
         private fun filePaths() = listOf(
             Arguments.of(
-                "candid_file/LedgerCanister.did",
+                "src/test/resources/candid_file/LedgerCanister.did",
                 "src/test/resources/generated_candid_file/LedgerCanister.kt"
             ),
             Arguments.of(
-                "candid_file/ICRC7.did",
+                "src/test/resources/candid_file/ICRC7.did",
                 "src/test/resources/generated_candid_file/ICRC7.kt"
             )
         )

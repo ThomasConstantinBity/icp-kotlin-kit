@@ -1,6 +1,8 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidTypeParser
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.enum.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
@@ -12,10 +14,11 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper.typeRecordToKotlinClass
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeVariantHelper.typeVariantToKotlinClass
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeVecHelper.typeVecToKotlinDefinition
+import kotlin.reflect.jvm.internal.impl.load.kotlin.KotlinClassFinder.Result.KotlinClass
 
 internal object IDLTypeDeclarationConverter {
 
-    operator fun invoke(input: String, className: String? = null): String {
+    operator fun invoke(input: String, className: String? = null): KotlinClassDefinition {
         val kotlinString = StringBuilder()
         val idlTypeDeclaration = CandidTypeParser.parseType(input)
 
@@ -24,34 +27,56 @@ internal object IDLTypeDeclarationConverter {
             kotlinString.appendLine(KotlinCommentGenerator.getKotlinComment(it))
         }
 
-        val kotlinDefinition = when(val type = idlTypeDeclaration.type) {
+        val kotlinDefinition: String
+        val classDefinitionType: KotlinClassDefinitionType
+
+        when(val type = idlTypeDeclaration.type) {
             is IDLFun -> TODO()
             is IDLTypeCustom -> TODO()
-            is IDLTypeFuncDeclaration -> KotlinFunctionGenerator(
-                className = className,
-                funId = idlTypeDeclaration.id,
-                idlTypeFunc = type)
+            is IDLTypeFuncDeclaration -> {
+                kotlinDefinition = KotlinFunctionGenerator(
+                    className = className,
+                    funId = idlTypeDeclaration.id,
+                    idlTypeFunc = type
+                )
+                classDefinitionType = KotlinClassDefinitionType.Function
+            }
             is IDLTypePrincipal -> TODO()
-            is IDLTypeRecord ->
-                typeRecordToKotlinClass(
+            is IDLTypeRecord -> {
+                kotlinDefinition = typeRecordToKotlinClass(
                     className = idlTypeDeclaration.id,
                     type = type
                 )
-            is IDLTypeVariant -> typeVariantToKotlinClass(
-                className = idlTypeDeclaration.id,
-                typeVariant = type
-            )
-            is IDLTypeVec -> typealiasDefinition(
-                id = idlTypeDeclaration.id,
-                kotlinType = typeVecToKotlinDefinition(type, className)
-            )
-            else -> typealiasDefinition(
-                id = idlTypeDeclaration.id,
-                kotlinType = IDLTypeHelper.kotlinTypeVariable(type, className)
-            )
+                classDefinitionType = KotlinClassDefinitionType.Class
+            }
+            is IDLTypeVariant -> {
+                kotlinDefinition = typeVariantToKotlinClass(
+                    className = idlTypeDeclaration.id,
+                    typeVariant = type
+                )
+                classDefinitionType = KotlinClassDefinitionType.SealedClass
+            }
+            is IDLTypeVec -> {
+                kotlinDefinition = typealiasDefinition(
+                    id = idlTypeDeclaration.id,
+                    kotlinType = typeVecToKotlinDefinition(type, className)
+                )
+                classDefinitionType = KotlinClassDefinitionType.Array
+            }
+            else -> {
+                kotlinDefinition = typealiasDefinition(
+                    id = idlTypeDeclaration.id,
+                    kotlinType = IDLTypeHelper.kotlinTypeVariable(type, className)
+                )
+                classDefinitionType = KotlinClassDefinitionType.TypeAlias
+            }
         }
         kotlinString.appendLine(kotlinDefinition)
-        return kotlinString.toString()
+        return KotlinClassDefinition(
+            candidDefinition = input,
+            kotlinDefinition = kotlinString.toString(),
+            classDefinitionType = classDefinitionType
+        )
     }
 
     private fun typealiasDefinition(id: String, kotlinType: String) = "typealias $id = $kotlinType"
