@@ -22,32 +22,31 @@ internal class KotlinServiceGenerator(
         // TODO, add initArgsDeclaration
     }
 
-    fun getServiceText(): String {
+    fun getKotlinServiceDefinition(): String {
         val serviceKotlinString = StringBuilder()
 
         // Candid definition
         if (showCandidDefinition) {
-            serviceKotlinString.appendLine(
-                """/**
-                    ${CandidDefinitionHelper.candidDefinition(
-                        definition = idlFileService.serviceDefinition,
-                        removeCandidComment = removeCandidComment
-                    )}
-                     */""")
+            val candidDefinition = CandidDefinitionHelper.candidDefinition(
+                definition = idlFileService.serviceDefinition,
+                removeCandidComment = removeCandidComment
+            )
+            serviceKotlinString.appendLine(candidDefinition)
         }
 
         // Service comment
         idlFileService.comment?.let {
-            val comment = KotlinCommentGenerator.getKotlinComment(it)
-            serviceKotlinString.appendLine(comment)
+            serviceKotlinString.appendLine(KotlinCommentGenerator.getKotlinComment(it))
         }
 
         serviceKotlinString.appendLine(
-            """class ${serviceName}Service ${privateConstructorDefinition()} {
+            """
+                class ${serviceName}Service ${privateConstructorDefinition()} {
                     ${serviceFunction()}
                     $PRIVATE_QUERY_DECLARATION
                     ${companionObjectDefinition()}
-            }"""
+                }
+            """.trimIndent()
         )
 
         return serviceKotlinString.toString()

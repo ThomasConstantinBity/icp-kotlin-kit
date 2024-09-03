@@ -1,6 +1,7 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.enum.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.CandidDefinitionHelper
@@ -29,22 +30,23 @@ internal class KotlinFileGenerator(
         }
 
         val idlFileDeclaration = CandidFileParser.parseFile(inputFile.readText())
+
+        /**
+         * We need to pass [fileName] when a typeAlias needs to refer a
+         * class that will be declared later in the file:
+         *
+         * ```
+         * typealias Ledger = Array<LedgerCanister.Block>
+         * object LedgerCanister {
+         *     class Block (
+         *         val parent_hash: Hash?,
+         *         val transaction: Transaction,
+         *         val timestamp: TimeStamp
+         *     )
+         * }
+         * ```
+         */
         val kotlinGeneratedClasses = idlFileDeclaration.types.map {
-            /**
-             * We need to pass [fileName] when a typeAlias needs to refer a
-             * class that will be declared later in the file:
-             *
-             * ```
-             * typealias Ledger = Array<LedgerCanister.Block>
-             * object LedgerCanister {
-             *     class Block (
-             *         val parent_hash: Hash?,
-             *         val transaction: Transaction,
-             *         val timestamp: TimeStamp
-             *     )
-             * }
-             * ```
-             */
             IDLTypeDeclarationConverter(
                 input = it.typeDefinition,
                 className = fileName
@@ -61,60 +63,49 @@ internal class KotlinFileGenerator(
         }
 
         // TypeAliases must be declare before object definition
+        writeTypeAliases(typeAliases)
+
+        // Add file comment
+        idlFileDeclaration.comment?.let {
+            fileText.append(KotlinCommentGenerator.getKotlinComment(it))
+        }
+
+        fileText.appendLine("object $fileName{\n")
+
+        // Additional classes declaration
+        fileText.appendLine(classes.joinToString("\n") { it.kotlinDefinition })
+
+        // Define service
+        val kotlinServiceDefinition = idlFileDeclaration.service?.let {
+            KotlinServiceGenerator(
+                idlFileService = it,
+                serviceName = fileName,
+                showCandidDefinition = showCandidDefinition,
+                removeCandidComment = removeCandidComment
+            ).getKotlinServiceDefinition()
+        }
+        kotlinServiceDefinition?.let {
+            fileText.appendLine(it)
+        }
+
+        fileText.appendLine("}")
+        outputFile.writeText(fileText.toString().toKotlinFileString())
+    }
+
+    private fun writeTypeAliases(typeAliases: List<KotlinClassDefinition>) {
         fileText.appendLine(typeAliases.joinToString("\n") {
             if(showCandidDefinition)
                 """
                     /**
                     ${CandidDefinitionHelper.candidDefinition(
-                        definition = it.candidDefinition,
-                        removeCandidComment = removeCandidComment
-                    )}
+                    definition = it.candidDefinition,
+                    removeCandidComment = removeCandidComment
+                )}
                     */
                     ${it.kotlinDefinition}
                 """.trimIndent()
             else it.kotlinDefinition
         })
-        // Add file comment
-        idlFileDeclaration.comment?.let {
-            fileText.append(KotlinCommentGenerator.getKotlinComment(it))
-        }
-        fileText.appendLine("object $fileName{\n")
-        fileText.appendLine(classes.joinToString("\n") { it.kotlinDefinition })
-        fileText.appendLine("}")
-        outputFile.writeText(fileText.toString().toKotlinFileString())
-
-        /*val typeAliasesAndClasses = KotlinClassGenerator.getTypeAliasAndClassDefinitions(
-            types = idlFileDeclaration.types,
-            fileName = fileName,
-            showCandidDefinition = showCandidDefinition,
-            removeCandidComment = removeCandidComment
-        )
-
-        // TypeAliases mus be declared outside object
-        fileText.appendLine(typeAliasesAndClasses.first.joinToString(""))
-
-        // IDL file comment
-        idlFileDeclaration.comment?.let {
-            fileText.appendLine()
-            fileText.append(KotlinCommentGenerator.getKotlinComment(it))
-        }
-
-        fileText.appendLine(
-            """object $fileName {
-                    ${typeAliasesAndClasses.second.joinToString("")}
-                    ${idlFileDeclaration.service?.let {
-                        KotlinServiceGenerator(
-                            idlFileService = it,
-                            serviceName = fileName,
-                            showCandidDefinition = showCandidDefinition,
-                            removeCandidComment = removeCandidComment
-                        ).getServiceText()
-                    } ?: ""}
-                }
-            """
-        )
-
-        return fileText.toString().toKotlinFileString()*/
     }
 
     companion object {
