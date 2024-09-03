@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_vec.IDLVec
@@ -26,6 +27,16 @@ internal class CandidVecParserTest {
         private fun vecDeclarationWithId() = listOf(
 
             Arguments.of(
+                "vec opt Account",
+                IDLVec(
+                    type = IDLTypeCustom(
+                        isOptional = true,
+                        typeDef = "Account"
+                    )
+                )
+            ),
+
+            Arguments.of(
                 "token_ids : vec nat",
                 IDLVec(
                     id = "token_ids",
@@ -36,8 +47,8 @@ internal class CandidVecParserTest {
             Arguments.of(
                 "vec opt vec record { text; Value }",
                 IDLVec(
-                    isOptional = true,
                     type = IDLTypeVec(
+                        isOptional = true,
                         vecDeclaration = "vec record { text; Value }"
                     )
                 )

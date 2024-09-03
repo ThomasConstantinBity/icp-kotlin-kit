@@ -129,6 +129,24 @@ internal class CandidServiceParserTest {
                         )
                     )
                 )
+            ),
+
+            Arguments.of(
+                """
+                    service : {
+                        icrc7_token_metadata : (token_ids : vec nat) -> (vec opt vec record { text; Value }) query;
+                    }
+                """.trimIndent(),
+                IDLServiceDeclaration(
+                    services = listOf(
+                        IDLService(
+                            id = "icrc7_token_metadata",
+                            inputParamsDeclaration = "token_ids : vec nat",
+                            outputParamsDeclaration = "vec opt vec record { text; Value }",
+                            serviceType = IDLServiceType.Query
+                        )
+                    )
+                )
             )
         )
     }

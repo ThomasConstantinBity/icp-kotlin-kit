@@ -14,6 +14,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVarian
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_vec.IDLVec
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
+import guru.zoroark.tegral.niwen.lexer.matchers.repeated
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.emit
@@ -35,8 +36,8 @@ internal object CandidVecParser {
 
             "text" isToken Token.Text
 
-            matches("""vec\s+(?!vec)""") isToken Token.Vec
-            matches("""vec\s+(\w+\s+)*\s*(\{([^{}]*|\{[^{}]*\})*})?\w*""") isToken Token.VecDeclaration
+            matches("""vec(?!.*vec)""") isToken Token.Vec
+            matches("""vec.*vec.*""")isToken  Token.VecDeclaration
             matches("""record\s+\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}""") isToken Token.Record
 
             "service" isToken Token.Service
@@ -57,18 +58,35 @@ internal object CandidVecParser {
     }
 
     private val vecParser = niwenParser {
-
         IDLVec root {
+
             optional {
                 expect(Token.Id) storeIn IDLVec::id
                 expect(Token.Colon)
             }
-            expect(Token.Vec)
+
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLVec::isOptional
             }
-            expect(IDLType) storeIn IDLVec::type
+
+            either {
+                expect(Token.Vec)
+                expect(IDLType) storeIn IDLVec::type
+            } or {
+                expect(Token.VecDeclaration) transform {
+                    var vecDeclaration = it.removeRange(0..3).trim()
+                    var isOptional = false
+                    if(vecDeclaration.startsWith("opt")) {
+                        vecDeclaration = vecDeclaration.removeRange(0..3).trim()
+                        isOptional = true
+                    }
+                    IDLTypeVec(
+                        isOptional = isOptional,
+                        vecDeclaration = vecDeclaration
+                    ) as IDLType
+                } storeIn IDLVec::type
+            }
         }
 
         /**
@@ -100,31 +118,74 @@ internal object CandidVecParser {
                 expect(IDLTypeNat64) storeIn self()
             } or {
                 expect(IDLTypeRecord) storeIn self()
-            } or {
-                expect(IDLTypeVec) storeIn self()
             }
         }
 
-        IDLTypeBlob { expect(Token.Blob) }
-        IDLTypeText { expect(Token.Text) }
-        IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
+        IDLTypeBlob {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeBlob::isOptional
+            }
+            expect(Token.Blob)
+        }
+
+        IDLTypeText {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeText::isOptional
+            }
+            expect(Token.Text)
+        }
+
+        IDLTypeCustom {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeCustom::isOptional
+            }
+            expect(Token.Id) storeIn IDLTypeCustom::typeDef
+        }
 
         /**
          * Type Int
          */
-        IDLTypeInt { expect(Token.Int) }
+        IDLTypeInt {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeInt::isOptional
+            }
+            expect(Token.Int)
+        }
 
         /**
          * Type Nat
          */
-        IDLTypeNat { expect(Token.Nat) }
-        IDLTypeNat64 { expect(Token.Nat64) }
+        IDLTypeNat {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeNat::isOptional
+            }
+            expect(Token.Nat)
+        }
 
-        IDLTypeVec { expect(Token.VecDeclaration) storeIn IDLTypeVec::vecDeclaration }
-        IDLTypeRecord { expect(Token.Record) storeIn IDLTypeRecord::recordDeclaration }
+        IDLTypeNat64 {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeNat64::isOptional
+            }
+            expect(Token.Nat64)
+        }
+
+        IDLTypeRecord {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeRecord::isOptional
+            }
+            expect(Token.Record) storeIn IDLTypeRecord::recordDeclaration
+        }
     }
 
     fun parseVec(input: String): IDLVec {
+        CandidFileParser.debug(vecLexer, input)
         return vecParser.parse(vecLexer.tokenize(input))
     }
 }
