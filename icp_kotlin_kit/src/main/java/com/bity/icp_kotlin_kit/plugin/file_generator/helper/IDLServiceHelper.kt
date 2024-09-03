@@ -12,7 +12,8 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableN
 import org.gradle.configurationcache.extensions.capitalized
 
 internal class IDLServiceHelper(
-    private val idlService: IDLService
+    private val idlService: IDLService,
+    private val generatedClasses: List<String>
 ) {
 
     private val baseFunctionParam = hashMapOf(
@@ -51,7 +52,8 @@ internal class IDLServiceHelper(
                 kotlinFunctionResultClasses.add(
                     IDLTypeRecordHelper.typeRecordToKotlinClass(
                         className = "${idlService.id.toClassName()}Response",
-                        type = idlVec.type)
+                        type = idlVec.type
+                    )
                 )
             }
         }
@@ -90,11 +92,14 @@ internal class IDLServiceHelper(
     private fun outputArgsDeclaration(): String =
         when {
             resultParams.isEmpty() -> ""
-            resultParams.size == 1 ->
+            resultParams.size == 1 -> {
+                val typeDef = idlService.outputParamsDeclaration
+                val className = if(generatedClasses.contains(typeDef)) null else "${idlService.id.toClassName()}Response"
                 IDLTypeHelper.kotlinTypeVariable(
                     type = resultParams.first(),
-                    className = "${idlService.id.toClassName()}Response"
+                    className = className
                 )
+            }
             else -> "NTuple${resultParams.size}<${resultParams.joinToString { IDLTypeHelper.kotlinTypeVariable(it) }}>"
         }
     
@@ -139,7 +144,9 @@ internal class IDLServiceHelper(
         else "return CandidDecoder.decode(result)"
     }
 
-    private fun String.toClassName() =
-        this.split("_")
+    private fun String.toClassName(): String {
+        println("Need to get className for $this")
+        return this.split("_")
             .joinToString("") { it.capitalized() }
+    }
 }

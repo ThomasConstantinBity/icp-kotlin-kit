@@ -6,6 +6,7 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.helper.CandidDefinitionHelp
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLServiceHelper
 
 internal class KotlinServiceGenerator(
+    private val generatedClasses: List<String>,
     private val idlFileService: IDLFileService,
     private val serviceName: String,
     private val showCandidDefinition: Boolean = true,
@@ -31,7 +32,11 @@ internal class KotlinServiceGenerator(
                 definition = idlFileService.serviceDefinition,
                 removeCandidComment = removeCandidComment
             )
-            serviceKotlinString.appendLine(candidDefinition)
+            serviceKotlinString.appendLine("""
+                /**
+                    $candidDefinition
+                */
+            """.trimIndent())
         }
 
         // Service comment
@@ -86,7 +91,10 @@ internal class KotlinServiceGenerator(
             }
 
             serviceKotlinString.appendLine(
-                IDLServiceHelper(service).convertServiceIntoKotlinFunction()
+                IDLServiceHelper(
+                    idlService = service,
+                    generatedClasses = generatedClasses
+                ).convertServiceIntoKotlinFunction()
             )
         }
         return serviceKotlinString.toString()

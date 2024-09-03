@@ -15,6 +15,6 @@ class IDLServiceHelperTest {
             outputParamsDeclaration = "vec record { text; Value }",
             serviceType = IDLServiceType.Query
         )
-        println(IDLServiceHelper(idlService).convertServiceIntoKotlinFunction())
+        println(IDLServiceHelper(idlService, emptyList()).convertServiceIntoKotlinFunction())
     }
 }

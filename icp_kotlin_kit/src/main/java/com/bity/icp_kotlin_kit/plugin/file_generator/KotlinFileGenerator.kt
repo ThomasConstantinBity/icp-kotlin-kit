@@ -62,6 +62,9 @@ internal class KotlinFileGenerator(
                     || it.classDefinitionType ==KotlinClassDefinitionType.SealedClass
         }
 
+        //We need to keep track of all generated classes as we need to refer them in the Service
+        val generatedClasses = typeAliases.map { it.definitionName } + classes.map { it.definitionName }
+
         // TypeAliases must be declare before object definition
         writeTypeAliases(typeAliases)
 
@@ -78,15 +81,14 @@ internal class KotlinFileGenerator(
         // Define service
         val kotlinServiceDefinition = idlFileDeclaration.service?.let {
             KotlinServiceGenerator(
+                generatedClasses = generatedClasses,
                 idlFileService = it,
                 serviceName = fileName,
                 showCandidDefinition = showCandidDefinition,
                 removeCandidComment = removeCandidComment
             ).getKotlinServiceDefinition()
         }
-        kotlinServiceDefinition?.let {
-            fileText.appendLine(it)
-        }
+        kotlinServiceDefinition?.let { fileText.appendLine(it) }
 
         fileText.appendLine("}")
         outputFile.writeText(fileText.toString().toKotlinFileString())
