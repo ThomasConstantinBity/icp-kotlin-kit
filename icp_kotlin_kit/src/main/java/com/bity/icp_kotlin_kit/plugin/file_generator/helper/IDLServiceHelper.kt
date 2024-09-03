@@ -13,7 +13,6 @@ import org.gradle.configurationcache.extensions.capitalized
 
 internal class IDLServiceHelper(
     private val idlService: IDLService,
-    private val generatedClasses: List<String>
 ) {
 
     private val baseFunctionParam = hashMapOf(
@@ -93,11 +92,8 @@ internal class IDLServiceHelper(
         when {
             resultParams.isEmpty() -> ""
             resultParams.size == 1 -> {
-                val typeDef = idlService.outputParamsDeclaration
-                val className = if(generatedClasses.contains(typeDef)) null else "${idlService.id.toClassName()}Response"
                 IDLTypeHelper.kotlinTypeVariable(
                     type = resultParams.first(),
-                    className = className
                 )
             }
             else -> "NTuple${resultParams.size}<${resultParams.joinToString { IDLTypeHelper.kotlinTypeVariable(it) }}>"

@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidRecordParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
@@ -16,7 +17,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import java.lang.IllegalArgumentException
 
 internal object IDLTypeHelper {
 
@@ -39,10 +39,11 @@ internal object IDLTypeHelper {
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> "ICPPrincipal"
             is IDLTypeRecord -> {
-                requireNotNull(className) {
-                    throw IllegalArgumentException("Class name not defined for IDLTypeRecord")
+                val idlRecordDeclaration = CandidRecordParser.parseRecord(type.recordDeclaration)
+                val nTupleValues = idlRecordDeclaration.records.joinToString {
+                    kotlinTypeVariable(it.type)
                 }
-                className
+                "NTuple${idlRecordDeclaration.records.size}<$nTupleValues>"
             }
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()

@@ -6,7 +6,6 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.helper.CandidDefinitionHelp
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLServiceHelper
 
 internal class KotlinServiceGenerator(
-    private val generatedClasses: List<String>,
     private val idlFileService: IDLFileService,
     private val serviceName: String,
     private val showCandidDefinition: Boolean = true,
@@ -93,7 +92,6 @@ internal class KotlinServiceGenerator(
             serviceKotlinString.appendLine(
                 IDLServiceHelper(
                     idlService = service,
-                    generatedClasses = generatedClasses
                 ).convertServiceIntoKotlinFunction()
             )
         }

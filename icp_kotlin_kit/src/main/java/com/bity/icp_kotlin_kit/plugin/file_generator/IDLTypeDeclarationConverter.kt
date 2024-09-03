@@ -27,7 +27,6 @@ internal object IDLTypeDeclarationConverter {
             kotlinString.appendLine(KotlinCommentGenerator.getKotlinComment(it))
         }
 
-        val definitionName: String
         val kotlinDefinition: String
         val classDefinitionType: KotlinClassDefinitionType
 
@@ -35,7 +34,6 @@ internal object IDLTypeDeclarationConverter {
             is IDLFun -> TODO()
             is IDLTypeCustom -> TODO()
             is IDLTypeFuncDeclaration -> {
-                definitionName = idlTypeDeclaration.id
                 kotlinDefinition = KotlinFunctionGenerator(
                     className = className,
                     funId = idlTypeDeclaration.id,
@@ -45,7 +43,6 @@ internal object IDLTypeDeclarationConverter {
             }
             is IDLTypePrincipal -> TODO()
             is IDLTypeRecord -> {
-                definitionName = idlTypeDeclaration.id
                 kotlinDefinition = typeRecordToKotlinClass(
                     className = idlTypeDeclaration.id,
                     type = type
@@ -53,7 +50,6 @@ internal object IDLTypeDeclarationConverter {
                 classDefinitionType = KotlinClassDefinitionType.Class
             }
             is IDLTypeVariant -> {
-                definitionName = idlTypeDeclaration.id
                 kotlinDefinition = typeVariantToKotlinClass(
                     className = idlTypeDeclaration.id,
                     typeVariant = type
@@ -61,7 +57,6 @@ internal object IDLTypeDeclarationConverter {
                 classDefinitionType = KotlinClassDefinitionType.SealedClass
             }
             is IDLTypeVec -> {
-                definitionName = idlTypeDeclaration.id
                 kotlinDefinition = typealiasDefinition(
                     id = idlTypeDeclaration.id,
                     kotlinType = typeVecToKotlinDefinition(type, className)
@@ -69,7 +64,6 @@ internal object IDLTypeDeclarationConverter {
                 classDefinitionType = KotlinClassDefinitionType.Array
             }
             else -> {
-                definitionName = idlTypeDeclaration.id
                 kotlinDefinition = typealiasDefinition(
                     id = idlTypeDeclaration.id,
                     kotlinType = IDLTypeHelper.kotlinTypeVariable(type, className)
@@ -79,7 +73,6 @@ internal object IDLTypeDeclarationConverter {
         }
         kotlinString.appendLine(kotlinDefinition)
         return KotlinClassDefinition(
-            definitionName = definitionName,
             candidDefinition = input,
             kotlinDefinition = kotlinString.toString(),
             classDefinitionType = classDefinitionType
