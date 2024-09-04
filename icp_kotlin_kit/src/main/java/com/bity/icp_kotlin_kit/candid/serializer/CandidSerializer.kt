@@ -17,9 +17,9 @@ internal object CandidSerializer {
         return encode(emptyList())
     }
 
-    fun encode(values: List<CandidValue>): ByteArray {
+    fun encode(values: List<CandidValue>?): ByteArray {
         val typeTable = CandidTypeTable()
-        val encodableValues = values.map { buildTree(it, typeTable) }
+        val encodableValues = values?.map { buildTree(it, typeTable) } ?: listOf()
         return magicBytes +
                 typeTable.encode() +
                 LEB128.encodeUnsigned(encodableValues.size) +

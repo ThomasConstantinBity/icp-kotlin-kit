@@ -187,11 +187,13 @@ class ICPLedgerCanisterUseCase private constructor(
         return ICPMethod(
             canister = archivePrincipal,
             methodName = method.name,
-            args = CandidValue.Record(
-                CandidDictionary(
-                    hashMapOf(
-                        "start" to CandidValue.Natural64(start),
-                        "length" to CandidValue.Natural64(length)
+            args = listOf(
+                CandidValue.Record(
+                    CandidDictionary(
+                        hashMapOf(
+                            "start" to CandidValue.Natural64(start),
+                            "length" to CandidValue.Natural64(length)
+                        )
                     )
                 )
             )

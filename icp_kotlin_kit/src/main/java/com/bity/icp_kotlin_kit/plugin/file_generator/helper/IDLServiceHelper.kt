@@ -108,7 +108,7 @@ internal class IDLServiceHelper(
 
     private fun serviceFunctionBody(methodName: String, ): String {
         val icpMethodArgs = if(additionalFunctionParam.isNotEmpty())
-            "CandidEncoder(${additionalFunctionParam.map { it.key }.joinToString(", ")})"
+            "listOf(${additionalFunctionParam.map { it.key }.joinToString(", ")}).map { CandidEncoder(it) }"
         else "null"
         val icpMethodDeclaration = """
             val icpMethod = ICPMethod(

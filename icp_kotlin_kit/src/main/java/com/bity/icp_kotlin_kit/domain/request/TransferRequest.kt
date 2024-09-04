@@ -26,19 +26,21 @@ internal fun TransferRequest.toDataModel(): ICPMethod =
     ICPMethod(
         canister = ICPSystemCanisters.Ledger.icpPrincipal,
         methodName = "transfer",
-        args = CandidValue.Record(
-            CandidDictionary(
-                hashMapOf(
-                    "from_subaccount" to CandidValue.Option(
-                        CandidOption.Some(
-                            CandidValue.Blob(sendingAccount.subAccountId)
-                        )
-                    ),
-                    "to" to CandidValue.Blob(receivingAddress.hexToByteArray()),
-                    "amount" to amount.icpAmount(),
-                    "fee" to fee.icpAmount(),
-                    "memo" to CandidValue.Natural64(memo ?: 0UL),
-                    "created_at_time" to icpTimestampNow()
+        args = listOf(
+            CandidValue.Record(
+                CandidDictionary(
+                    hashMapOf(
+                        "from_subaccount" to CandidValue.Option(
+                            CandidOption.Some(
+                                CandidValue.Blob(sendingAccount.subAccountId)
+                            )
+                        ),
+                        "to" to CandidValue.Blob(receivingAddress.hexToByteArray()),
+                        "amount" to amount.icpAmount(),
+                        "fee" to fee.icpAmount(),
+                        "memo" to CandidValue.Natural64(memo ?: 0UL),
+                        "created_at_time" to icpTimestampNow()
+                    )
                 )
             )
         )

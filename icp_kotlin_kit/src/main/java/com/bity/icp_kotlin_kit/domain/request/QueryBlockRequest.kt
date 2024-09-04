@@ -16,11 +16,13 @@ internal fun QueryBlockRequest.toDataModel(): ICPMethod =
     ICPMethod(
         canister = ICPSystemCanisters.Ledger.icpPrincipal,
         methodName = "query_blocks",
-        args = CandidValue.Record(
-            CandidDictionary(
-                hashMapOf(
-                    "start" to CandidValue.Natural64(index),
-                    "length" to CandidValue.Natural64(1U)
+        args = listOf(
+            CandidValue.Record(
+                CandidDictionary(
+                    hashMapOf(
+                        "start" to CandidValue.Natural64(index),
+                        "length" to CandidValue.Natural64(1U)
+                    )
                 )
             )
         )

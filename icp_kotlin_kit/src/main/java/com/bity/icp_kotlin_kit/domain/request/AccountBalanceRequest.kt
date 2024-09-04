@@ -17,10 +17,12 @@ internal fun AccountBalanceRequest.toDataModel(): ICPMethod =
     ICPMethod(
         canister = ICPSystemCanisters.Ledger.icpPrincipal,
         methodName = "account_balance",
-        args = CandidValue.Record(
-            CandidDictionary(
-                hashMapOf(
-                    "account" to CandidValue.Blob(account.accountId)
+        args = listOf(
+            CandidValue.Record(
+                CandidDictionary(
+                    hashMapOf(
+                        "account" to CandidValue.Blob(account.accountId)
+                    )
                 )
             )
         )

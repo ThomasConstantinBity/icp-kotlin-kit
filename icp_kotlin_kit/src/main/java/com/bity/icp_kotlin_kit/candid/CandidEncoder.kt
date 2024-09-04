@@ -10,14 +10,6 @@ import kotlin.reflect.full.memberProperties
 internal object CandidEncoder {
 
     operator fun invoke(
-        vararg arg: Any?,
-        expectedClass: Class<*>? = null,
-        expectedClassNullable: Boolean = false
-    ): CandidValue {
-        TODO()
-    }
-
-    operator fun invoke(
         arg: Any?,
         expectedClass: Class<*>? = null,
         expectedClassNullable: Boolean = false
