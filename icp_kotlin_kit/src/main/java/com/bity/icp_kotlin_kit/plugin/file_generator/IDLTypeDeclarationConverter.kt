@@ -51,17 +51,19 @@ internal object IDLTypeDeclarationConverter {
 
         val classDefinitionType = when(val type = idlTypeDeclaration.type) {
             is IDLFun -> TODO()
+
+            is IDLTypeNat64,
             is IDLTypeBlob -> KotlinClassDefinitionType.TypeAlias(
                 id = idlTypeDeclaration.id,
                 className = className,
                 type = type
             )
+
             is IDLTypeBoolean -> TODO()
             is IDLTypeCustom -> TODO()
             is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeInt -> TODO()
             is IDLTypeNat -> TODO()
-            is IDLTypeNat64 -> TODO()
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> TODO()
             is IDLTypeRecord -> convertIDLTypeRecordIntoClass(type, idlTypeDeclaration.id)
