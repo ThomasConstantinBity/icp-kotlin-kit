@@ -1,8 +1,8 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.enum.KotlinClassDefinitionType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinTypeDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.CandidDefinitionHelper
 import java.io.File
@@ -52,18 +52,13 @@ internal class KotlinFileGenerator(
                 className = fileName
             )
         }
-        val typeAliases = kotlinGeneratedClasses.filter {
-            it.classDefinitionType == KotlinClassDefinitionType.TypeAlias
-                    || it.classDefinitionType == KotlinClassDefinitionType.Array
-                    || it.classDefinitionType == KotlinClassDefinitionType.Function
-        }
+
         val classes = kotlinGeneratedClasses.filter {
-            it.classDefinitionType == KotlinClassDefinitionType.Class
-                    || it.classDefinitionType ==KotlinClassDefinitionType.SealedClass
+            it.classDefinitionType is KotlinClassDefinitionType.Class
+                    // || it.classDefinitionType ==KotlinClassDefinitionType.SealedClass
         }
 
-        // TypeAliases must be declare before object definition
-        writeTypeAliases(typeAliases)
+        // TODO, typealias
 
         // Add file comment
         idlFileDeclaration.comment?.let {
@@ -73,7 +68,22 @@ internal class KotlinFileGenerator(
         fileText.appendLine("object $fileName{\n")
 
         // Additional classes declaration
-        fileText.appendLine(classes.joinToString("\n") { it.kotlinDefinition })
+        fileText.appendLine(
+            classes.joinToString("\n") { it.kotlinDefinition(showCandidDefinition) }
+        )
+
+       /* val typeAliases = kotlinGeneratedClasses.filter {
+            it.classDefinitionType is KotlinClassDefinitionType.TypeAlias
+                    || it.classDefinitionType is KotlinClassDefinitionType.Array
+                    || it.classDefinitionType is KotlinClassDefinitionType.Function
+        }*/
+
+        /*
+
+        // TypeAliases must be declare before object definition
+        writeTypeAliases(typeAliases)
+
+
 
         // Define service
         val kotlinServiceDefinition = idlFileDeclaration.service?.let {
@@ -86,24 +96,9 @@ internal class KotlinFileGenerator(
         }
         kotlinServiceDefinition?.let { fileText.appendLine(it) }
 
+        */
         fileText.appendLine("}")
         outputFile.writeText(fileText.toString().toKotlinFileString())
-    }
-
-    private fun writeTypeAliases(typeAliases: List<KotlinClassDefinition>) {
-        fileText.appendLine(typeAliases.joinToString("\n") {
-            if(showCandidDefinition)
-                """
-                    /**
-                    ${CandidDefinitionHelper.candidDefinition(
-                    definition = it.candidDefinition,
-                    removeCandidComment = removeCandidComment
-                )}
-                    */
-                    ${it.kotlinDefinition}
-                """.trimIndent()
-            else it.kotlinDefinition
-        })
     }
 
     companion object {

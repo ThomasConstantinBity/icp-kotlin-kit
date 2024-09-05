@@ -23,15 +23,16 @@ internal object IDLTypeHelper {
     fun kotlinTypeVariable(
         type: IDLType,
         className: String? = null
-    ): String {
-        val typeDeclaration = when(type) {
+    ): String =
+        when (type) {
             is IDLFun -> TODO()
             is IDLTypeBlob -> "ByteArray"
             is IDLTypeBoolean -> "Boolean"
             is IDLTypeCustom -> {
-                if(className != null) "$className.${type.typeDef}"
+                if (className != null) "$className.${type.typeDef}"
                 else type.typeDef
             }
+
             is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeInt -> "Int"
             is IDLTypeNat -> "UInt"
@@ -45,6 +46,7 @@ internal object IDLTypeHelper {
                 }
                 "NTuple${idlRecordDeclaration.records.size}<$nTupleValues>"
             }
+
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> {
@@ -59,8 +61,6 @@ internal object IDLTypeHelper {
                 "Array<$typeArray>"
             }
         }
-        return if(type.isOptional) "$typeDeclaration?" else typeDeclaration
-    }
 
     fun idlTypeToKotlinClass(
         className: String,

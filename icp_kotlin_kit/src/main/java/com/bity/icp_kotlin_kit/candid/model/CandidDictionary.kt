@@ -1,5 +1,7 @@
 package com.bity.icp_kotlin_kit.candid.model
 
+import java.lang.RuntimeException
+
 internal class CandidDictionary(
     hashedDictionary: HashMap<ULong, CandidValue>
 ): HashMap<ULong, CandidValue>(hashedDictionary) {
@@ -23,6 +25,11 @@ internal class CandidDictionary(
             }.toMap()
         )
     )
+
+    fun getNotNull(key: String): CandidValue {
+        val hashedKey = hash(key)
+        return get(hashedKey) ?: throw RuntimeException("Value cannot be null")
+    }
 
     operator fun get(key: String?): CandidValue? {
         key ?: return null

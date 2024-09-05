@@ -5,6 +5,11 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleL
 
 internal object KotlinCommentGenerator {
 
+    fun getNullableKotlinComment(comment: IDLComment?): String? {
+        comment ?: return null
+        return getKotlinComment(comment)
+    }
+
     fun getKotlinComment(comment: IDLComment): String {
         return when (comment) {
             is IDLSingleLineComment ->

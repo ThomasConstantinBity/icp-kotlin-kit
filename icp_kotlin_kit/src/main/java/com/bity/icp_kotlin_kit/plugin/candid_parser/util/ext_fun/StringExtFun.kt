@@ -15,6 +15,13 @@ fun String.trimEndOfLineComment() =
         .removeRange(0..2)
         .replace("\\s".toRegex(), " ")
 
+fun String.toKotlinMultiLineComment(): String =
+    """
+        /**
+         * ${lines().joinToString("\n* ")}
+         */
+    """.trimIndent()
+
 fun String.toKotlinFileString(): String {
     val kotlinFile = StringBuilder()
     var indent = 0
@@ -46,27 +53,3 @@ fun String.toKotlinFileString(): String {
 
     return kotlinFile.toString()
 }
-
-private fun String.removeMultipleEmptyLines(): String {
-    return this
-}
-
-    /*this.lines().forEach {
-
-        if(indent > 0 && (it.trimStart().startsWith(")") || it.trimStart().startsWith("}")))
-            indent--
-
-        val text = it.trim()
-        when {
-            text.startsWith("*") ->  kotlinFile.append("${"\t".repeat(indent)} ${text}\n")
-            else -> kotlinFile.append("${"\t".repeat(indent)}${text}\n")
-        }
-
-
-        when {
-            it.trim().startsWith("*") || it.startsWith("/*") -> { }
-            it.endsWith("{") || it.endsWith("(") -> indent++
-            it.endsWith("()") -> { }
-            indent > 0 && (it.endsWith("}") || it.endsWith(")")) -> indent--
-        }
-    }*/
