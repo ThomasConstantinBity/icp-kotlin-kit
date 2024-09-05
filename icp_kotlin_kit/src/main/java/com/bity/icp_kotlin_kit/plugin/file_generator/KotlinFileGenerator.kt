@@ -53,12 +53,20 @@ internal class KotlinFileGenerator(
             )
         }
 
+        val typeAliases = kotlinGeneratedClasses.filter {
+            it.classDefinitionType is KotlinClassDefinitionType.TypeAlias
+                    // || it.classDefinitionType is KotlinClassDefinitionType.Array
+                    // || it.classDefinitionType is KotlinClassDefinitionType.Function
+        }
         val classes = kotlinGeneratedClasses.filter {
             it.classDefinitionType is KotlinClassDefinitionType.Class
                     // || it.classDefinitionType ==KotlinClassDefinitionType.SealedClass
         }
 
-        // TODO, typealias
+        // TypeAliases must be declare before object definition
+        typeAliases.forEach {
+            fileText.appendLine(it.kotlinDefinition(showCandidDefinition))
+        }
 
         // Add file comment
         idlFileDeclaration.comment?.let {
@@ -72,16 +80,11 @@ internal class KotlinFileGenerator(
             classes.joinToString("\n") { it.kotlinDefinition(showCandidDefinition) }
         )
 
-       /* val typeAliases = kotlinGeneratedClasses.filter {
-            it.classDefinitionType is KotlinClassDefinitionType.TypeAlias
-                    || it.classDefinitionType is KotlinClassDefinitionType.Array
-                    || it.classDefinitionType is KotlinClassDefinitionType.Function
-        }*/
+       /* */
 
         /*
 
-        // TypeAliases must be declare before object definition
-        writeTypeAliases(typeAliases)
+
 
 
 

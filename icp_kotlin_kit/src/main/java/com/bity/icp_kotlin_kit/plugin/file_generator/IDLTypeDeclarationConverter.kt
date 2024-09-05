@@ -19,11 +19,10 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLRecordHelper
 
 internal object IDLTypeDeclarationConverter {
 
-    private fun mapRecord(
+    private fun convertIDLTypeRecordIntoClass(
         idlType: IDLTypeRecord,
         className: String
     ): KotlinClassDefinitionType {
@@ -52,7 +51,11 @@ internal object IDLTypeDeclarationConverter {
 
         val classDefinitionType = when(val type = idlTypeDeclaration.type) {
             is IDLFun -> TODO()
-            is IDLTypeBlob -> TODO()
+            is IDLTypeBlob -> KotlinClassDefinitionType.TypeAlias(
+                id = idlTypeDeclaration.id,
+                className = className,
+                type = type
+            )
             is IDLTypeBoolean -> TODO()
             is IDLTypeCustom -> TODO()
             is IDLTypeFuncDeclaration -> TODO()
@@ -61,7 +64,7 @@ internal object IDLTypeDeclarationConverter {
             is IDLTypeNat64 -> TODO()
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> TODO()
-            is IDLTypeRecord -> mapRecord(type, idlTypeDeclaration.id)
+            is IDLTypeRecord -> convertIDLTypeRecordIntoClass(type, idlTypeDeclaration.id)
             is IDLTypeText -> TODO()
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> TODO()
