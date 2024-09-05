@@ -22,10 +22,10 @@ internal class KotlinClassParameter(
     val id: String?,
     val type: IDLType,
     val isOptional: Boolean,
-    val className: String
+    parentClassName: String? = null
 ) {
 
-    private val typeVariable = IDLTypeHelper.kotlinTypeVariable(type, className)
+    private val typeVariable = IDLTypeHelper.kotlinTypeVariable(type, parentClassName)
     private val valId = id ?: typeVariable.replaceFirstChar { it.lowercase() }
 
     fun kotlinDefinition(): String {
@@ -43,7 +43,10 @@ internal class KotlinClassParameter(
             "candidRecord.dictionary.getNotNull(\"$valId\")"
         return when(type) {
             is IDLFun -> TODO()
-            is IDLTypeCustom -> TODO()
+            is IDLTypeCustom -> {
+                println()
+                "$valId = TODO()"
+            }
             is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> TODO()

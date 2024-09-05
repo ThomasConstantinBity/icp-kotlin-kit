@@ -2,10 +2,12 @@ package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidRecordParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidTypeParser
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVariantParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinTypeDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
@@ -22,61 +24,21 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 
 internal object IDLTypeDeclarationConverter {
 
-    private fun convertIDLTypeRecordIntoClass(
-        idlType: IDLTypeRecord,
-        className: String
-    ): KotlinClassDefinitionType {
-        val idlRecordDeclaration = CandidRecordParser.parseRecord(idlType.recordDeclaration)
-        val classParameters = idlRecordDeclaration.records.map {
-            KotlinClassParameter(
-                comment = KotlinCommentGenerator.getNullableKotlinComment(it.comment),
-                id = it.id,
-                type = it.type,
-                isOptional = it.isOptional,
-                className = className
-            )
-        }
-        return KotlinClassDefinitionType.Class(
-            className = className,
-            params = classParameters
-        )
-    }
+    operator fun invoke(input: String, fileName: String): KotlinTypeDefinition {
 
-    operator fun invoke(input: String, className: String? = null): KotlinTypeDefinition {
         val idlTypeDeclaration = CandidTypeParser.parseType(input)
-
-        val comment = idlTypeDeclaration.comment?.let {
-            KotlinCommentGenerator.getKotlinComment(it)
-        }
-
-        val classDefinitionType = when(val type = idlTypeDeclaration.type) {
-            is IDLFun -> TODO()
-
-            is IDLTypeNat64,
-            is IDLTypeBlob -> KotlinClassDefinitionType.TypeAlias(
-                id = idlTypeDeclaration.id,
-                className = className,
-                type = type
-            )
-
-            is IDLTypeBoolean -> TODO()
-            is IDLTypeCustom -> TODO()
-            is IDLTypeFuncDeclaration -> TODO()
-            is IDLTypeInt -> TODO()
-            is IDLTypeNat -> TODO()
-            is IDLTypeNull -> TODO()
-            is IDLTypePrincipal -> TODO()
-            is IDLTypeRecord -> convertIDLTypeRecordIntoClass(type, idlTypeDeclaration.id)
-            is IDLTypeText -> TODO()
-            is IDLTypeVariant -> TODO()
-            is IDLTypeVec -> TODO()
-        }
-
+        val comment = KotlinCommentGenerator.getNullableKotlinComment(idlTypeDeclaration.comment)
+        val classDefinitionType = getClassDefinition(
+            className = idlTypeDeclaration.id,
+            parentClassName = fileName,
+            type = idlTypeDeclaration.type
+        )
         return KotlinTypeDefinition(
             comment = comment,
             candidDefinition = input,
             classDefinitionType = classDefinitionType
         )
+
         /*val kotlinString = StringBuilder()
         val idlTypeDeclaration = CandidTypeParser.parseType(input)
 
@@ -137,5 +99,82 @@ internal object IDLTypeDeclarationConverter {
         )*/
     }
 
-    private fun typealiasDefinition(id: String, kotlinType: String) = "typealias $id = $kotlinType"
+    private fun getClassDefinition(
+        className: String,
+        parentClassName: String?,
+        type: IDLType
+    ): KotlinClassDefinitionType {
+        return when(type) {
+            is IDLFun -> TODO()
+
+            is IDLTypeText,
+            is IDLTypeInt,
+            is IDLTypeNat,
+            is IDLTypeNat64,
+            is IDLTypeBlob -> KotlinClassDefinitionType.TypeAlias(
+                typeAliasId = className,
+                className = parentClassName,
+                type = type
+            )
+
+            is IDLTypeBoolean -> TODO()
+            is IDLTypeCustom -> TODO()
+            is IDLTypeFuncDeclaration -> TODO()
+            is IDLTypeNull -> TODO()
+            is IDLTypePrincipal -> TODO()
+
+            is IDLTypeRecord -> convertIDLTypeRecord(
+                idlType = type,
+                className = className,
+            )
+            is IDLTypeVariant -> convertIDLTypeVariant(
+                sealedClassName = className,
+                idlTypeVariant = type
+            )
+            is IDLTypeVec -> TODO()
+        }
+    }
+
+    private fun convertIDLTypeRecord(
+        idlType: IDLTypeRecord,
+        className: String,
+    ): KotlinClassDefinitionType {
+        val idlRecordDeclaration = CandidRecordParser.parseRecord(idlType.recordDeclaration)
+        val classParameters = idlRecordDeclaration.records.map {
+            KotlinClassParameter(
+                comment = KotlinCommentGenerator.getNullableKotlinComment(it.comment),
+                id = it.id,
+                type = it.type,
+                isOptional = it.isOptional
+            )
+        }
+        return KotlinClassDefinitionType.Class(
+            className = className,
+            params = classParameters,
+        )
+    }
+
+    private fun convertIDLTypeVariant(
+        sealedClassName: String,
+        idlTypeVariant: IDLTypeVariant
+    ): KotlinClassDefinitionType {
+        val idlVariantDeclaration = CandidVariantParser.parseVariant(idlTypeVariant.variantDeclaration)
+        val sealedClass = KotlinClassDefinitionType.SealedClass(sealedClassName)
+        val classes = idlVariantDeclaration.variants.map {
+            val clasDefinition = getClassDefinition(
+                parentClassName = null,
+                className = it.id ?: TODO(),
+                type = it.type
+            )
+            when(clasDefinition) {
+                is KotlinClassDefinitionType.Class -> clasDefinition.inheritedClass = sealedClass
+                is KotlinClassDefinitionType.Object -> clasDefinition.inheritedClass = sealedClass
+                is KotlinClassDefinitionType.SealedClass -> clasDefinition.inheritedClass = sealedClass
+                else -> { }
+            }
+            clasDefinition
+        }
+        sealedClass.innerClasses.addAll(classes)
+        return sealedClass
+    }
 }

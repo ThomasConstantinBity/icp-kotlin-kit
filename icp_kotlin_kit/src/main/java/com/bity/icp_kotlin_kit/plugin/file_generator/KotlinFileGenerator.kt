@@ -49,7 +49,7 @@ internal class KotlinFileGenerator(
         val kotlinGeneratedClasses = idlFileDeclaration.types.map {
             IDLTypeDeclarationConverter(
                 input = it.typeDefinition,
-                className = fileName
+                fileName = fileName
             )
         }
 
@@ -60,7 +60,7 @@ internal class KotlinFileGenerator(
         }
         val classes = kotlinGeneratedClasses.filter {
             it.classDefinitionType is KotlinClassDefinitionType.Class
-                    // || it.classDefinitionType ==KotlinClassDefinitionType.SealedClass
+                    || it.classDefinitionType is KotlinClassDefinitionType.SealedClass
         }
 
         // TypeAliases must be declare before object definition
