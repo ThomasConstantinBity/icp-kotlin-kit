@@ -13,7 +13,8 @@ internal object CandidDecoder {
     inline fun <reified T>decodeNotNull(candidValue: CandidValue): T =
         decode<T>(candidValue) ?: throw RuntimeException("Value cannot be null")
 
-    inline fun <reified T>decode(candidValue: CandidValue): T? {
+    inline fun <reified T>decode(candidValue: CandidValue?): T? {
+        candidValue ?: return null
         println("Decoding $candidValue into ${T::class}")
         val res = when(candidValue) {
             is CandidValue.Blob -> candidValue.data

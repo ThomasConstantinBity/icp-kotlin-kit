@@ -16,11 +16,13 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
+import java.lang.RuntimeException
 
 internal class KotlinClassParameter(
     val comment: String? = null,
     val id: String?,
     val type: IDLType,
+    val kotlinClassType: KotlinClassDefinitionType?,
     val isOptional: Boolean,
     parentClassName: String? = null
 ) {
@@ -44,8 +46,14 @@ internal class KotlinClassParameter(
         return when(type) {
             is IDLFun -> TODO()
             is IDLTypeCustom -> {
-                println()
-                "$valId = TODO()"
+                when(kotlinClassType) {
+                    is KotlinClassDefinitionType.Class -> "$valId = ${kotlinClassType.name}($funParam as CandidValue.Record)"
+                    is KotlinClassDefinitionType.Object -> "$valId = ${kotlinClassType.name}"
+                    is KotlinClassDefinitionType.SealedClass -> "$valId = TODO()"
+                    is KotlinClassDefinitionType.TypeAlias -> "$valId = CandidDecoder.$candidDecoderFunction($funParam)"
+                    null -> "$valId = TODO()"
+                }
+
             }
             is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeNull -> TODO()

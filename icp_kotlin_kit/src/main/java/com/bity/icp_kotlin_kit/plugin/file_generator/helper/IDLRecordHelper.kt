@@ -1,13 +1,12 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_record.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.file_generator.KotlinCommentGenerator
-import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper.kotlinTypeVariable
 
 internal object IDLRecordHelper {
 
+    // TODO remove
     fun idlRecordToKotlinClassVariable(
         idlRecord: IDLRecord
     ): String {
