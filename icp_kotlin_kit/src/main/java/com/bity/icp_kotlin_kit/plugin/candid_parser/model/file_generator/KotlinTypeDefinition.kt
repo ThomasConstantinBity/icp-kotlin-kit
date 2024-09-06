@@ -8,7 +8,6 @@ internal data class KotlinTypeDefinition(
     val candidDefinition: String,
     val classDefinitionType: KotlinClassDefinitionType,
 ) {
-    // TODO add kotlinDefinition builder
     fun kotlinDefinition(showCandidDefinition: Boolean): String {
         val kotlinDefinition = StringBuilder()
 

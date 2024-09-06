@@ -9,6 +9,15 @@ import kotlin.reflect.full.memberProperties
 
 internal object CandidEncoder {
 
+    private fun encodeCandidType(candidType: CandidType): CandidValue {
+        return when(candidType) {
+            is CandidType.Container -> TODO("Container")
+            is CandidType.Function -> TODO("Function")
+            is CandidType.KeyedContainer -> TODO("KeyedContainer")
+            is CandidType.Primitive -> TODO("${candidType.primitiveType.value}")
+        }
+    }
+
     operator fun invoke(
         arg: Any?,
         expectedClass: Class<*>? = null,
@@ -18,6 +27,16 @@ internal object CandidEncoder {
         if(arg == null) {
             requireNotNull(expectedClass)
             return CandidValue.Option(candidPrimitiveTypeForClass(expectedClass))
+        }
+
+        // TODO, value could be optional
+        if(arg is CandidType.KeyedContainer) {
+            val argsMap = arg.dictionaryItemType.associate {
+                it.hashedKey to encodeCandidType(it.type)
+            }
+            return CandidValue.Record(
+                CandidDictionary(HashMap(argsMap))
+            )
         }
 
         val candidValue = when(arg) {

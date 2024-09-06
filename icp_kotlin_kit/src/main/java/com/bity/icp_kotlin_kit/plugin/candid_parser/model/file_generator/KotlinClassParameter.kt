@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
@@ -16,19 +17,38 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
-import java.lang.RuntimeException
 
 internal class KotlinClassParameter(
     val comment: String? = null,
     val id: String?,
     val type: IDLType,
     val kotlinClassType: KotlinClassDefinitionType?,
+    // val generatedClasses: Map<String, KotlinClassDefinitionType>,
     val isOptional: Boolean,
     parentClassName: String? = null
 ) {
 
-    private val typeVariable = IDLTypeHelper.kotlinTypeVariable(type, parentClassName)
-    private val valId = id ?: typeVariable.replaceFirstChar { it.lowercase() }
+    private val typeVariable: String
+    private val valId: String
+
+    private val candidDecoderFunction: String
+    private val funParam: String
+
+    init {
+        typeVariable = when {
+            type is IDLTypeVec -> {
+                val idlVec = CandidVecParser.parseVec(type.vecDeclaration)
+                "Array<${kotlinClassType?.name ?: IDLTypeHelper.kotlinTypeVariable(idlVec.type)}>"
+            }
+            else -> IDLTypeHelper.kotlinTypeVariable(type, kotlinClassType?.name)
+        }
+        valId = id ?: typeVariable.replaceFirstChar { it.lowercase() }
+        candidDecoderFunction = if(isOptional) "decode" else "decodeNotNull"
+        funParam = if(isOptional) "candidRecord.dictionary[\"$valId\"]" else
+            "candidRecord.dictionary.getNotNull(\"$valId\")"
+        if(valId == "blocks")
+            println()
+    }
 
     fun kotlinDefinition(): String {
         val kotlinDefinition = StringBuilder()
@@ -40,27 +60,19 @@ internal class KotlinClassParameter(
     }
 
     fun kotlinVariableConstructor(): String {
-        val candidDecoderFunction = if(isOptional) "decode" else "decodeNotNull"
-        val funParam = if(isOptional) "candidRecord.dictionary[\"$valId\"]" else
-            "candidRecord.dictionary.getNotNull(\"$valId\")"
         return when(type) {
             is IDLFun -> TODO()
-            is IDLTypeCustom -> {
-                when(kotlinClassType) {
-                    is KotlinClassDefinitionType.Class -> "$valId = ${kotlinClassType.name}($funParam as CandidValue.Record)"
-                    is KotlinClassDefinitionType.Object -> "$valId = ${kotlinClassType.name}"
-                    is KotlinClassDefinitionType.SealedClass -> "$valId = TODO()"
-                    is KotlinClassDefinitionType.TypeAlias -> "$valId = CandidDecoder.$candidDecoderFunction($funParam)"
-                    null -> "$valId = TODO()"
-                }
-
-            }
+            is IDLTypeCustom -> typeCustomVariableConstructor()
             is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeNull -> TODO()
-            is IDLTypePrincipal -> TODO()
+            is IDLTypePrincipal -> """
+                $valId = ICPPrincipal.init(
+                    ($funParam as CandidValue.Blob).data
+                )
+            """.trimIndent()
             is IDLTypeRecord -> TODO()
             is IDLTypeVariant -> TODO()
-            is IDLTypeVec -> TODO()
+            is IDLTypeVec -> kotlinVecConstructor()
 
             is IDLTypeNat,
             is IDLTypeNat64,
@@ -69,5 +81,41 @@ internal class KotlinClassParameter(
             is IDLTypeBoolean,
             is IDLTypeInt -> "$valId = CandidDecoder.$candidDecoderFunction($funParam)"
         }
+    }
+
+    private fun typeCustomVariableConstructor(): String {
+        return when(kotlinClassType) {
+            is KotlinClassDefinitionType.Class -> "$valId = ${kotlinClassType.name}($funParam as CandidValue.Record)"
+            is KotlinClassDefinitionType.Object -> "$valId = ${kotlinClassType.name}"
+            is KotlinClassDefinitionType.SealedClass -> {
+                if(isOptional) {
+                    """$valId = candidRecord.dictionary["$valId"]?.let { Transfer.init(it) }"""
+                } else "$valId = ${kotlinClassType.name}.init($funParam)"
+            }
+            is KotlinClassDefinitionType.Function -> TODO("Function")
+
+            // No class has been generated so far, we assume it's a simple typeAlias
+            null,
+            is KotlinClassDefinitionType.TypeAlias -> "$valId = CandidDecoder.$candidDecoderFunction($funParam)"
+        }
+    }
+
+    // TODO, support for nested vec
+    private fun kotlinVecConstructor(): String {
+        require(type is IDLTypeVec)
+        return kotlinClassType?.let { generatedClass ->
+            return when(generatedClass) {
+                is KotlinClassDefinitionType.Class -> """
+                    $valId = ($funParam as CandidValue.Vector).vector.values.map { 
+                        ${generatedClass.className}(it as CandidValue.Record) 
+                    }.toTypedArray()
+                """.trimIndent()
+                is KotlinClassDefinitionType.Function -> TODO("Function")
+                is KotlinClassDefinitionType.Object -> TODO("Object")
+                is KotlinClassDefinitionType.SealedClass -> TODO("SealedClass")
+                is KotlinClassDefinitionType.TypeAlias -> TODO("TypaAlias $id")
+                // is KotlinClassDefinitionType.Array -> TODO("Array")
+            }
+        } ?: """TODO("Vec<$typeVariable> not found")"""
     }
 }

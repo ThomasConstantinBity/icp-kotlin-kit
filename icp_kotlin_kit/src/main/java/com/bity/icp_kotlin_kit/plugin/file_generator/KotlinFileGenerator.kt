@@ -12,7 +12,7 @@ import java.lang.IllegalStateException
 internal class KotlinFileGenerator(
     private val didFilePath: String,
     private val outputFilePath: String,
-    private val showCandidDefinition: Boolean = true,
+    private val showCandidDefinition: Boolean = false,
     private val removeCandidComment: Boolean = false
 ) {
 
@@ -47,21 +47,16 @@ internal class KotlinFileGenerator(
          * }
          * ```
          */
-        val kotlinTypeDefinitionMap = hashMapOf<String, KotlinClassDefinitionType>()
-        val kotlinGeneratedClasses = idlFileDeclaration.types.map {
-            val kotlinTypeDefinition = IDLTypeDeclarationConverter(kotlinTypeDefinitionMap)
-                .getKotlinTypeDefinition(
-                    input = it.typeDefinition,
-                    fileName = fileName
-                )
-            kotlinTypeDefinitionMap[kotlinTypeDefinition.className] = kotlinTypeDefinition.classDefinitionType
-            kotlinTypeDefinition
-        }
+        val typeDeclarationConverter = IDLTypeDeclarationConverter(
+            fileName = fileName,
+            types = idlFileDeclaration.types
+        )
+        val kotlinGeneratedClasses = typeDeclarationConverter.convertTypes()
 
         val typeAliases = kotlinGeneratedClasses.filter {
             it.classDefinitionType is KotlinClassDefinitionType.TypeAlias
                     // || it.classDefinitionType is KotlinClassDefinitionType.Array
-                    // || it.classDefinitionType is KotlinClassDefinitionType.Function
+                    || it.classDefinitionType is KotlinClassDefinitionType.Function
         }
         val classes = kotlinGeneratedClasses.filter {
             it.classDefinitionType is KotlinClassDefinitionType.Class

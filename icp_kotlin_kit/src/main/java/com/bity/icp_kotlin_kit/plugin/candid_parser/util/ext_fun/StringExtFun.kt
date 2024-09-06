@@ -1,12 +1,21 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun
 
-fun String.kotlinVariableName() = replaceFirstChar { it.lowercase() }
-fun String.trimCommentLine() =
+internal fun String.kotlinVariableName() = replaceFirstChar { it.lowercase() }
+
+internal fun String.classNameFromVariableName() =
+    split("_")
+        .joinToString("") { s ->
+            s.replaceFirstChar {
+                c -> c.uppercase()
+            }
+        }
+
+internal fun String.trimCommentLine() =
     this.removeRange(0..1)
         .replace("\\s+".toRegex(), " ")
         .trimStart()
 
-fun String.trimEndOfLineComment() =
+internal fun String.trimEndOfLineComment() =
     // Remove ;
     removeRange(0..1)
         // Remove extra spaces before //
@@ -15,14 +24,14 @@ fun String.trimEndOfLineComment() =
         .removeRange(0..2)
         .replace("\\s".toRegex(), " ")
 
-fun String.toKotlinMultiLineComment(): String =
+internal fun String.toKotlinMultiLineComment(): String =
     """
         /**
          * ${lines().joinToString("\n* ")}
          */
     """.trimIndent()
 
-fun String.toKotlinFileString(): String {
+internal fun String.toKotlinFileString(): String {
     val kotlinFile = StringBuilder()
     var indent = 0
     var previousEmptyLine = -1

@@ -33,7 +33,7 @@ internal object IDLTypeHelper {
                 else type.typeDef
             }
 
-            is IDLTypeFuncDeclaration -> TODO()
+            is IDLTypeFuncDeclaration -> "TODO()"
             is IDLTypeInt -> "Int"
             is IDLTypeNat -> "UInt"
             is IDLTypeNat64 -> "ULong"

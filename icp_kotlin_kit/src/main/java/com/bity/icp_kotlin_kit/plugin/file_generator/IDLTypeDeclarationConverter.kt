@@ -1,11 +1,14 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFuncParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidRecordParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidTypeParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVariantParser
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinTypeDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
@@ -21,19 +24,32 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.classNameFromVariableName
 
 internal class IDLTypeDeclarationConverter(
-    private val kotlinTypeDefinitionMap: HashMap<String, KotlinClassDefinitionType>
+    private val fileName: String,
+    private val types: List<IDLFileType>
 ) {
 
-    fun getKotlinTypeDefinition(
+    private val generatedClasses = hashMapOf<String, KotlinClassDefinitionType>()
+
+    fun convertTypes(): List<KotlinTypeDefinition> {
+        return types.map {
+            getKotlinTypeDefinition(
+                input = it.typeDefinition,
+                fileName = fileName
+            )
+        }
+    }
+
+    private fun getKotlinTypeDefinition(
         input: String,
         fileName: String,
-
     ): KotlinTypeDefinition {
 
         val idlTypeDeclaration = CandidTypeParser.parseType(input)
         val comment = KotlinCommentGenerator.getNullableKotlinComment(idlTypeDeclaration.comment)
+
         val classDefinitionType = getClassDefinition(
             className = idlTypeDeclaration.id,
             parentClassName = fileName,
@@ -45,65 +61,6 @@ internal class IDLTypeDeclarationConverter(
             candidDefinition = input,
             classDefinitionType = classDefinitionType
         )
-
-        /*val kotlinString = StringBuilder()
-        val idlTypeDeclaration = CandidTypeParser.parseType(input)
-
-        // Comment
-        idlTypeDeclaration.comment?.let {
-            kotlinString.appendLine(KotlinCommentGenerator.getKotlinComment(it))
-        }
-
-        val kotlinDefinition: String
-        val classDefinitionType: KotlinClassDefinitionType
-
-        when(val type = idlTypeDeclaration.type) {
-            is IDLFun -> TODO()
-            is IDLTypeCustom -> TODO()
-            is IDLTypeFuncDeclaration -> {
-                kotlinDefinition = KotlinFunctionGenerator(
-                    className = className,
-                    funId = idlTypeDeclaration.id,
-                    idlTypeFunc = type
-                )
-                classDefinitionType = KotlinClassDefinitionType.Function
-            }
-            is IDLTypePrincipal -> TODO()
-            is IDLTypeRecord -> {
-                kotlinDefinition = typeRecordToKotlinClass(
-                    className = idlTypeDeclaration.id,
-                    type = type
-                )
-                classDefinitionType = KotlinClassDefinitionType.Class
-            }
-            is IDLTypeVariant -> {
-                kotlinDefinition = typeVariantToKotlinClass(
-                    className = idlTypeDeclaration.id,
-                    typeVariant = type
-                )
-                classDefinitionType = KotlinClassDefinitionType.SealedClass
-            }
-            is IDLTypeVec -> {
-                kotlinDefinition = typealiasDefinition(
-                    id = idlTypeDeclaration.id,
-                    kotlinType = typeVecToKotlinDefinition(type, className)
-                )
-                classDefinitionType = KotlinClassDefinitionType.Array
-            }
-            else -> {
-                kotlinDefinition = typealiasDefinition(
-                    id = idlTypeDeclaration.id,
-                    kotlinType = IDLTypeHelper.kotlinTypeVariable(type, className)
-                )
-                classDefinitionType = KotlinClassDefinitionType.TypeAlias
-            }
-        }
-        kotlinString.appendLine(kotlinDefinition)
-        return KotlinTypeDefinition(
-            candidDefinition = input,
-            kotlinDefinition = kotlinString.toString(),
-            classDefinitionType = classDefinitionType
-        )*/
     }
 
     private fun getClassDefinition(
@@ -111,24 +68,35 @@ internal class IDLTypeDeclarationConverter(
         parentClassName: String?,
         type: IDLType,
     ): KotlinClassDefinitionType {
-        return when(type) {
+        val kotlinClassDefinitionType = when(type) {
             is IDLFun -> TODO()
+
+            is IDLTypeFuncDeclaration -> convertIDLTypeFuncDeclaration(
+                functionName = className,
+                iDLTypeFuncDeclaration = type
+            )
+
+            is IDLTypeVec -> convertIDLTypeVec(
+                className = className,
+                parentClassName = parentClassName,
+                idlType = type
+            )
 
             is IDLTypeText,
             is IDLTypeInt,
             is IDLTypeNat,
             is IDLTypeNat64,
-            is IDLTypeVec,
+            is IDLTypeBoolean,
             is IDLTypeBlob -> KotlinClassDefinitionType.TypeAlias(
                 typeAliasId = className,
                 className = parentClassName,
                 type = type
             )
 
-            is IDLTypeBoolean -> TODO()
-            is IDLTypeCustom -> TODO()
-            is IDLTypeFuncDeclaration -> TODO()
-            is IDLTypeNull -> TODO()
+            is IDLTypeCustom,
+            is IDLTypeNull -> KotlinClassDefinitionType.Object(
+                objectName = className
+            )
             is IDLTypePrincipal -> TODO()
 
             is IDLTypeRecord -> convertIDLTypeRecord(
@@ -140,6 +108,7 @@ internal class IDLTypeDeclarationConverter(
                 idlTypeVariant = type,
             )
         }
+        return kotlinClassDefinitionType
     }
 
     private fun convertIDLTypeRecord(
@@ -147,20 +116,67 @@ internal class IDLTypeDeclarationConverter(
         className: String,
     ): KotlinClassDefinitionType {
         val idlRecordDeclaration = CandidRecordParser.parseRecord(idlType.recordDeclaration)
+
+        val kotlinClass = KotlinClassDefinitionType.Class(className)
+        generatedClasses[className] = kotlinClass
+
         val classParameters = idlRecordDeclaration.records.map {
+
+            val innerClass = when(val type = it.type) {
+
+                is IDLTypeVec -> {
+                    // Need to create new class name only if a new record is declared
+                    val idlVec = CandidVecParser.parseVec(type.vecDeclaration)
+                    if(idlVec.type is IDLTypeCustom) null else {
+                        getClassDefinition(
+                            // TODO, remove !!
+                            className = it.id!!.classNameFromVariableName(),
+                            parentClassName = className,
+                            type = type
+                        )
+                    }
+                }
+
+                // Class param is a record declaration, need to declare e new class
+                is IDLTypeRecord -> TODO()
+
+                else -> { null }
+            }
+
+            innerClass?.let { clazz ->
+                kotlinClass.innerClasses.add(clazz)
+            }
+
             KotlinClassParameter(
                 comment = KotlinCommentGenerator.getNullableKotlinComment(it.comment),
                 id = it.id,
                 type = it.type,
                 isOptional = it.isOptional,
+                kotlinClassType = innerClass
                 // TODO, class could be declared later on
-                kotlinClassType = if(it.type is IDLTypeCustom) kotlinTypeDefinitionMap[it.type.typeDef] else null
+                // generatedClasses = generatedClasses
             )
         }
-        return KotlinClassDefinitionType.Class(
-            className = className,
-            params = classParameters,
-        )
+        kotlinClass.params.addAll(classParameters)
+        return kotlinClass
+    }
+
+    private fun getClassToGenerate(idlType: IDLType): List<IDLType> {
+        return when(idlType) {
+
+            is IDLTypeCustom ->
+                if(generatedClasses.containsKey(idlType.typeDef)) emptyList() else
+                    listOf(idlType)
+
+            is IDLTypeRecord,
+            is IDLTypeVariant -> { listOf(idlType) }
+
+            is IDLTypeVec -> {
+                val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
+                getClassToGenerate(idlVec.type)
+            }
+            else -> { emptyList() }
+        }
     }
 
     private fun convertIDLTypeVariant(
@@ -185,5 +201,52 @@ internal class IDLTypeDeclarationConverter(
         }
         sealedClass.innerClasses.addAll(classes)
         return sealedClass
+    }
+
+    private fun convertIDLTypeFuncDeclaration(
+        functionName: String,
+        iDLTypeFuncDeclaration: IDLTypeFuncDeclaration
+    ): KotlinClassDefinitionType {
+        val idlFun = CandidFuncParser.parseFunc(iDLTypeFuncDeclaration.funcDeclaration)
+
+        val inputArgs = idlFun.inputParams.map {
+            (it.idlType as? IDLTypeCustom)?.let { typeCustom ->
+                generatedClasses[typeCustom.typeDef]
+            } ?: TODO()
+        }
+
+        val outputArgs = idlFun.outputParams.map {
+            (it.idlType as? IDLTypeCustom)?.let { typeCustom ->
+                generatedClasses[typeCustom.typeDef]
+            } ?: TODO()
+        }
+
+        return KotlinClassDefinitionType.Function(
+            functionName = functionName,
+            inputArgs = inputArgs,
+            outputArgs = outputArgs
+        )
+    }
+
+    private fun convertIDLTypeVec(
+        className: String,
+        parentClassName: String?,
+        idlType: IDLTypeVec
+    ): KotlinClassDefinitionType {
+
+        val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
+
+        val classToGenerate = getClassToGenerate(idlVec.type)
+
+        return if (classToGenerate.isNotEmpty())
+            getClassDefinition(
+                className = className,
+                parentClassName = parentClassName,
+                type = classToGenerate.first()
+            ) else KotlinClassDefinitionType.TypeAlias(
+                typeAliasId = className,
+                className = parentClassName,
+                type = idlVec.type
+            )
     }
 }
