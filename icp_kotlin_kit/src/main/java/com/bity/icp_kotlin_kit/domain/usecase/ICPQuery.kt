@@ -11,9 +11,9 @@ import com.bity.icp_kotlin_kit.domain.request.PollingValues
 import com.bity.icp_kotlin_kit.provideICPCanisterRepository
 
 open class ICPQuery(
-    private val canister: ICPPrincipal
+    private val methodName: String,
+    private val canister: ICPPrincipal,
 ) {
-
     private val icpCanisterRepository: ICPCanisterRepository = provideICPCanisterRepository()
 
     internal suspend fun query(
@@ -24,7 +24,7 @@ open class ICPQuery(
     ): Result<CandidValue> {
         val icpMethod = ICPMethod(
             canister = canister,
-            methodName = "query_blocks",
+            methodName = methodName,
             args = args?.map { CandidEncoder(it) }
         )
         return when(certification) {
