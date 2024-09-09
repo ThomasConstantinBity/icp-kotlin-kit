@@ -46,8 +46,6 @@ internal class KotlinClassParameter(
         candidDecoderFunction = if(isOptional) "decode" else "decodeNotNull"
         funParam = if(isOptional) "candidRecord.dictionary[\"$valId\"]" else
             "candidRecord.dictionary.getNotNull(\"$valId\")"
-        if(valId == "blocks")
-            println()
     }
 
     fun kotlinDefinition(): String {

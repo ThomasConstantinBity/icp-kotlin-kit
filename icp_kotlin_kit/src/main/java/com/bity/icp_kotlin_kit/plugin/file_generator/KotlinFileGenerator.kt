@@ -3,6 +3,7 @@ package com.bity.icp_kotlin_kit.plugin.file_generator
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinTypeDefinition
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.CandidDefinitionHelper
@@ -11,42 +12,29 @@ import java.lang.IllegalStateException
 
 internal class KotlinFileGenerator(
     private val didFilePath: String,
-    private val outputFilePath: String,
-    private val showCandidDefinition: Boolean = false,
-    private val removeCandidComment: Boolean = false
+    private val showCandidDefinition: Boolean = true,
+    outputFilePath: String,
 ) {
 
+    private val idlFileDeclaration: IDLFileDeclaration
     private val fileName = didFilePath.split("/")
         .last()
         .removeSuffix(".did")
+    private val outputFile = File(outputFilePath)
 
-    private val fileText = StringBuilder(HEADER).appendLine()
+    private val fileText = StringBuilder(HEADER)
 
-    fun generateKotlinFile() {
-
+    init {
         val inputFile = File(didFilePath)
-        val outputFile = File(outputFilePath)
         assert(inputFile.exists()) {
             throw IllegalStateException("file $didFilePath not found")
         }
 
-        val idlFileDeclaration = CandidFileParser.parseFile(inputFile.readText())
+        idlFileDeclaration = CandidFileParser.parseFile(inputFile.readText())
+    }
 
-        /**
-         * We need to pass [fileName] when a typeAlias needs to refer a
-         * class that will be declared later in the file:
-         *
-         * ```
-         * typealias Ledger = Array<LedgerCanister.Block>
-         * object LedgerCanister {
-         *     class Block (
-         *         val parent_hash: Hash?,
-         *         val transaction: Transaction,
-         *         val timestamp: TimeStamp
-         *     )
-         * }
-         * ```
-         */
+    fun generateKotlinFile() {
+
         val typeDeclarationConverter = IDLTypeDeclarationConverter(
             fileName = fileName,
             types = idlFileDeclaration.types
@@ -73,29 +61,27 @@ internal class KotlinFileGenerator(
             fileText.append(KotlinCommentGenerator.getKotlinComment(it))
         }
 
-        fileText.appendLine("object $fileName{\n")
+        fileText.appendLine("object $fileName{")
 
         // Additional classes declaration
         fileText.appendLine(
-            classes.joinToString("\n") { it.kotlinDefinition(showCandidDefinition) }
+            classes.joinToString("") { it.kotlinDefinition(showCandidDefinition) }
         )
 
-       /* */
-
-        /*
-
-        // Define service
-        val kotlinServiceDefinition = idlFileDeclaration.service?.let {
-            KotlinServiceGenerator(
+        // Service declaration
+        idlFileDeclaration.service?.let {
+            val idlFileServiceConverter = IDLFileServiceConverter(
+                fileName = fileName,
                 idlFileService = it,
-                serviceName = fileName,
-                showCandidDefinition = showCandidDefinition,
-                removeCandidComment = removeCandidComment
-            ).getKotlinServiceDefinition()
+                generatedClasses = typeDeclarationConverter.generatedClasses
+            )
+            fileText.appendLine(
+                idlFileServiceConverter.getKotlinServiceDefinition(
+                    showCandidDefinition = showCandidDefinition
+                )
+            )
         }
-        kotlinServiceDefinition?.let { fileText.appendLine(it) }
 
-        */
         fileText.appendLine("}")
         outputFile.writeText(fileText.toString().toKotlinFileString())
     }
@@ -107,6 +93,7 @@ internal class KotlinFileGenerator(
         import com.bity.icp_kotlin_kit.candid.CandidDecoder
         import com.bity.icp_kotlin_kit.candid.CandidEncoder
         import com.bity.icp_kotlin_kit.domain.model.ICPMethod
+        import com.bity.icp_kotlin_kit.domain.usecase.ICPQuery
         import com.bity.icp_kotlin_kit.candid.model.CandidValue
         import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
         import com.bity.icp_kotlin_kit.domain.request.PollingValues
@@ -119,6 +106,7 @@ internal class KotlinFileGenerator(
         /**
          * File generated using ICP Kotlin Kit Plugin
          */
+         
     """
     }
 }

@@ -25,13 +25,14 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.classNameFromVariableName
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 
 internal class IDLTypeDeclarationConverter(
     private val fileName: String,
     private val types: List<IDLFileType>
 ) {
 
-    private val generatedClasses = hashMapOf<String, KotlinClassDefinitionType>()
+    val generatedClasses = hashMapOf<String, KotlinClassDefinitionType>()
 
     fun convertTypes(): List<KotlinTypeDefinition> {
         return types.map {
@@ -188,7 +189,7 @@ internal class IDLTypeDeclarationConverter(
         val classes = idlVariantDeclaration.variants.map {
             val clasDefinition = getClassDefinition(
                 parentClassName = null,
-                className = it.id ?: TODO(),
+                className = it.id ?: IDLTypeHelper.kotlinTypeVariable(it.type),
                 type = it.type,
             )
             when(clasDefinition) {
@@ -200,6 +201,7 @@ internal class IDLTypeDeclarationConverter(
             clasDefinition
         }
         sealedClass.innerClasses.addAll(classes)
+        generatedClasses[sealedClassName] = sealedClass
         return sealedClass
     }
 
