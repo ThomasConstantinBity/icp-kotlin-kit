@@ -7,12 +7,9 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileServic
 internal class IDLFileServiceConverter(
     private val fileName: String,
     private val idlFileService: IDLFileService,
-    private val generatedClasses: HashMap<String, KotlinClassDefinitionType>
 ) {
 
-    fun getKotlinServiceDefinition(
-        showCandidDefinition: Boolean
-    ): String {
+    fun getKotlinServiceDefinition(): String {
         val kotlinDefinition = StringBuilder()
 
         // Comment
@@ -29,7 +26,7 @@ internal class IDLFileServiceConverter(
                 """
                 class ${fileName}Service(
                     private val canister: ICPPrincipal
-                ) : ICPQuery(canister) {
+                ) {
             """.trimIndent()
             )
         } else {
@@ -37,12 +34,8 @@ internal class IDLFileServiceConverter(
             TODO()
         }
 
-        val kotlinFunctions = serviceDeclaration.services.joinToString("\n") {
-            IDLServiceConverter(
-                idlService = it,
-                generatedClasses = generatedClasses
-            ).getKotlinFunction()
-        }
+        val kotlinFunctions = serviceDeclaration.services
+            .joinToString("\n") { IDLServiceConverter(it).getKotlinFunction() }
         kotlinDefinition.appendLine(kotlinFunctions)
 
         kotlinDefinition.appendLine("}")

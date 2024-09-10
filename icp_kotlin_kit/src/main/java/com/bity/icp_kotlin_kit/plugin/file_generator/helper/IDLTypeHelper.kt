@@ -20,6 +20,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 
 internal object IDLTypeHelper {
 
+    // TODO, can remove className ?
     fun kotlinTypeVariable(
         type: IDLType,
         className: String? = null

@@ -18,15 +18,6 @@ internal sealed class KotlinClassDefinitionType(
             "typealias $typeAliasId = ${IDLTypeHelper.kotlinTypeVariable(type, className)}"
     }
 
-    /*class Array(
-        val isOptional: Boolean,
-        val customContainedClass: KotlinClassDefinitionType?
-    ): KotlinClassDefinitionType("Array") {
-        override fun kotlinDefinition(): String {
-            return "Array<TODO()>"
-        }
-    }*/
-
     class Function(
         val functionName: String,
         val inputArgs: List<KotlinClassDefinitionType>,
@@ -34,7 +25,26 @@ internal sealed class KotlinClassDefinitionType(
     ): KotlinClassDefinitionType(functionName) {
 
         override fun kotlinDefinition(): String {
-            return "typealias $functionName = () -> UInt // TODO"
+            val functionResult = when(val size = outputArgs.size) {
+                0 -> "Unit"
+                1 -> outputArgs.first().name
+                else -> TODO("Function must return multiple args, use NTuple$size")
+            }
+            return """
+                class $functionName(
+                        methodName: String,
+                        canister: ICPPrincipal
+                ) : ICPQuery (
+                    methodName = methodName,
+                    canister = canister
+                ) {
+                    suspend operator fun invoke(args: List<Any>): $functionResult {
+                        val result = query(args).getOrThrow()
+                        return CandidDecoder.decodeNotNull(result)
+                    }
+                }
+                """.trimIndent()
+
         }
     }
 
@@ -43,16 +53,11 @@ internal sealed class KotlinClassDefinitionType(
     ): KotlinClassDefinitionType(className) {
 
         var inheritedClass: KotlinClassDefinitionType? = null
-        // val innerClasses = mutableListOf<KotlinClassDefinitionType>()
 
         override fun kotlinDefinition(): String {
             return """
                 sealed class $className {
                     ${innerClasses.joinToString("\n") { it.kotlinDefinition() }}
-                    
-                    companion object {
-                        internal fun init(candidValue: CandidValue): $className = TODO()
-                    }
                 }
             """.trimIndent()
         }
@@ -80,7 +85,7 @@ internal sealed class KotlinClassDefinitionType(
         var inheritedClass: KotlinClassDefinitionType? = null
 
         override fun kotlinDefinition(): String {
-            val kotlinDefinition = StringBuilder("data class $className(")
+            val kotlinDefinition = StringBuilder("data class $className (")
             kotlinDefinition.appendLine(
                 params.joinToString(
                     separator = ",\n",
@@ -89,31 +94,24 @@ internal sealed class KotlinClassDefinitionType(
             )
 
             val closingLine = inheritedClass?.let {
-                ") : ${it.name}() {\n"
-            } ?: ") {\n"
-            kotlinDefinition.appendLine(closingLine)
+                ") : ${it.name}()"
+            } ?: ")"
+            kotlinDefinition.append(closingLine)
 
-            // Add inner classes
-            innerClasses
-                .filter { it !is TypeAlias }
-                .forEach {
-                kotlinDefinition.appendLine(it.kotlinDefinition())
+            if(innerClasses.isNotEmpty()) {
+                kotlinDefinition.appendLine(" {")
+                // Add inner classes
+                innerClasses.filter { it !is TypeAlias }
+                    .forEach {
+                        kotlinDefinition.appendLine(it.kotlinDefinition())
+                    }
+                kotlinDefinition.appendLine("}")
             }
 
-            // add internal constructor
-            kotlinDefinition.appendLine(
-                "internal constructor(candidRecord: CandidValue.Record): this("
-            )
-            kotlinDefinition.appendLine(
-                params.joinToString(",\n") { it.kotlinVariableConstructor() }
-            )
-
-            kotlinDefinition.appendLine(")")
-            kotlinDefinition.appendLine("}")
             return kotlinDefinition.toString()
         }
 
     }
 
-    open fun kotlinDefinition(): String = TODO()
+    abstract fun kotlinDefinition(): String
 }

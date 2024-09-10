@@ -25,6 +25,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.classNameFromVariableName
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 
 internal class IDLTypeDeclarationConverter(
@@ -32,7 +33,7 @@ internal class IDLTypeDeclarationConverter(
     private val types: List<IDLFileType>
 ) {
 
-    val generatedClasses = hashMapOf<String, KotlinClassDefinitionType>()
+    private val generatedClasses = hashMapOf<String, KotlinClassDefinitionType>()
 
     fun convertTypes(): List<KotlinTypeDefinition> {
         return types.map {
@@ -88,16 +89,36 @@ internal class IDLTypeDeclarationConverter(
             is IDLTypeNat,
             is IDLTypeNat64,
             is IDLTypeBoolean,
-            is IDLTypeBlob -> KotlinClassDefinitionType.TypeAlias(
-                typeAliasId = className,
-                className = parentClassName,
-                type = type
-            )
+            is IDLTypeBlob -> {
+                val typeAlias = KotlinClassDefinitionType.TypeAlias(
+                    typeAliasId = className,
+                    className = parentClassName,
+                    type = type
+                )
+                generatedClasses[className] = typeAlias
+                typeAlias
+            }
 
-            is IDLTypeCustom,
+            is IDLTypeCustom -> {
+                val kotlinClass = KotlinClassDefinitionType.Class(
+                    className = className
+                )
+                val kotlinClassParameter = generatedClasses[type.typeDef]?.let {
+                    KotlinClassParameter(
+                        id = type.typeDef.kotlinVariableName(),
+                        type = type,
+                        kotlinClassType = it,
+                        isOptional = type.isOptional
+                    )
+                }
+                kotlinClassParameter?.let { kotlinClass.params.add(it) }
+                kotlinClass
+            }
+
             is IDLTypeNull -> KotlinClassDefinitionType.Object(
                 objectName = className
             )
+
             is IDLTypePrincipal -> TODO()
 
             is IDLTypeRecord -> convertIDLTypeRecord(

@@ -22,7 +22,6 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 
 internal class IDLServiceConverter(
     private val idlService: IDLService,
-    private val generatedClasses: HashMap<String, KotlinClassDefinitionType>
 ) {
 
     private val inputs: HashMap<String, String> = hashMapOf()
@@ -88,9 +87,11 @@ internal class IDLServiceConverter(
         // Function Body
         kotlinFunction.appendLine(
             """
-                val result = query(
-                    args = ${getQueryArgsDeclaration()}
-                ).getOrThrow()
+                val icpQuery = ICPQuery(
+                    methodName = "${idlService.id}",
+                    canister = canister,
+                )
+                val result = icpQuery.query(listOf(${inputs.keys.joinToString()})).getOrThrow()
                 return CandidDecoder.decodeNotNull(result)
             """.trimIndent()
         )

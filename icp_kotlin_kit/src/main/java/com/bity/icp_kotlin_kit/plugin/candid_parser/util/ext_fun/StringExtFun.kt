@@ -34,7 +34,6 @@ internal fun String.toKotlinMultiLineComment(): String =
 internal fun String.toKotlinFileString(): String {
     val kotlinFile = StringBuilder()
     var indent = 0
-    var previousEmptyLine = -1
 
     this.lines().forEach {
 
@@ -44,6 +43,7 @@ internal fun String.toKotlinFileString(): String {
         }
 
         when {
+            indent == 0 -> { }
             line.startsWith(")") || line.startsWith("}") -> indent--
             else -> { }
         }

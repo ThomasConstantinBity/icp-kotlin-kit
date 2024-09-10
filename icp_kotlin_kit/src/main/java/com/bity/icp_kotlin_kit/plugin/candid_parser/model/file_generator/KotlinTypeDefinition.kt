@@ -14,9 +14,7 @@ internal data class KotlinTypeDefinition(
         if(showCandidDefinition)
             kotlinDefinition.appendLine(candidDefinition.toKotlinMultiLineComment())
 
-        comment?.let { comment ->
-            kotlinDefinition.appendLine(comment)
-        }
+        comment?.let { kotlinDefinition.appendLine(it) }
 
         kotlinDefinition.appendLine(classDefinitionType.kotlinDefinition())
         return kotlinDefinition.toString()

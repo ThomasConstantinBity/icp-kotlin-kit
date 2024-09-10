@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.io.File
 
 class KotlinFileGeneratorTest {
 
@@ -25,8 +24,8 @@ class KotlinFileGeneratorTest {
         @JvmStatic
         @BeforeAll
         fun `clear generated_candid_file folder`() {
-            val folder = File("src/test/resources/generated_candid_file")
-            folder.listFiles()?.forEach { it.deleteRecursively() }
+            // val folder = File("src/test/resources/generated_candid_file")
+            // folder.listFiles()?.forEach { it.deleteRecursively() }
         }
 
         @JvmStatic

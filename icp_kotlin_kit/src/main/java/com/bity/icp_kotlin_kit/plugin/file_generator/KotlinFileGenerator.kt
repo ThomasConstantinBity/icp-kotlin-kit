@@ -43,12 +43,12 @@ internal class KotlinFileGenerator(
 
         val typeAliases = kotlinGeneratedClasses.filter {
             it.classDefinitionType is KotlinClassDefinitionType.TypeAlias
-                    // || it.classDefinitionType is KotlinClassDefinitionType.Array
-                    || it.classDefinitionType is KotlinClassDefinitionType.Function
         }
+
         val classes = kotlinGeneratedClasses.filter {
             it.classDefinitionType is KotlinClassDefinitionType.Class
                     || it.classDefinitionType is KotlinClassDefinitionType.SealedClass
+                    || it.classDefinitionType is KotlinClassDefinitionType.Function
         }
 
         // TypeAliases must be declare before object definition
@@ -61,11 +61,13 @@ internal class KotlinFileGenerator(
             fileText.append(KotlinCommentGenerator.getKotlinComment(it))
         }
 
-        fileText.appendLine("object $fileName{")
+        fileText.appendLine("object $fileName {\n")
 
         // Additional classes declaration
         fileText.appendLine(
-            classes.joinToString("") { it.kotlinDefinition(showCandidDefinition) }
+            classes.joinToString("\n") {
+                it.kotlinDefinition(showCandidDefinition)
+            }
         )
 
         // Service declaration
@@ -73,13 +75,8 @@ internal class KotlinFileGenerator(
             val idlFileServiceConverter = IDLFileServiceConverter(
                 fileName = fileName,
                 idlFileService = it,
-                generatedClasses = typeDeclarationConverter.generatedClasses
             )
-            fileText.appendLine(
-                idlFileServiceConverter.getKotlinServiceDefinition(
-                    showCandidDefinition = showCandidDefinition
-                )
-            )
+            fileText.appendLine(idlFileServiceConverter.getKotlinServiceDefinition())
         }
 
         fileText.appendLine("}")
