@@ -150,22 +150,42 @@ internal sealed class KotlinClassDefinitionType(
         val outputArgs = mutableListOf<KotlinClassParameter>()
 
         override fun kotlinDefinition(): String {
+            val returnParam = when(val size = outputArgs.size) {
+                0 -> ""
+                1 -> {
+                    val output = outputArgs.first()
+                    if(output.isOptional) ": ${outputArgs.first().typeVariable}?" else ": ${outputArgs.first().typeVariable}"
+                }
+                else -> TODO()
+            }
             // TODO, comment
             return """
                 // ${candidDeclaration()}
-                suspend fun ${queryName.kotlinFunctionName()}() {
+                suspend fun ${queryName.kotlinFunctionName()}()$returnParam {
                     val icpQuery = ICPQuery(
                         methodName = "$queryName",
                         canister = canister
                     )
                     val result = icpQuery.query(listOf()).getOrThrow()
-                    return CandidDecoder.decodeNotNull(result)
+                    return CandidDecoder.${functionReturnDeclaration()}
                 }
+                ${innerClasses.joinToString(
+                    separator = "\n",
+                    prefix = "\n"
+                ) { it.kotlinDefinition() }}
             """.trimIndent()
         }
 
         private fun candidDeclaration(): String =
             "$queryName : (${inputParamsDeclaration ?: ""}) -> (${outputParamsDeclaration ?: ""}) query"
+
+        private fun functionReturnDeclaration(): String {
+            return when(val size = outputArgs.size) {
+                0 -> TODO()
+                1 -> if(outputArgs.first().isOptional) "decode(result)" else "decodeNotNull(result)"
+                else -> TODO()
+            }
+        }
     }
 
     abstract fun kotlinDefinition(): String

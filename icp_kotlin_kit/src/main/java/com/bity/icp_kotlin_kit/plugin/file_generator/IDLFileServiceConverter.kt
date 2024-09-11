@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidRecordParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidServiceParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
@@ -22,6 +23,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.CandidServiceParamParser
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.classNameFromVariableName
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 
@@ -29,7 +31,6 @@ internal class IDLFileServiceConverter(
     private val fileName: String,
     private val idlFileService: IDLFileService,
 ) {
-    private val generatedClasses = hashMapOf<String, KotlinClassDefinitionType>()
 
     fun getKotlinServiceDefinition(): KotlinClassDefinitionType {
         val serviceDeclaration = CandidServiceParser.parseService( idlFileService.serviceDefinition)
@@ -65,30 +66,42 @@ internal class IDLFileServiceConverter(
         )
 
         val innerClasses = mutableListOf<KotlinClassDefinitionType>()
-        val inputArgs = CandidServiceParamParser
+       /* val inputArgs = CandidServiceParamParser
             .parseServiceParam(idlService.inputParamsDeclaration)
             .params
             .map {
                 kotlinClassParam(it)
             }
-        icpQuery.inputArgs.addAll(inputArgs)
+        icpQuery.inputArgs.addAll(inputArgs)*/
 
-        val outputArgs = CandidServiceParamParser
+        val outputParams = CandidServiceParamParser
             .parseServiceParam(idlService.outputParamsDeclaration)
             .params
-            .map {
-                if(shouldDeclareInnerClass(it)) {
-                    println()
-                }
-                kotlinClassParam(it)
+
+        val outputArgs = outputParams.map { param ->
+            var className: String? = null
+            val outputResponseClasses = innerClassesToDeclare(param).map {
+                className = "${idlService.id.classNameFromVariableName()}Response"
+                val generatedClass = generateKotlinClassDefinitionType(
+                    idlType = it,
+                    className = className!!
+                )
+                generatedClass
             }
+            innerClasses.addAll(outputResponseClasses)
+            kotlinClassParam(param, className)
+        }
+
         icpQuery.outputArgs.addAll(outputArgs)
         icpQuery.innerClasses.addAll(innerClasses)
         return icpQuery
     }
 
-    private fun kotlinClassParam(idlType: IDLType): KotlinClassParameter {
-        val typeVariable = IDLTypeHelper.kotlinTypeVariable(idlType)
+    private fun kotlinClassParam(
+        idlType: IDLType,
+        className: String?
+    ): KotlinClassParameter {
+        val typeVariable = IDLTypeHelper.kotlinTypeVariable(idlType, className)
         return KotlinClassParameter(
             comment = null,
             id = idlType.id ?: typeVariable.kotlinVariableName(),
@@ -97,7 +110,7 @@ internal class IDLFileServiceConverter(
         )
     }
 
-    private fun shouldDeclareInnerClass(idlType: IDLType): Boolean =
+    private fun innerClassesToDeclare(idlType: IDLType): List<IDLType> =
         when(idlType) {
             is IDLTypeInt,
             is IDLTypeNat,
@@ -106,8 +119,8 @@ internal class IDLFileServiceConverter(
             is IDLTypePrincipal,
             is IDLTypeBoolean,
             is IDLTypeText,
-            is IDLTypeCustom -> false
-            is IDLTypeRecord -> true
+            is IDLTypeCustom -> emptyList()
+            is IDLTypeRecord -> listOf(idlType)
 
             is IDLFun -> TODO()
             is IDLTypeFuncDeclaration -> TODO()
@@ -116,7 +129,45 @@ internal class IDLFileServiceConverter(
 
             is IDLTypeVec -> {
                 val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
-                shouldDeclareInnerClass(idlVec.type)
+                innerClassesToDeclare(idlVec.type)
             }
         }
+
+    private fun generateKotlinClassDefinitionType(
+        idlType: IDLType,
+        className: String
+    ): KotlinClassDefinitionType {
+        return when(idlType) {
+            is IDLFun -> TODO()
+            is IDLTypeBlob -> TODO()
+            is IDLTypeBoolean -> TODO()
+            is IDLTypeCustom -> TODO()
+            is IDLTypeFuncDeclaration -> TODO()
+            is IDLTypeInt -> TODO()
+            is IDLTypeNat -> TODO()
+            is IDLTypeNat64 -> TODO()
+            is IDLTypeNull -> TODO()
+            is IDLTypePrincipal -> TODO()
+            is IDLTypeRecord -> {
+                val recordDeclaration = CandidRecordParser.parseRecord(idlType.recordDeclaration)
+                val kotlinClass = KotlinClassDefinitionType.Class(
+                    className = className
+                )
+                val params = recordDeclaration.records.map {
+                    val typeVariable = IDLTypeHelper.kotlinTypeVariable(it.type)
+                    KotlinClassParameter(
+                        comment = KotlinCommentGenerator.getNullableKotlinComment(it.comment),
+                        id = it.id ?: typeVariable.kotlinVariableName(),
+                        isOptional = it.isOptional,
+                        typeVariable = typeVariable
+                    )
+                }
+                kotlinClass.params.addAll(params)
+                kotlinClass
+            }
+            is IDLTypeText -> TODO()
+            is IDLTypeVariant -> TODO()
+            is IDLTypeVec -> TODO()
+        }
+    }
 }

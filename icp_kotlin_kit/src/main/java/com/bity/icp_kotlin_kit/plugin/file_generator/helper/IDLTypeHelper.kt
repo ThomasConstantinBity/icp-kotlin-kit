@@ -42,7 +42,8 @@ internal object IDLTypeHelper {
             is IDLTypeNat64 -> "ULong"
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> "ICPPrincipal"
-            is IDLTypeRecord -> className ?: throw RuntimeException("className is required")
+            is IDLTypeRecord -> className
+                ?: throw RuntimeException("className is required for record declaration '${type.recordDeclaration}'")
 
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
