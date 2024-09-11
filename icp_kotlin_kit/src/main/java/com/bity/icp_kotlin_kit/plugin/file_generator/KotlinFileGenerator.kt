@@ -73,7 +73,9 @@ internal class KotlinFileGenerator(
                 fileName = fileName,
                 idlFileService = it,
             )
-            fileText.appendLine(idlFileServiceConverter.getKotlinServiceDefinition())
+            fileText.appendLine(
+                idlFileServiceConverter.getKotlinServiceDefinition().kotlinDefinition()
+            )
         }
 
         fileText.appendLine("}")

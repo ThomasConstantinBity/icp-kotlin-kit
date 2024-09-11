@@ -217,8 +217,6 @@ internal class IDLTypeDeclarationConverter(
         idlType: IDLTypeRecord,
         className: String,
     ): KotlinClassDefinitionType {
-        if(className == "ArchivedBlocks")
-            println()
         val idlRecordDeclaration = CandidRecordParser.parseRecord(idlType.recordDeclaration)
         val kotlinClass = KotlinClassDefinitionType.Class(className)
         generatedClasses[className] = kotlinClass

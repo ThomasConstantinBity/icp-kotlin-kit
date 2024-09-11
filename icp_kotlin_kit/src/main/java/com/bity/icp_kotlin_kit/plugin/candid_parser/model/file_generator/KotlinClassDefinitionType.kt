@@ -1,6 +1,8 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinFunctionName
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 
@@ -135,7 +137,35 @@ internal sealed class KotlinClassDefinitionType(
 
             return kotlinDefinition.toString()
         }
+    }
 
+    class ICPQuery(
+        private val comment: IDLComment? = null,
+        private val queryName: String,
+        private val inputParamsDeclaration: String?,
+        private val outputParamsDeclaration: String?
+    ): KotlinClassDefinitionType(queryName) {
+
+        val inputArgs = mutableListOf<KotlinClassParameter>()
+        val outputArgs = mutableListOf<KotlinClassParameter>()
+
+        override fun kotlinDefinition(): String {
+            // TODO, comment
+            return """
+                // ${candidDeclaration()}
+                suspend fun ${queryName.kotlinFunctionName()}() {
+                    val icpQuery = ICPQuery(
+                        methodName = "$queryName",
+                        canister = canister
+                    )
+                    val result = icpQuery.query(listOf()).getOrThrow()
+                    return CandidDecoder.decodeNotNull(result)
+                }
+            """.trimIndent()
+        }
+
+        private fun candidDeclaration(): String =
+            "$queryName : (${inputParamsDeclaration ?: ""}) -> (${outputParamsDeclaration ?: ""}) query"
     }
 
     abstract fun kotlinDefinition(): String

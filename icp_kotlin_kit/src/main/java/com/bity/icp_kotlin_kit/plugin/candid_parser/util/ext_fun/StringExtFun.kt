@@ -2,6 +2,15 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun
 
 internal fun String.kotlinVariableName() = replaceFirstChar { it.lowercase() }
 
+internal fun String.kotlinFunctionName() =
+    split("_")
+        .joinToString("") { s ->
+            s.replaceFirstChar { c ->
+                c.uppercase()
+            }
+        }
+        .replaceFirstChar { it.lowercase() }
+
 internal fun String.classNameFromVariableName() =
     split("_")
         .joinToString("") { s ->

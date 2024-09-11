@@ -6,6 +6,7 @@ internal class KotlinClassParameter(
     private val isOptional: Boolean,
     private val typeVariable: String
 ) {
+
     fun kotlinDefinition(): String {
         val kotlinDefinition = StringBuilder()
         comment?.let { kotlinDefinition.append(it) }
