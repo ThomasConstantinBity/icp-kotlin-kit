@@ -1,6 +1,5 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
@@ -51,7 +50,10 @@ internal class IDLServiceConverter(
                     is IDLTypeRecord -> TODO()
                     is IDLTypeText -> TODO()
                     is IDLTypeVariant -> TODO()
-                    is IDLTypeVec -> TODO()
+                    is IDLTypeVec -> {
+                        TODO()
+                        it.id ?: TODO()
+                    }
                 }
                 inputs[variableName] = variableType
             }
@@ -98,12 +100,5 @@ internal class IDLServiceConverter(
 
         kotlinFunction.appendLine("}")
         return kotlinFunction.toString()
-    }
-
-    private fun getQueryArgsDeclaration(): String {
-        require(inputs.entries.isNotEmpty()) {
-            return "null"
-        }
-        return "listOf(${inputs.entries.joinToString { it.key }})"
     }
 }

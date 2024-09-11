@@ -2,11 +2,8 @@ package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinTypeDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
-import com.bity.icp_kotlin_kit.plugin.file_generator.helper.CandidDefinitionHelper
 import java.io.File
 import java.lang.IllegalStateException
 

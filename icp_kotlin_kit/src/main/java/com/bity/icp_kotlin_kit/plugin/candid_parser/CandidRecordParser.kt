@@ -150,12 +150,53 @@ internal object CandidRecordParser {
             }
         }
 
-        IDLTypeBoolean { expect(Token.Boolean) }
-        IDLTypeBlob { expect(Token.Blob) }
-        IDLTypeText { expect(Token.Text) }
-        IDLTypePrincipal { expect(Token.Principal) }
-        IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
-        IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
+        IDLTypeBoolean {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeBoolean::isOptional
+            }
+            expect(Token.Boolean)
+        }
+
+        IDLTypeBlob {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeBlob::isOptional
+            }
+            expect(Token.Blob)
+        }
+
+        IDLTypeText {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeText::isOptional
+            }
+            expect(Token.Text)
+        }
+
+        IDLTypePrincipal {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypePrincipal::isOptional
+            }
+            expect(Token.Principal)
+        }
+
+        IDLTypeCustom {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeCustom::isOptional
+            }
+            expect(Token.Id) storeIn IDLTypeCustom::typeDef
+        }
+
+        IDLTypeVec {
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeVec::isOptional
+            }
+            expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration
+        }
 
         /**
          * Type Int

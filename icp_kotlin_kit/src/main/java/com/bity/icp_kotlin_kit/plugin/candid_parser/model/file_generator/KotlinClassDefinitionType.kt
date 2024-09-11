@@ -1,13 +1,15 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 
 // TODO remove =  null
 internal sealed class KotlinClassDefinitionType(
     val name: String,
-    val innerClasses: MutableList<KotlinClassDefinitionType> = mutableListOf()
 ) {
+    var inheritedClass: KotlinClassDefinitionType? = null
+    val innerClasses: MutableList<KotlinClassDefinitionType> = mutableListOf()
 
     class TypeAlias(
         val typeAliasId: String,
@@ -51,9 +53,6 @@ internal sealed class KotlinClassDefinitionType(
     class SealedClass(
         val className: String,
     ): KotlinClassDefinitionType(className) {
-
-        var inheritedClass: KotlinClassDefinitionType? = null
-
         override fun kotlinDefinition(): String {
             return """
                 sealed class $className {
@@ -67,13 +66,40 @@ internal sealed class KotlinClassDefinitionType(
         val objectName: String,
         // parent: KotlinClassDefinitionType?
     ): KotlinClassDefinitionType(objectName) {
-
-        var inheritedClass: KotlinClassDefinitionType? = null
-
         override fun kotlinDefinition(): String {
             return inheritedClass?.let {
                 "data object $objectName : ${it.name}()"
             } ?: "object $objectName"
+        }
+    }
+
+    class Array(
+        private val arrayName: String,
+        private val parentClassName: String?,
+        private val type: IDLType
+    ): KotlinClassDefinitionType(arrayName) {
+        override fun kotlinDefinition(): String {
+            return when {
+                inheritedClass != null && innerClasses.isNotEmpty() -> {
+                    """
+                        class $arrayName (
+                            val ${arrayName.kotlinVariableName()}: kotlin.Array<${innerClasses.first().name}>
+                        ) : ${inheritedClass!!.name}() {
+                            ${innerClasses.first().kotlinDefinition()}
+                        }
+                    """.trimIndent()
+                }
+
+                inheritedClass != null -> {
+                    """
+                        class $arrayName (
+                            val ${arrayName.kotlinVariableName()}: kotlin.Array<${IDLTypeHelper.kotlinTypeVariable(type)}>
+                        ) : ${inheritedClass!!.name}()
+                    """.trimIndent()
+                }
+
+                else -> "typealias $arrayName = Array<${IDLTypeHelper.kotlinTypeVariable(type, parentClassName)}>"
+            }
         }
     }
 
@@ -82,7 +108,6 @@ internal sealed class KotlinClassDefinitionType(
     ): KotlinClassDefinitionType(className) {
 
         var params: MutableList<KotlinClassParameter> = mutableListOf()
-        var inheritedClass: KotlinClassDefinitionType? = null
 
         override fun kotlinDefinition(): String {
             val kotlinDefinition = StringBuilder("data class $className (")

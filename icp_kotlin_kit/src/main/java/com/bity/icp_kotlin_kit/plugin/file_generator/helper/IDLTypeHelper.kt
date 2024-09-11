@@ -17,6 +17,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 
 internal object IDLTypeHelper {
 
@@ -35,18 +36,14 @@ internal object IDLTypeHelper {
             }
 
             is IDLTypeFuncDeclaration -> "TODO()"
-            is IDLTypeInt -> "Int"
+            is IDLTypeInt -> {
+                if(className != "Int") "Int" else "kotlin.Int"
+            }
             is IDLTypeNat -> "UInt"
             is IDLTypeNat64 -> "ULong"
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> "ICPPrincipal"
-            is IDLTypeRecord -> {
-                val idlRecordDeclaration = CandidRecordParser.parseRecord(type.recordDeclaration)
-                val nTupleValues = idlRecordDeclaration.records.joinToString {
-                    kotlinTypeVariable(it.type)
-                }
-                "NTuple${idlRecordDeclaration.records.size}<$nTupleValues>"
-            }
+            is IDLTypeRecord -> className ?: throw RuntimeException("className is required")
 
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
@@ -59,35 +56,24 @@ internal object IDLTypeHelper {
                     )
                 )
                 if (idlVec.isOptional) typeArray.append("?")
-                "Array<$typeArray>"
+                if(className != "Array") "Array<$typeArray>" else "kotlin.Array<$typeArray>"
             }
         }
 
-    fun idlTypeToKotlinClass(
-        className: String,
-        idlType: IDLType
-    ): String =
+    fun kotlinGenericVariableName(idlType: IDLType) =
         when(idlType) {
             is IDLFun -> TODO()
-            is IDLTypeBlob -> TODO()
-            is IDLTypeBoolean -> TODO()
-            is IDLTypeCustom ->
-                IDLTypeCustomHelper.idlTypeCustomToKotlinClass(
-                    className = className,
-                    idlTypeCustom = idlType
-                )
+            is IDLTypeBlob -> "byteArray"
+            is IDLTypeBoolean -> "boolean"
+            is IDLTypeCustom -> idlType.typeDef.kotlinVariableName()
             is IDLTypeFuncDeclaration -> TODO()
-            is IDLTypeInt -> TODO()
-            is IDLTypeNat -> TODO()
-            is IDLTypeNat64 -> TODO()
+            is IDLTypeInt -> "intValue"
+            is IDLTypeNat -> "natValue"
+            is IDLTypeNat64 -> "nat64Value"
             is IDLTypeNull -> TODO()
-            is IDLTypePrincipal -> TODO()
-            is IDLTypeRecord ->
-                IDLTypeRecordHelper.typeRecordToKotlinClass(
-                    className = className,
-                    type = idlType
-                )
-            is IDLTypeText -> TODO()
+            is IDLTypePrincipal -> "icpPrincipal"
+            is IDLTypeRecord -> TODO()
+            is IDLTypeText -> "string"
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> TODO()
         }
