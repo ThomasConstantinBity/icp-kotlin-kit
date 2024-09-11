@@ -4,14 +4,17 @@ internal class KotlinClassParameter(
     private val comment: String? = null,
     private val id: String,
     val isOptional: Boolean,
-    val typeVariable: String
+    typeVariable: String
 ) {
+
+    val typeDeclaration = if (isOptional) "$typeVariable?" else typeVariable
 
     fun kotlinDefinition(): String {
         val kotlinDefinition = StringBuilder()
         comment?.let { kotlinDefinition.append(it) }
-        val typeDeclaration = if (isOptional) "$typeVariable?" else typeVariable
         kotlinDefinition.append("val $id: $typeDeclaration")
         return kotlinDefinition.toString()
     }
+
+    fun functionInputArgument(): String = "$id: $typeDeclaration"
 }

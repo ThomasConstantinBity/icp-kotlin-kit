@@ -150,18 +150,16 @@ internal sealed class KotlinClassDefinitionType(
         val outputArgs = mutableListOf<KotlinClassParameter>()
 
         override fun kotlinDefinition(): String {
+            val inputArgsDefinition = inputArgs.joinToString(", ") { it.functionInputArgument() }
             val returnParam = when(val size = outputArgs.size) {
                 0 -> ""
-                1 -> {
-                    val output = outputArgs.first()
-                    if(output.isOptional) ": ${outputArgs.first().typeVariable}?" else ": ${outputArgs.first().typeVariable}"
-                }
+                1 -> ": ${outputArgs.first().typeDeclaration}"
                 else -> TODO()
             }
             // TODO, comment
             return """
                 // ${candidDeclaration()}
-                suspend fun ${queryName.kotlinFunctionName()}()$returnParam {
+                suspend fun ${queryName.kotlinFunctionName()}($inputArgsDefinition)$returnParam {
                     val icpQuery = ICPQuery(
                         methodName = "$queryName",
                         canister = canister
