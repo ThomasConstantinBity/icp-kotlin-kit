@@ -243,6 +243,58 @@ internal class CandidFileParserTest {
                         )
                     )
                 )
+            ),
+
+            Arguments.of(
+                """
+                    type GetBlocksArgs = record {
+                        // The index of the first block to fetch.
+                        start : BlockIndex;
+                        // Max number of blocks to fetch.
+                        length : nat64;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "GetBlocksArgs",
+                            types = listOf(
+                                IDLTypeCustom(
+                                    comment = IDLSingleLineComment(listOf("The index of the first block to fetch.")),
+                                    id = "start",
+                                    typeDef = "BlockIndex"
+                                ),
+                                IDLTypeNat64(
+                                    comment = IDLSingleLineComment(listOf("Max number of blocks to fetch.")),
+                                    id = "length"
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type BlockRange = record {
+                        blocks : vec Block;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "BlockRange",
+                            types = listOf(
+                                IDLTypeVec(
+                                    id = "blocks",
+                                    vecType = IDLTypeCustom(
+                                        typeDef = "Block"
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             )
         )
 
@@ -332,8 +384,8 @@ internal class CandidFileParserTest {
                 IDLFileDeclaration(
                     types = listOf(
                         IDLTypeVariant(
-                            id = "Transfer",
-                            records = listOf(
+                            variantDeclaration = "Transfer",
+                            types = listOf(
                                 IDLRecord(
                                     recordName = "Mint",
                                     types = listOf(
@@ -399,8 +451,8 @@ internal class CandidFileParserTest {
                 IDLFileDeclaration(
                     types = listOf(
                         IDLTypeVariant(
-                            id = "TransferError",
-                            records = listOf(
+                            variantDeclaration = "TransferError",
+                            types = listOf(
                                 IDLRecord(
                                     comment = IDLSingleLineComment(
                                         listOf(
@@ -424,7 +476,7 @@ internal class CandidFileParserTest {
                                     types = listOf(
                                         IDLTypeCustom(
                                             id = "balance",
-                                            typeDef = "Token"
+                                            typeDef = "Tokens"
                                         )
                                     )
                                 ),
@@ -447,6 +499,32 @@ internal class CandidFileParserTest {
                                             typeDef = "BlockIndex"
                                         )
                                     )
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type TransferResult = variant {
+                        Ok : BlockIndex;
+                        Err : TransferError;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeVariant(
+                            variantDeclaration = "TransferResult",
+                            types = listOf(
+                                IDLTypeCustom(
+                                    id = "Ok",
+                                    typeDef = "BlockIndex"
+                                ),
+                                IDLTypeCustom(
+                                    id = "Err",
+                                    typeDef = "TransferError"
                                 )
                             )
                         )

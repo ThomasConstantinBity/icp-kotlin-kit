@@ -3,7 +3,6 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
@@ -14,7 +13,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
 import guru.zoroark.tegral.niwen.lexer.Lexer
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
@@ -172,13 +170,13 @@ internal object CandidFileParser {
         }
 
         IDLTypeVariant {
-            expect(Token.Id) storeIn IDLTypeVariant::id
+            expect(Token.Id) storeIn IDLTypeVariant::variantDeclaration
             expect(Token.Equals)
             expect(Token.Variant)
             expect(Token.LBrace)
             repeated(min = 1) {
                 expect(IDLType) storeIn item
-            } storeIn IDLTypeVariant::records
+            } storeIn IDLTypeVariant::types
             expect(Token.RBrace)
             expect(Token.Semi)
         }
@@ -210,6 +208,9 @@ internal object CandidFileParser {
         }
 
         IDLTypeNat64 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat64::comment
+            }
             either {
                 expect(Token.Id) storeIn IDLTypeNat64::id
                 expect(Token.Colon)
@@ -223,10 +224,17 @@ internal object CandidFileParser {
         }
 
         IDLTypeVec {
-            expect(Token.Id) storeIn IDLTypeVec::vecDeclaration
-            expect(Token.Equals)
-            expect(Token.Vec)
-            expect(IDLType) storeIn IDLTypeVec::vecType
+            either {
+                expect(Token.Id) storeIn IDLTypeVec::vecDeclaration
+                expect(Token.Equals)
+                expect(Token.Vec)
+                expect(IDLType) storeIn IDLTypeVec::vecType
+            } or {
+                expect(Token.Id) storeIn IDLTypeVec::id
+                expect(Token.Colon)
+                expect(Token.Vec)
+                expect(IDLType) storeIn IDLTypeVec::vecType
+            }
         }
 
         IDLTypeNull {
