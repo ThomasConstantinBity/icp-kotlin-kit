@@ -186,6 +186,14 @@ internal class CandidFileParserTest {
                         // Transaction memo.
                         // See comments for the `Memo` type.
                         memo: Memo;
+                        // The amount that the caller wants to transfer to the destination address.
+                        amount: Tokens;
+                        // The amount that the caller pays for the transaction.
+                        // Must be 10000 e8s.
+                        fee: Tokens;
+                        from_subaccount: opt SubAccount;
+                        to: AccountIdentifier;
+                        created_at_time: opt TimeStamp;
                     };
                 """.trimIndent(),
                 IDLFileDeclaration(
@@ -201,6 +209,34 @@ internal class CandidFileParserTest {
                                     ),
                                     id = "memo",
                                     typeDef = "Memo"
+                                ),
+                                IDLTypeCustom(
+                                    comment = IDLSingleLineComment(
+                                        listOf("The amount that the caller wants to transfer to the destination address.")
+                                    ),
+                                    id = "amount",
+                                    typeDef = "Tokens"
+                                ),
+                                IDLTypeCustom(
+                                    comment = IDLSingleLineComment(
+                                        listOf("The amount that the caller pays for the transaction.", "Must be 10000 e8s.")
+                                    ),
+                                    id = "fee",
+                                    typeDef = "Tokens"
+                                ),
+                                IDLTypeCustom(
+                                    id = "from_subaccount",
+                                    isOptional = true,
+                                    typeDef = "SubAccount"
+                                ),
+                                IDLTypeCustom(
+                                    id = "to",
+                                    typeDef = "AccountIdentifier"
+                                ),
+                                IDLTypeCustom(
+                                    id = "created_at_time",
+                                    isOptional = true,
+                                    typeDef = "TimeStamp"
                                 )
                             )
                         )
