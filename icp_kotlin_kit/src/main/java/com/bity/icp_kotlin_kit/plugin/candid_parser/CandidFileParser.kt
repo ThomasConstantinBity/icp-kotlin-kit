@@ -13,6 +13,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
@@ -67,6 +68,7 @@ internal object CandidFileParser {
             "null" isToken Token.Null
             "blob" isToken Token.Blob
             "nat64" isToken Token.Nat64
+            "principal" isToken Token.Principal
 
             matches("""\bquery\b(?!_)""") isToken Token.Query
             matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
@@ -151,6 +153,8 @@ internal object CandidFileParser {
                 expect(IDLTypeNull) storeIn self()
             } or {
                 expect(IDLFun) storeIn self()
+            } or {
+                expect(IDLTypePrincipal) storeIn self()
             }
         }
 
@@ -300,6 +304,12 @@ internal object CandidFileParser {
                 emit(FunType.Query) storeIn IDLFun::funType
             }
             expect(Token.Semi)
+        }
+
+        IDLTypePrincipal {
+            expect(Token.Id) storeIn IDLTypePrincipal::id
+            expect(Token.Colon)
+            expect(Token.Principal)
         }
     }
 

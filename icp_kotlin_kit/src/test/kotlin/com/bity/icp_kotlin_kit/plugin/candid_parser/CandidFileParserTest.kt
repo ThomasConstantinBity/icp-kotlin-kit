@@ -9,6 +9,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import org.junit.jupiter.params.ParameterizedTest
@@ -362,6 +363,70 @@ internal class CandidFileParserTest {
                                             )
                                         )
                                     )
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type Archive = record {
+                        canister_id: principal;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "Archive",
+                            types = listOf(
+                                IDLTypePrincipal(
+                                    id = "canister_id"
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type Archives = record {
+                        archives: vec Archive;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "Archives",
+                            types = listOf(
+                                IDLTypeVec(
+                                    id = "archives",
+                                    vecType = IDLTypeCustom(
+                                        typeDef = "Archive"
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type AccountBalanceArgs = record {
+                        account: AccountIdentifier;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "AccountBalanceArgs",
+                            types = listOf(
+                                IDLTypeCustom(
+                                    id = "account",
+                                    typeDef = "AccountIdentifier"
                                 )
                             )
                         )
