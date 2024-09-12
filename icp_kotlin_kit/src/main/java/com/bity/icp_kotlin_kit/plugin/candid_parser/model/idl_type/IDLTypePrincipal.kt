@@ -5,7 +5,9 @@ import guru.zoroark.tegral.niwen.parser.reflective
 
 internal class IDLTypePrincipal(
     isOptional: Boolean = false
-) : IDLType(isOptional) {
+) : IDLType(
+    isOptional = isOptional
+) {
 
     companion object : ParserNodeDeclaration<IDLTypePrincipal> by reflective()
 

@@ -1,7 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_record.IDLRecord
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_record.IDLRecordDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
@@ -14,7 +13,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.candid_parser.util.CandidServiceParamParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimEndOfLineComment
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
@@ -68,39 +66,23 @@ internal object CandidRecordParser {
 
     private val recordParser = niwenParser {
 
-        IDLRecordDeclaration root{
-            expect(Token.Record)
-            expect(Token.LBrace)
+        IDLRecord root {
 
-            repeated<IDLRecordDeclaration, IDLRecord> {
-                expect(IDLRecord) storeIn item
-            } storeIn IDLRecordDeclaration::records
+            // TODO support comment
 
-            expect(Token.RBrace)
-            optional { expect(Token.Semi) }
-        }
-
-        IDLRecord {
-            optional {
-                expect(IDLComment) storeIn IDLRecord::comment
-            }
-
-            optional {
-                expect(Token.Id) storeIn IDLRecord::id
-                expect(Token.Colon)
-            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLRecord::isOptional
             }
-            expect(IDLType) storeIn IDLRecord::type
 
+            expect(Token.Record)
+            expect(Token.LBrace)
+            repeated<IDLRecord, IDLType> {
+                expect(IDLType) storeIn item
+            } storeIn IDLRecord::types
+            expect(Token.RBrace)
             optional {
-                either {
-                    expect(Token.Semi)
-                } or {
-                    expect(IDLComment) storeIn IDLRecord::comment
-                }
+                expect(IDLComment) storeIn IDLRecord::comment
             }
         }
 
@@ -145,6 +127,8 @@ internal object CandidRecordParser {
                 expect(IDLTypeBoolean) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
+            } or {
+                expect(IDLRecord) storeIn self()
             }
             optional {
                 expect(Token.Semi)
@@ -208,10 +192,21 @@ internal object CandidRecordParser {
          * Type Nat
          */
         IDLTypeNat { expect(Token.Nat) }
-        IDLTypeNat64 { expect(Token.Nat64) }
+
+        IDLTypeNat64 {
+            optional {
+                expect(Token.Id) storeIn IDLTypeNat64::id
+                expect(Token.Colon)
+            }
+            expect(Token.Nat64)
+        }
     }
 
-    fun parseRecord(input: String): IDLRecordDeclaration {
+    fun parseRecord(input: String): IDLRecord {
+        CandidFileParser.debug(
+            lexer = recordLexer,
+            input = input
+        )
         return recordParser.parse(recordLexer.tokenize(input))
     }
 }

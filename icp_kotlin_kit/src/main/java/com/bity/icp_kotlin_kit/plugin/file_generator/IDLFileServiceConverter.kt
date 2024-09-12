@@ -6,6 +6,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinC
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
@@ -133,6 +134,8 @@ internal class IDLFileServiceConverter(
                 val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
                 innerClassesToDeclare(idlVec.type)
             }
+
+            is IDLRecord -> TODO()
         }
 
     private fun generateKotlinClassDefinitionType(
@@ -157,8 +160,8 @@ internal class IDLFileServiceConverter(
                 val kotlinClass = KotlinClassDefinitionType.Class(
                     className = className
                 )
-                val params = recordDeclaration.records.map {
-                    val typeVariable = IDLTypeHelper.kotlinTypeVariable(it.type)
+                val params = recordDeclaration.types.map {
+                    val typeVariable = IDLTypeHelper.kotlinTypeVariable(it)
                     KotlinClassParameter(
                         comment = KotlinCommentGenerator.getNullableKotlinComment(it.comment),
                         id = it.id ?: typeVariable.kotlinVariableName(),
@@ -172,6 +175,7 @@ internal class IDLFileServiceConverter(
             is IDLTypeText -> TODO()
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> TODO()
+            is IDLRecord -> TODO()
         }
     }
 }

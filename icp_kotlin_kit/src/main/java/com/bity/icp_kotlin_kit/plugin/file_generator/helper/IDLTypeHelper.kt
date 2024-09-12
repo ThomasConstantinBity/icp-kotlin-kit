@@ -2,6 +2,7 @@ package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
@@ -58,6 +59,8 @@ internal object IDLTypeHelper {
                 if (idlVec.isOptional) typeArray.append("?")
                 if(className != "Array") "Array<$typeArray>" else "kotlin.Array<$typeArray>"
             }
+
+            is IDLRecord -> TODO()
         }
 
     fun kotlinGenericVariableName(idlType: IDLType) =
@@ -76,5 +79,6 @@ internal object IDLTypeHelper {
             is IDLTypeText -> "string"
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> TODO()
+            is IDLRecord -> TODO()
         }
 }

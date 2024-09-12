@@ -4,7 +4,11 @@ import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
 // TODO, remove = false
-internal class IDLTypeText(isOptional: Boolean = false) : IDLType(isOptional) {
+internal class IDLTypeText(
+    isOptional: Boolean = false
+) : IDLType(
+    isOptional = isOptional
+) {
     companion object : ParserNodeDeclaration<IDLTypeText> by reflective()
 
     override fun equals(other: Any?): Boolean {

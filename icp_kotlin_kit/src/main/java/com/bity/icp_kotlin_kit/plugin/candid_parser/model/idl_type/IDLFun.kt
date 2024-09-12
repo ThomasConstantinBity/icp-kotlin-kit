@@ -11,7 +11,9 @@ internal class IDLFun(
     val inputParams: List<IDLFunArg> = listOf(),
     val outputParams: List<IDLFunArg> = listOf(),
     val funType: FunType? = null,
-) : IDLType(false) {
+) : IDLType(
+    isOptional = false
+) {
     companion object : ParserNodeDeclaration<IDLFun> by reflective()
 
     override fun equals(other: Any?): Boolean {

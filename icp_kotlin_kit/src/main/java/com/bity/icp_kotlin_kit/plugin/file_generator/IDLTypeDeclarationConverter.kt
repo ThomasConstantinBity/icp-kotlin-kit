@@ -10,6 +10,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinC
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
@@ -115,6 +116,8 @@ internal class IDLTypeDeclarationConverter(
                 sealedClassName = className,
                 idlTypeVariant = type,
             )
+
+            is IDLRecord -> TODO()
         }
         return kotlinClassDefinitionType
     }
@@ -209,6 +212,8 @@ internal class IDLTypeDeclarationConverter(
                     idlType = type
                 )
             }
+
+            is IDLRecord -> TODO()
         }
         // TODO, add to hashMap?
     }
@@ -221,10 +226,10 @@ internal class IDLTypeDeclarationConverter(
         val kotlinClass = KotlinClassDefinitionType.Class(className)
         generatedClasses[className] = kotlinClass
 
-        val classParameters = idlRecordDeclaration.records.map { record ->
-            val innerClasses = getClassToGenerate(record.type).map {
+        val classParameters = idlRecordDeclaration.types.map { idlType ->
+            val innerClasses = getClassToGenerate(idlType).map {
                 getClassDefinition(
-                    className = record.id?.classNameFromVariableName() ?: TODO(),
+                    className = idlType.id?.classNameFromVariableName() ?: TODO(),
                     parentClassName = null,
                     type = it
                 )
@@ -232,10 +237,10 @@ internal class IDLTypeDeclarationConverter(
             kotlinClass.innerClasses.addAll(innerClasses)
 
             KotlinClassParameter(
-                comment = KotlinCommentGenerator.getNullableKotlinComment(record.comment),
-                id = record.id ?: IDLTypeHelper.kotlinTypeVariable(record.type).kotlinVariableName(),
-                isOptional = record.isOptional,
-                typeVariable = IDLTypeHelper.kotlinTypeVariable(record.type, innerClasses.firstOrNull()?.name)
+                comment = KotlinCommentGenerator.getNullableKotlinComment(idlType.comment),
+                id = idlType.id ?: IDLTypeHelper.kotlinTypeVariable(idlType).kotlinVariableName(),
+                isOptional = idlType.isOptional,
+                typeVariable = IDLTypeHelper.kotlinTypeVariable(idlType, innerClasses.firstOrNull()?.name)
             )
         }
         kotlinClass.params.addAll(classParameters)
@@ -339,6 +344,7 @@ internal class IDLTypeDeclarationConverter(
                 is IDLTypeText -> TODO()
                 is IDLTypeVariant -> TODO()
                 is IDLTypeVec -> TODO()
+                is IDLRecord -> TODO()
             }
             kotlinArray.innerClasses.add(arrayClassDefinition)
         }
