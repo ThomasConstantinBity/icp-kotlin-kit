@@ -8,7 +8,7 @@ internal data class IDLTypeCustom(
     override val comment: IDLComment? = null,
     override val isOptional: Boolean = false,
     override val id: String? = null,
-    val typeDef: String,
+    val typeDef: String? = null,
     val type: IDLType? = null
 ) : IDLType(
     comment = comment,

@@ -4,6 +4,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.dsl.subtype
 
+// TODO remove open val, used to test
 internal sealed class IDLType(
     open val comment: IDLComment?,
     open val isOptional: Boolean,

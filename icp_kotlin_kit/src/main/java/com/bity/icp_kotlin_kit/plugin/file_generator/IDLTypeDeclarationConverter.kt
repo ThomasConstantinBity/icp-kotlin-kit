@@ -154,7 +154,8 @@ internal class IDLTypeDeclarationConverter(
                 type = type
             )
             is IDLTypeCustom -> {
-                if(variantId != null) {
+                TODO()
+                /*if(variantId != null) {
                     val kotlinClass = KotlinClassDefinitionType.Class(
                         className = variantId
                     )
@@ -169,7 +170,7 @@ internal class IDLTypeDeclarationConverter(
                     return KotlinClassDefinitionType.Object(
                         objectName = type.typeDef
                     )
-                }
+                }*/
             }
 
             is IDLTypeFuncDeclaration -> TODO()

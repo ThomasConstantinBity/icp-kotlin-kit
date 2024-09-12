@@ -27,6 +27,14 @@ import guru.zoroark.tegral.niwen.parser.dsl.or
 import guru.zoroark.tegral.niwen.parser.dsl.repeated
 import guru.zoroark.tegral.niwen.parser.dsl.self
 
+// TODO, add support for end of line comment in order to support multiple comment
+// type QueryArchiveResult = variant {
+//    Err : null;      // we don't know the values here...
+//    // A new line comment
+//    Ok : BlockRange;
+//
+//};
+
 internal object CandidFileParser {
 
     private val fileLexer = niwenLexer {
@@ -200,6 +208,9 @@ internal object CandidFileParser {
             } or {
                 expect(Token.Id) storeIn IDLTypeCustom::typeDef
             }
+            optional {
+                expect (IDLComment) storeIn IDLTypeCustom::comment
+            }
             expect(Token.Semi)
         }
 
@@ -242,6 +253,10 @@ internal object CandidFileParser {
             expect(Token.Colon)
             expect(Token.Null)
             expect(Token.Semi)
+
+            optional {
+                expect(IDLComment) storeIn IDLTypeNull::comment
+            }
         }
     }
 

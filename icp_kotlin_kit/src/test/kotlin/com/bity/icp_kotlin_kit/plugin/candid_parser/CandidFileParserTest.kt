@@ -9,6 +9,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariant
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -525,6 +526,32 @@ internal class CandidFileParserTest {
                                 IDLTypeCustom(
                                     id = "Err",
                                     typeDef = "TransferError"
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type QueryArchiveResult = variant {
+                        Ok : BlockRange;
+                        Err : null;      // we don't know the values here...
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeVariant(
+                            variantDeclaration = "QueryArchiveResult",
+                            types = listOf(
+                                IDLTypeCustom(
+                                    id = "Ok",
+                                    typeDef = "BlockRange"
+                                ),
+                                IDLTypeNull(
+                                    comment = IDLSingleLineComment(listOf("we don't know the values here...")),
+                                    nullDefinition = "Err"
                                 )
                             )
                         )

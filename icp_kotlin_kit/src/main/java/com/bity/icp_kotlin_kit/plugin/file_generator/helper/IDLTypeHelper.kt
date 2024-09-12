@@ -30,8 +30,9 @@ internal object IDLTypeHelper {
             is IDLTypeBlob -> "ByteArray"
             is IDLTypeBoolean -> "Boolean"
             is IDLTypeCustom -> {
-                if (className != null) "$className.${type.typeDef}"
-                else type.typeDef
+                TODO()
+                /*if (className != null) "$className.${type.typeDef}"
+                else type.typeDef*/
             }
 
             is IDLTypeFuncDeclaration -> "TODO()"
@@ -66,7 +67,7 @@ internal object IDLTypeHelper {
             is IDLFun -> TODO()
             is IDLTypeBlob -> "byteArray"
             is IDLTypeBoolean -> "boolean"
-            is IDLTypeCustom -> idlType.typeDef.kotlinVariableName()
+            is IDLTypeCustom -> TODO()// idlType.typeDef.kotlinVariableName()
             is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeInt -> "intValue"
             is IDLTypeNat -> "natValue"
