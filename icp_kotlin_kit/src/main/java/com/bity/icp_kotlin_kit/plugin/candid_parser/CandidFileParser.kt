@@ -11,6 +11,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariant
@@ -52,6 +53,7 @@ internal object CandidFileParser {
             "record" isToken Token.Record
             "variant" isToken Token.Variant
 
+            "null" isToken Token.Null
             "blob" isToken Token.Blob
             "nat64" isToken Token.Nat64
 
@@ -137,10 +139,17 @@ internal object CandidFileParser {
                 expect(IDLTypeVariant) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
+            } or {
+                expect(IDLTypeNull) storeIn self()
             }
         }
 
         IDLRecord {
+
+            optional {
+                expect(IDLComment) storeIn IDLRecord::comment
+            }
+
             expect(Token.Id) storeIn IDLRecord::recordName
 
             either {
@@ -157,7 +166,9 @@ internal object CandidFileParser {
                 optional { expect(Token.Semi) }
             } storeIn IDLRecord::types
             expect(Token.RBrace)
-            expect(Token.Semi)
+            optional {
+                expect(Token.Semi)
+            }
         }
 
         IDLTypeVariant {
@@ -203,7 +214,9 @@ internal object CandidFileParser {
                 expect(Token.Id) storeIn IDLTypeNat64::id
                 expect(Token.Colon)
                 expect(Token.Nat64)
-                expect(Token.Semi)
+                optional {
+                    expect(Token.Semi)
+                }
             } or {
                 expect(Token.Nat64)
             }
@@ -214,6 +227,13 @@ internal object CandidFileParser {
             expect(Token.Equals)
             expect(Token.Vec)
             expect(IDLType) storeIn IDLTypeVec::vecType
+        }
+
+        IDLTypeNull {
+            expect(Token.Id) storeIn IDLTypeNull::nullDefinition
+            expect(Token.Colon)
+            expect(Token.Null)
+            expect(Token.Semi)
         }
     }
 

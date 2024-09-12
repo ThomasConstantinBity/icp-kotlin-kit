@@ -8,6 +8,7 @@ internal class IDLTypeNull(
     comment: IDLComment? = null,
     isOptional: Boolean = false,
     id: String? = null,
+    val nullDefinition: String? = null
 ) : IDLType(
     comment = comment,
     id = id,

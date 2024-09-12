@@ -6,6 +6,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import org.junit.jupiter.params.ParameterizedTest
@@ -373,6 +374,77 @@ internal class CandidFileParserTest {
                                         IDLTypeCustom(
                                             id = "amount",
                                             typeDef = "Tokens"
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type TransferError = variant {
+                        // The fee that the caller specified in the transfer request was not the one that ledger expects.
+                        // The caller can change the transfer fee to the `expected_fee` and retry the request.
+                        BadFee : record { expected_fee : Tokens; };
+                        // The account specified by the caller doesn't have enough funds.
+                        InsufficientFunds : record { balance: Tokens; };
+                        TxTooOld : record { allowed_window_nanos: nat64 };
+                        TxCreatedInFuture : null;
+                        TxDuplicate : record { duplicate_of: BlockIndex; }
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeVariant(
+                            id = "TransferError",
+                            records = listOf(
+                                IDLRecord(
+                                    comment = IDLSingleLineComment(
+                                        listOf(
+                                            "The fee that the caller specified in the transfer request was not the one that ledger expects.",
+                                            "The caller can change the transfer fee to the `expected_fee` and retry the request."
+                                        )
+                                    ),
+                                    recordName = "BadFee",
+                                    types = listOf(
+                                        IDLTypeCustom(
+                                            id = "expected_fee",
+                                            typeDef = "Tokens"
+                                        )
+                                    )
+                                ),
+                                IDLRecord(
+                                    comment = IDLSingleLineComment(
+                                        listOf("The account specified by the caller doesn't have enough funds.")
+                                    ),
+                                    recordName = "InsufficientFunds",
+                                    types = listOf(
+                                        IDLTypeCustom(
+                                            id = "balance",
+                                            typeDef = "Token"
+                                        )
+                                    )
+                                ),
+                                IDLRecord(
+                                    recordName = "TxTooOld",
+                                    types = listOf(
+                                        IDLTypeNat64(
+                                            id = "allowed_window_nanos"
+                                        )
+                                    )
+                                ),
+                                IDLTypeNull(
+                                    nullDefinition = "TxCreatedInFuture"
+                                ),
+                                IDLRecord(
+                                    recordName = "TxDuplicate",
+                                    types = listOf(
+                                        IDLTypeCustom(
+                                            id = "duplicate_of",
+                                            typeDef = "BlockIndex"
                                         )
                                     )
                                 )
