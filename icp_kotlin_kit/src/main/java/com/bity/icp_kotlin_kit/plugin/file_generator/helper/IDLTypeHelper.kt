@@ -60,7 +60,10 @@ internal object IDLTypeHelper {
                 if(className != "Array") "Array<$typeArray>" else "kotlin.Array<$typeArray>"
             }
 
-            is IDLRecord -> TODO()
+            is IDLRecord -> {
+                println()
+                TODO()
+            }
         }
 
     fun kotlinGenericVariableName(idlType: IDLType) =

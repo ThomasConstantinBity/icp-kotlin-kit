@@ -37,6 +37,7 @@ internal class IDLFileServiceConverter(
      * and the value is the generated class
      */
     private val classForRecordDefinition = hashMapOf<String, KotlinClassDefinitionType>()
+    private var unnamedClassIndex = 1
 
     fun getKotlinServiceDefinition(): KotlinClassDefinitionType {
         val serviceClass = KotlinClassDefinitionType.Class(
@@ -68,7 +69,6 @@ internal class IDLFileServiceConverter(
             outputParamsDeclaration = idlService.outputParamsDeclaration
         )
 
-        val innerClasses = mutableListOf<KotlinClassDefinitionType>()
         val inputArgs = CandidServiceParamParser
             .parseServiceParam(idlService.inputParamsDeclaration)
             .params
@@ -83,20 +83,15 @@ internal class IDLFileServiceConverter(
 
         val outputArgs = outputParams.map { param ->
             var className: String? = null
-            val outputResponseClasses = innerClassesToDeclare(param).map {
-                className = "${idlService.id.classNameFromVariableName()}Response"
-                val generatedClass = generateKotlinClassDefinitionType(
-                    idlType = it,
-                    className = className!!
-                )
+            innerClassesToDeclare(param).map {
+                className = generateKotlinClassDefinitionType(it)
+                val generatedClass = classForRecordDefinition[className]!!
                 generatedClass
             }
-            innerClasses.addAll(outputResponseClasses)
             kotlinClassParam(param, className)
         }
 
         icpQuery.outputArgs.addAll(outputArgs)
-        icpQuery.innerClasses.addAll(innerClasses)
         return icpQuery
     }
 
@@ -123,6 +118,8 @@ internal class IDLFileServiceConverter(
             is IDLTypeBoolean,
             is IDLTypeText,
             is IDLTypeCustom -> emptyList()
+
+            is IDLRecord,
             is IDLTypeRecord -> listOf(idlType)
 
             is IDLFun -> TODO()
@@ -134,14 +131,9 @@ internal class IDLFileServiceConverter(
                 val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
                 innerClassesToDeclare(idlVec.type)
             }
-
-            is IDLRecord -> TODO()
         }
 
-    private fun generateKotlinClassDefinitionType(
-        idlType: IDLType,
-        className: String
-    ): KotlinClassDefinitionType {
+    private fun generateKotlinClassDefinitionType(idlType: IDLType): String {
         return when(idlType) {
             is IDLFun -> TODO()
             is IDLTypeBlob -> TODO()
@@ -155,22 +147,29 @@ internal class IDLFileServiceConverter(
             is IDLTypePrincipal -> TODO()
             is IDLTypeRecord -> {
                 if(classForRecordDefinition.containsKey(idlType.recordDeclaration))
-                    return classForRecordDefinition[idlType.recordDeclaration]!!
+                    return classForRecordDefinition[idlType.recordDeclaration]!!.name
+                val className = "UnnamedClass${unnamedClassIndex}"
                 val recordDeclaration = CandidRecordParser.parseRecord(idlType.recordDeclaration)
                 val kotlinClass = KotlinClassDefinitionType.Class(
                     className = className
                 )
-                val params = recordDeclaration.types.map {
-                    val typeVariable = IDLTypeHelper.kotlinTypeVariable(it)
+                val params = recordDeclaration.types.map { type ->
+                    innerClassesToDeclare(type).map {
+                        generateKotlinClassDefinitionType(it)
+                    }
+                    val typeVariable = IDLTypeHelper.kotlinTypeVariable(type)
                     KotlinClassParameter(
-                        comment = KotlinCommentGenerator.getNullableKotlinComment(it.comment),
-                        id = it.id ?: typeVariable.kotlinVariableName(),
-                        isOptional = it.isOptional,
+                        comment = KotlinCommentGenerator.getNullableKotlinComment(type.comment),
+                        id = type.id ?: typeVariable.kotlinVariableName(),
+                        isOptional = type.isOptional,
                         typeVariable = typeVariable
                     )
                 }
                 kotlinClass.params.addAll(params)
-                kotlinClass
+                classForRecordDefinition[idlType.recordDeclaration] = kotlinClass
+                unnamedClassIndex++
+                classForRecordDefinition
+                className
             }
             is IDLTypeText -> TODO()
             is IDLTypeVariant -> TODO()
