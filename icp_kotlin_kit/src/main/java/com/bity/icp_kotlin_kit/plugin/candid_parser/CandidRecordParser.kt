@@ -331,10 +331,6 @@ internal object CandidRecordParser {
     }
 
     fun parseRecord(input: String): IDLRecord {
-        CandidFileParser.debug(
-            lexer = recordLexer,
-            input = input
-        )
         return recordParser.parse(recordLexer.tokenize(input))
     }
 }
