@@ -25,6 +25,7 @@ import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.emit
 import guru.zoroark.tegral.niwen.parser.dsl.expect
 import guru.zoroark.tegral.niwen.parser.dsl.item
+import guru.zoroark.tegral.niwen.parser.dsl.lookahead
 import guru.zoroark.tegral.niwen.parser.dsl.niwenParser
 import guru.zoroark.tegral.niwen.parser.dsl.optional
 import guru.zoroark.tegral.niwen.parser.dsl.or
@@ -201,13 +202,19 @@ internal object CandidFileParser {
         }
 
         IDLTypeCustom {
+
             optional {
                 expect(IDLComment) storeIn IDLTypeCustom::comment
             }
+
             either {
                 expect(Token.Id) storeIn IDLTypeCustom::typeDef
                 expect(Token.Equals)
                 expect(IDLType) storeIn IDLTypeCustom::type
+                optional {
+                    expect (IDLComment) storeIn IDLTypeCustom::comment
+                }
+                expect(Token.Semi)
             } or {
                 expect(Token.Id) storeIn IDLTypeCustom::id
                 expect(Token.Colon)
@@ -216,13 +223,26 @@ internal object CandidFileParser {
                     emit(true) storeIn IDLTypeCustom::isOptional
                 }
                 expect(Token.Id) storeIn IDLTypeCustom::typeDef
+                optional {
+                    expect (IDLComment) storeIn IDLTypeCustom::comment
+                }
+                expect(Token.Semi)
             } or {
                 expect(Token.Id) storeIn IDLTypeCustom::typeDef
+                optional {
+                    expect (IDLComment) storeIn IDLTypeCustom::comment
+                }
+                expect(Token.Semi)
+            } or {
+                expect(Token.Id) storeIn IDLTypeCustom::typeDef
+                lookahead {
+                    either {
+                        expect(Token.Comma)
+                    } or {
+                        expect(Token.RParen)
+                    }
+                }
             }
-            optional {
-                expect (IDLComment) storeIn IDLTypeCustom::comment
-            }
-            expect(Token.Semi)
         }
 
         IDLTypeBlob {
@@ -288,17 +308,23 @@ internal object CandidFileParser {
             expect(Token.Id) storeIn IDLFun::funcName
             expect(Token.Equals)
             expect(Token.Func)
+
+            // Input args declaration
             expect(Token.LParen)
             repeated {
                 expect(IDLType) storeIn item
             } storeIn IDLFun::inputArgs
             expect(Token.RParen)
+
             expect(Token.Arrow)
+
+            // Output args declaration
             expect(Token.LParen)
             repeated {
                 expect(IDLType) storeIn item
             } storeIn IDLFun::outputArgs
             expect(Token.RParen)
+
             optional {
                 expect(Token.Query)
                 emit(FunType.Query) storeIn IDLFun::funType

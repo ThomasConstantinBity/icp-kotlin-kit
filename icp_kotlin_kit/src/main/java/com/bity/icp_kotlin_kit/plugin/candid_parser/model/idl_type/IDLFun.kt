@@ -5,10 +5,10 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
-internal class IDLFun(
-    comment: IDLComment? = null,
-    isOptional: Boolean = false,
-    id: String? = null,
+internal data class IDLFun(
+    override val comment: IDLComment? = null,
+    override val isOptional: Boolean = false,
+    override val id: String? = null,
     val funcName: String,
     val inputArgs: List<IDLType> = emptyList(),
     val outputArgs: List<IDLType> = emptyList(),
