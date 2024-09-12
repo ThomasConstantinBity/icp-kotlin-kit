@@ -10,7 +10,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
@@ -119,7 +118,6 @@ internal class IDLFileServiceConverter(
             is IDLRecord -> listOf(idlType)
 
             is IDLFun -> TODO()
-            is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeVariant -> TODO()
             is IDLTypeNull -> TODO()
 
@@ -136,7 +134,6 @@ internal class IDLFileServiceConverter(
             is IDLTypeBlob -> TODO()
             is IDLTypeBoolean -> TODO()
             is IDLTypeCustom -> TODO()
-            is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeInt -> TODO()
             is IDLTypeNat -> TODO()
             is IDLTypeNat64 -> TODO()

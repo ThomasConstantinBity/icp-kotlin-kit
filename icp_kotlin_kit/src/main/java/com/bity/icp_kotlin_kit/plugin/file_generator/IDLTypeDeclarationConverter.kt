@@ -1,6 +1,5 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFuncParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidRecordParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidTypeParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVariantParser
@@ -15,7 +14,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
@@ -74,10 +72,6 @@ internal class IDLTypeDeclarationConverter(
         val kotlinClassDefinitionType = when(type) {
             is IDLFun -> TODO()
 
-            is IDLTypeFuncDeclaration -> convertIDLTypeFuncDeclaration(
-                functionName = className,
-                iDLTypeFuncDeclaration = type
-            )
 
             is IDLTypeVec -> convertIDLTypeVec(
                 className = className,
@@ -173,7 +167,6 @@ internal class IDLTypeDeclarationConverter(
                 }*/
             }
 
-            is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeNull -> KotlinClassDefinitionType.Object(
                 variantId ?: throw RuntimeException("Missing object name")
             )
@@ -279,32 +272,6 @@ internal class IDLTypeDeclarationConverter(
         }
         generatedClasses[sealedClassName]?.innerClasses?.addAll(classes)
         return sealedClass*/
-    }
-
-    private fun convertIDLTypeFuncDeclaration(
-        functionName: String,
-        iDLTypeFuncDeclaration: IDLTypeFuncDeclaration
-    ): KotlinClassDefinitionType {
-        val idlFun = CandidFuncParser.parseFunc(iDLTypeFuncDeclaration.funcDeclaration)
-
-        val inputArgs = idlFun.inputParams.map {
-            (it.idlType as? IDLTypeCustom)?.let { typeCustom ->
-                generatedClasses[typeCustom.typeDef]
-            } ?: TODO()
-        }
-
-        val outputArgs = idlFun.outputParams.map {
-            (it.idlType as? IDLTypeCustom)?.let { typeCustom ->
-                generatedClasses[typeCustom.typeDef]
-            } ?: TODO()
-        }
-        val kotlinFunction = KotlinClassDefinitionType.Function(
-            functionName = functionName,
-            inputArgs = inputArgs,
-            outputArgs = outputArgs
-        )
-        generatedClasses[functionName] = kotlinFunction
-        return kotlinFunction
     }
 
     private fun convertIDLTypeVec(

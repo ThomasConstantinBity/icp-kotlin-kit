@@ -2,19 +2,17 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.IDLFunArg
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
-// TODO, params can be null
-// TODO fun can be null
 internal class IDLFun(
     comment: IDLComment? = null,
     isOptional: Boolean = false,
     id: String? = null,
-    val inputParams: List<IDLFunArg> = listOf(),
-    val outputParams: List<IDLFunArg> = listOf(),
-    val funType: FunType? = null,
+    val funcName: String,
+    val inputArgs: List<IDLType> = emptyList(),
+    val outputArgs: List<IDLType> = emptyList(),
+    val funType: FunType? = null
 ) : IDLType(
     comment = comment,
     id = id,
@@ -29,18 +27,18 @@ internal class IDLFun(
 
         other as IDLFun
 
-        if (inputParams != other.inputParams) return false
-        if (outputParams != other.outputParams) return false
-        if (funType != other.funType) return false
+        if (funcName != other.funcName) return false
+        if (inputArgs != other.inputArgs) return false
+        if (outputArgs != other.outputArgs) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + inputParams.hashCode()
-        result = 31 * result + outputParams.hashCode()
-        result = 31 * result + (funType?.hashCode() ?: 0)
+        result = 31 * result + funcName.hashCode()
+        result = 31 * result + inputArgs.hashCode()
+        result = 31 * result + outputArgs.hashCode()
         return result
     }
 }

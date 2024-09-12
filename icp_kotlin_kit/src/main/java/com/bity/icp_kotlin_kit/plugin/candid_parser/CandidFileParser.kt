@@ -3,8 +3,10 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
@@ -16,6 +18,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
 import guru.zoroark.tegral.niwen.lexer.Lexer
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
+import guru.zoroark.tegral.niwen.lexer.matchers.repeated
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.emit
@@ -34,7 +37,6 @@ import guru.zoroark.tegral.niwen.parser.dsl.self
 //    Ok : BlockRange;
 //
 //};
-
 internal object CandidFileParser {
 
     private val fileLexer = niwenLexer {
@@ -43,6 +45,8 @@ internal object CandidFileParser {
 
             "{" isToken Token.LBrace
             "}" isToken Token.RBrace
+            "(" isToken Token.LParen
+            ")" isToken Token.RParen
             ":" isToken Token.Colon
             ";" isToken Token.Semi
             "->" isToken Token.Arrow
@@ -55,6 +59,7 @@ internal object CandidFileParser {
             "type" isToken  Token.Type
             "service" isToken Token.Service
 
+            "func" isToken Token.Func
             "vec" isToken Token.Vec
             "record" isToken Token.Record
             "variant" isToken Token.Variant
@@ -65,9 +70,6 @@ internal object CandidFileParser {
 
             matches("""\bquery\b(?!_)""") isToken Token.Query
             matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
-
-            // TODO replace
-            matches("""\((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*\)""") isToken Token.ServiceArgs
 
             matches("[ \t\r\n]+").ignore
             matches("//[^\n]*").ignore
@@ -147,6 +149,8 @@ internal object CandidFileParser {
                 expect(IDLTypeVec) storeIn self()
             } or {
                 expect(IDLTypeNull) storeIn self()
+            } or {
+                expect(IDLFun) storeIn self()
             }
         }
 
@@ -156,14 +160,17 @@ internal object CandidFileParser {
                 expect(IDLComment) storeIn IDLRecord::comment
             }
 
-            expect(Token.Id) storeIn IDLRecord::recordName
-
             either {
+                expect(Token.Id) storeIn IDLRecord::recordName
                 expect(Token.Equals)
                 expect(Token.Record)
                 expect(Token.LBrace)
             } or {
+                expect(Token.Id) storeIn IDLRecord::recordName
                 expect(Token.Colon)
+                expect(Token.Record)
+                expect(Token.LBrace)
+            } or {
                 expect(Token.Record)
                 expect(Token.LBrace)
             }
@@ -215,7 +222,21 @@ internal object CandidFileParser {
         }
 
         IDLTypeBlob {
-            expect(Token.Blob)
+            either {
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeBlob::isOptional
+                }
+                expect(Token.Blob)
+            } or {
+                expect(Token.Id) storeIn IDLTypeBlob::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeBlob::isOptional
+                }
+                expect(Token.Blob)
+            }
         }
 
         IDLTypeNat64 {
@@ -257,6 +278,28 @@ internal object CandidFileParser {
             optional {
                 expect(IDLComment) storeIn IDLTypeNull::comment
             }
+        }
+
+        IDLFun {
+            expect(Token.Id) storeIn IDLFun::funcName
+            expect(Token.Equals)
+            expect(Token.Func)
+            expect(Token.LParen)
+            repeated {
+                expect(IDLType) storeIn item
+            } storeIn IDLFun::inputArgs
+            expect(Token.RParen)
+            expect(Token.Arrow)
+            expect(Token.LParen)
+            repeated {
+                expect(IDLType) storeIn item
+            } storeIn IDLFun::outputArgs
+            expect(Token.RParen)
+            optional {
+                expect(Token.Query)
+                emit(FunType.Query) storeIn IDLFun::funType
+            }
+            expect(Token.Semi)
         }
     }
 

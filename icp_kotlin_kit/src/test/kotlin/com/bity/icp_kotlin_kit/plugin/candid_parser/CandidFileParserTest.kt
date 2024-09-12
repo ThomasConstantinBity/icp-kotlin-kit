@@ -2,6 +2,8 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
@@ -9,13 +11,22 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariant
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertEquals
 
 internal class CandidFileParserTest {
+
+    @MethodSource("func")
+    @ParameterizedTest
+    fun `parse func`(
+        input: String,
+        expectedResult: IDLFileDeclaration
+    ) {
+        val fileDeclaration = CandidFileParser.parseFile(input)
+        assertEquals(expectedResult, fileDeclaration)
+    }
 
     @MethodSource("vec")
     @ParameterizedTest
@@ -296,6 +307,66 @@ internal class CandidFileParserTest {
                         )
                     )
                 )
+            ),
+
+            Arguments.of(
+                """
+                    type QueryBlocksResponse = record {
+                        chain_length : nat64;
+                        certificate : opt blob;
+                        blocks : vec Block;
+                        first_block_index : BlockIndex;
+                        archived_blocks : vec record {
+                            start : BlockIndex;
+                            length : nat64;
+                            callback : QueryArchiveFn;
+                        };
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "QueryBlocksResponse",
+                            types = listOf(
+                                IDLTypeNat64(
+                                    id = "chain_length"
+                                ),
+                                IDLTypeBlob(
+                                    id = "certificate",
+                                    isOptional = true
+                                ),
+                                IDLTypeVec(
+                                    id = "blocks",
+                                    vecType = IDLTypeCustom(
+                                        typeDef = "Block"
+                                    )
+                                ),
+                                IDLTypeCustom(
+                                    id = "first_block_index",
+                                    typeDef = "BlockIndex"
+                                ),
+                                IDLTypeVec(
+                                    id = "archived_blocks",
+                                    vecType = IDLRecord(
+                                        types = listOf(
+                                            IDLTypeCustom(
+                                                id = "start",
+                                                typeDef = "BlockIndex"
+                                            ),
+                                            IDLTypeNat64(
+                                                id = "length"
+                                            ),
+                                            IDLTypeCustom(
+                                                id = "callback",
+                                                typeDef = "QueryArchiveFn"
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             )
         )
 
@@ -554,6 +625,31 @@ internal class CandidFileParserTest {
                                     nullDefinition = "Err"
                                 )
                             )
+                        )
+                    )
+                )
+            )
+        )
+
+        @JvmStatic
+        private fun func() = listOf(
+            Arguments.of(
+                "type QueryArchiveFn = func (GetBlocksArgs) -> (QueryArchiveResult) query;",
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLFun(
+                            funcName = "QueryArchiveFn",
+                            inputArgs = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "GetBlocksArgs"
+                                )
+                            ),
+                            outputArgs = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "QueryArchiveResult"
+                                )
+                            ),
+                            funType = FunType.Query
                         )
                     )
                 )

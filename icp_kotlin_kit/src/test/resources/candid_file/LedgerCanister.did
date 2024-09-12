@@ -125,7 +125,7 @@ type BlockRange = record {
 
 type QueryArchiveResult = variant {
     Ok : BlockRange;
-
+    Err : null;      // we don't know the values here...
 };
 
 // A function that is used for fetching archived ledger blocks.

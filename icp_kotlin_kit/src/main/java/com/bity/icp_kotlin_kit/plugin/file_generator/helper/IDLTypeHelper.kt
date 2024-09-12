@@ -7,7 +7,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
@@ -35,7 +34,6 @@ internal object IDLTypeHelper {
                 else type.typeDef*/
             }
 
-            is IDLTypeFuncDeclaration -> "TODO()"
             is IDLTypeInt -> {
                 if(className != "Int") "Int" else "kotlin.Int"
             }
@@ -68,7 +66,6 @@ internal object IDLTypeHelper {
             is IDLTypeBlob -> "byteArray"
             is IDLTypeBoolean -> "boolean"
             is IDLTypeCustom -> TODO()// idlType.typeDef.kotlinVariableName()
-            is IDLTypeFuncDeclaration -> TODO()
             is IDLTypeInt -> "intValue"
             is IDLTypeNat -> "natValue"
             is IDLTypeNat64 -> "nat64Value"
