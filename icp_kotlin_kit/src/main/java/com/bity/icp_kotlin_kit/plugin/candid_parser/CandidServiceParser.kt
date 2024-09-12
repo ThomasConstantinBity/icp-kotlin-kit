@@ -28,6 +28,7 @@ internal object CandidServiceParser {
             "}" isToken Token.RBrace
             "->" isToken Token.Arrow
             ";" isToken Token.Semi
+            "->" isToken Token.Arrow
 
             matches("""\bquery\b(?!_)""") isToken Token.Query
             matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id

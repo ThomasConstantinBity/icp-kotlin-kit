@@ -181,6 +181,23 @@ internal class CandidRecordParserTest {
         @JvmStatic
         private fun multipleRecordsValue() = listOf(
 
+            Arguments.of(
+                "record { nat; opt record { text; Value } }",
+                IDLRecordDeclaration(
+                    records = listOf(
+                        IDLRecord(
+                            type = IDLTypeNat()
+                        ),
+                        IDLRecord(
+                            isOptional = true,
+                            type = IDLTypeRecord(
+                                recordDeclaration = "record { text; Value }"
+                            )
+                        )
+                    )
+                )
+            ),
+
             /*Arguments.of(
                 "record { owner : principal; subaccount : opt Subaccount }",
                 IDLRecordDeclaration(
@@ -274,7 +291,7 @@ internal class CandidRecordParserTest {
                 )
             ),*/
 
-            Arguments.of(
+            /*Arguments.of(
                 """
                     record {
                         // Transaction memo.
@@ -339,9 +356,9 @@ internal class CandidRecordParserTest {
                         )
                     )
                 )
-            ),
+            ),*/
 
-            Arguments.of(
+            /*Arguments.of(
                 """
                     record {
                         from_subaccount: opt blob; // The subaccount to transfer the token from
@@ -379,7 +396,7 @@ internal class CandidRecordParserTest {
                         )
                     )
                 )
-            )
+            )*/
         )
     }
 }

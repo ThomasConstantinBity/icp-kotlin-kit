@@ -37,7 +37,18 @@ internal class CandidServiceParamParserTest {
         private fun serviceParam() = listOf(
 
             Arguments.of(
-                "vec TransferArg",
+                "(vec record { nat; opt record { text; Value } })",
+                IDLServiceParam(
+                    params = listOf(
+                        IDLTypeVec(
+                            vecDeclaration = "vec record { nat; opt record { text; Value } }"
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                "(vec TransferArg)",
                 IDLServiceParam(
                     params = listOf(
                         IDLTypeVec(
@@ -48,7 +59,7 @@ internal class CandidServiceParamParserTest {
             ),
 
             Arguments.of(
-                "vec opt TransferResult",
+                "(vec opt TransferResult)",
                 IDLServiceParam(
                     params = listOf(
                         IDLTypeVec(
@@ -59,7 +70,7 @@ internal class CandidServiceParamParserTest {
             ),
 
             Arguments.of(
-                "vec opt vec record { text; Value }",
+                "(vec opt vec record { text; Value })",
                 IDLServiceParam(
                     params = listOf(
                         IDLTypeVec(
@@ -74,7 +85,7 @@ internal class CandidServiceParamParserTest {
         private fun serviceParamWithIds() = listOf(
 
             Arguments.of(
-                "token_ids : vec nat",
+                "(token_ids : vec nat)",
                 IDLServiceParam(
                     params = listOf(
                         IDLTypeVec(
@@ -86,7 +97,7 @@ internal class CandidServiceParamParserTest {
             ),
 
             Arguments.of(
-                "account : Account, prev : opt nat, take : opt nat",
+                "(account : Account, prev : opt nat, take : opt nat)",
                 IDLServiceParam(
                     params = listOf(
                         IDLTypeCustom(

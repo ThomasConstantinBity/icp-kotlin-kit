@@ -54,4 +54,5 @@ service : {
     icrc7_atomic_batch_transfers : () -> (opt bool) query;
     icrc7_tx_window : () -> (opt nat) query;
     icrc7_permitted_drift : () -> (opt nat) query;
+    icrc7_token_metadata : (token_ids : vec nat)-> (vec record { nat; opt record { text; Value } }) query;
 }

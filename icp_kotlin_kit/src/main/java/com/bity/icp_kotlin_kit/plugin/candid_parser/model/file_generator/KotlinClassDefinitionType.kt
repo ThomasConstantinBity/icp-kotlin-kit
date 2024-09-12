@@ -175,7 +175,7 @@ internal sealed class KotlinClassDefinitionType(
         }
 
         private fun candidDeclaration(): String =
-            "$queryName : (${inputParamsDeclaration ?: ""}) -> (${outputParamsDeclaration ?: ""}) query"
+            "$queryName : ${inputParamsDeclaration ?: ""} -> (${outputParamsDeclaration ?: ""}) query"
 
         private fun functionReturnDeclaration(): String {
             return when(val size = outputArgs.size) {

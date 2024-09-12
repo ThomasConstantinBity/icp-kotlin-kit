@@ -3,13 +3,15 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
 import guru.zoroark.tegral.niwen.lexer.Lexer
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
+import guru.zoroark.tegral.niwen.parser.dsl.emit
 import guru.zoroark.tegral.niwen.parser.dsl.expect
 import guru.zoroark.tegral.niwen.parser.dsl.item
 import guru.zoroark.tegral.niwen.parser.dsl.niwenParser
@@ -22,12 +24,20 @@ internal object CandidFileParser {
     private val fileLexer = niwenLexer {
         state {
             matches("//.*") isToken Token.SingleLineComment
-
+            "{" isToken Token.LBrace
+            "}" isToken Token.RBrace
+            ":" isToken Token.Colon
+            ";" isToken Token.Semi
+            "->" isToken Token.Arrow
             "import" isToken Token.Import
+            "service" isToken Token.Service
 
             // We need to match all the type definitions including function
             matches("""type\s+\w+\s*=\s*[\w\s]+(\((\w+(, \w+)*)?\) -> \((\w+(, \w+)*)\)\s*\w*|\{[^{}]*+(?:\{[^{}]*+}[^{}]*+)*})?;""") isToken Token.Type
-            matches("""service\s*:\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}""") isToken Token.Service
+
+            matches("""\bquery\b(?!_)""") isToken Token.Query
+            matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
+            matches("""\((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*\)""") isToken Token.ServiceArgs
 
             matches("[ \t\r\n]+").ignore
             matches("//[^\n]*").ignore
@@ -41,12 +51,20 @@ internal object CandidFileParser {
 
             optional { expect(IDLComment) storeIn IDLFileDeclaration::comment }
 
-            repeated<IDLFileDeclaration, IDLFileType> {
-                expect(IDLFileType) storeIn item
-            } storeIn IDLFileDeclaration::types
+            optional {
+                repeated<IDLFileDeclaration, IDLFileType>(min = 1) {
+                    expect(IDLFileType) storeIn item
+                } storeIn IDLFileDeclaration::types
+            }
 
             optional {
-                expect(IDLFileService) storeIn IDLFileDeclaration::service
+                expect(Token.Service)
+                expect(Token.Colon)
+                expect(Token.LBrace)
+                repeated<IDLFileDeclaration, IDLService>(min = 1) {
+                    expect(IDLService) storeIn item
+                } storeIn IDLFileDeclaration::services
+                expect(Token.RBrace)
             }
         }
 
@@ -57,11 +75,20 @@ internal object CandidFileParser {
             expect(Token.Type) storeIn IDLFileType::typeDefinition
         }
 
-        IDLFileService {
+        IDLService {
             optional {
-                expect(IDLComment) storeIn IDLFileService::comment
+                expect(IDLComment) storeIn IDLService::comment
             }
-            expect(Token.Service) storeIn IDLFileService::serviceDefinition
+            expect(Token.Id) storeIn IDLService::id
+            expect(Token.Colon)
+            expect(Token.ServiceArgs) storeIn IDLService::inputParamsDeclaration
+            expect(Token.Arrow)
+            expect(Token.ServiceArgs) storeIn IDLService::outputParamsDeclaration
+            optional {
+                expect(Token.Query)
+                emit(IDLServiceType.Query) storeIn IDLService::serviceType
+            }
+            expect(Token.Semi)
         }
 
         /**
@@ -81,6 +108,7 @@ internal object CandidFileParser {
     }
 
     fun parseFile(input: String): IDLFileDeclaration {
+        // debug(fileLexer, input)
         return fileParser.parse(fileLexer.tokenize(input))
     }
 

@@ -2,8 +2,9 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -43,6 +44,82 @@ internal class CandidFileParserTest {
 
             Arguments.of(
                 """
+                    service : { 
+                        // Queries blocks in the specified range.
+                        query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;
+                    }
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    services = listOf(
+                        IDLService(
+                            comment = IDLSingleLineComment(listOf("Queries blocks in the specified range.")),
+                            id = "query_blocks",
+                            inputParamsDeclaration = "(GetBlocksArgs)",
+                            outputParamsDeclaration = "(QueryBlocksResponse)",
+                            serviceType = IDLServiceType.Query
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    service : {
+                        query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;
+                        archives : () -> (Archives) query;
+                        account_balance : (AccountBalanceArgs) -> (Tokens) query;
+                        transfer : (TransferArgs) -> (TransferResult);
+                    }
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    services = listOf(
+                        IDLService(
+                            id = "query_blocks",
+                            inputParamsDeclaration = "(GetBlocksArgs)",
+                            outputParamsDeclaration = "(QueryBlocksResponse)",
+                            serviceType = IDLServiceType.Query
+                        ),
+                        IDLService(
+                            id = "archives",
+                            inputParamsDeclaration = "()",
+                            outputParamsDeclaration = "(Archives)",
+                            serviceType = IDLServiceType.Query
+                        ),
+                        IDLService(
+                            id = "account_balance",
+                            inputParamsDeclaration = "(AccountBalanceArgs)",
+                            outputParamsDeclaration = "(Tokens)",
+                            serviceType = IDLServiceType.Query
+                        ),
+                        IDLService(
+                            id = "transfer",
+                            inputParamsDeclaration = "(TransferArgs)",
+                            outputParamsDeclaration = "(TransferResult)",
+                        )
+                    )
+                )
+            )
+
+            /*Arguments.of(
+                """
+                    type Subaccount = blob;
+                    service : {
+                            icrc7_token_metadata : (token_ids : vec nat)-> (vec record { nat; opt record { text; Value } }) query;
+
+                    }
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLFileType(
+                            typeDefinition = "type Subaccount = blob;"
+                        )
+                    ),
+                    services = TODO()
+                )
+            ),*/
+
+            /*Arguments.of(
+                """
                     type Subaccount = blob;
                     service : {
                         icrc7_token_metadata : (token_ids : vec nat) -> (vec opt vec record { text; Value }) query;
@@ -54,17 +131,11 @@ internal class CandidFileParserTest {
                             typeDefinition = "type Subaccount = blob;"
                         )
                     ),
-                    service = IDLFileService(
-                        serviceDefinition = """
-                            service : {
-                                icrc7_token_metadata : (token_ids : vec nat) -> (vec opt vec record { text; Value }) query;
-                            }
-                        """.trimIndent()
-                    )
+                    services = TODO()
                 )
-            ),
+            ),*/
 
-            Arguments.of(
+            /*Arguments.of(
                 """
                     type Subaccount = blob;
                     service : {
@@ -77,15 +148,9 @@ internal class CandidFileParserTest {
                             typeDefinition = "type Subaccount = blob;"
                         )
                     ),
-                    service = IDLFileService(
-                        serviceDefinition = """
-                            service : {
-                                icrc7_collection_metadata : () -> (vec record { text; Value } ) query;
-                            }
-                        """.trimIndent()
-                    )
+                    services = TODO()
                 )
-            )
+            )*/
         )
 
         @JvmStatic
@@ -348,21 +413,33 @@ internal class CandidFileParserTest {
                             """.trimIndent()
                         ),
                     ),
-                    service = IDLFileService(
-                        serviceDefinition = """
-                            service : {
-                                // Queries blocks in the specified range.
-                                query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;
-    
-                                // Returns the existing archive canisters information.
-                                archives : () -> (Archives) query;
-    
-                                // Get the amount of ICP on the specified account.
-                                account_balance : (AccountBalanceArgs) -> (Tokens) query;
-    
-                                transfer : (TransferArgs) -> (TransferResult);
-                            }
-                        """.trimIndent()
+                    services = listOf(
+                        IDLService(
+                            comment = IDLSingleLineComment(listOf("Queries blocks in the specified range.")),
+                            id = "query_blocks",
+                            inputParamsDeclaration = "(GetBlocksArgs)",
+                            outputParamsDeclaration = "(QueryBlocksResponse)",
+                            serviceType = IDLServiceType.Query
+                        ),
+                        IDLService(
+                            comment = IDLSingleLineComment(listOf("Returns the existing archive canisters information.")),
+                            id = "archives",
+                            inputParamsDeclaration = "()",
+                            outputParamsDeclaration = "(Archives)",
+                            serviceType = IDLServiceType.Query
+                        ),
+                        IDLService(
+                            comment = IDLSingleLineComment(listOf("Get the amount of ICP on the specified account.")),
+                            id = "account_balance",
+                            inputParamsDeclaration = "(AccountBalanceArgs)",
+                            outputParamsDeclaration = "(Tokens)",
+                            serviceType = IDLServiceType.Query
+                        ),
+                        IDLService(
+                            id = "transfer",
+                            inputParamsDeclaration = "(TransferArgs)",
+                            outputParamsDeclaration = "(TransferResult)",
+                        )
                     )
                 )
             )

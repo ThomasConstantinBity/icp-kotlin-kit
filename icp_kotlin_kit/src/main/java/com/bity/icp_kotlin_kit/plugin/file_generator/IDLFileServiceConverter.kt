@@ -1,11 +1,9 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidRecordParser
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidServiceParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
@@ -29,11 +27,17 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 
 internal class IDLFileServiceConverter(
     private val fileName: String,
-    private val idlFileService: IDLFileService,
+    private val services: List<IDLService>,
 ) {
 
+    /**
+     * To avoid multiple classes with the same parameter we keep track of the generated classes
+     * using an hash map where the key is the record definition (ex: record { text; Value })
+     * and the value is the generated class
+     */
+    private val classForRecordDefinition = hashMapOf<String, KotlinClassDefinitionType>()
+
     fun getKotlinServiceDefinition(): KotlinClassDefinitionType {
-        val serviceDeclaration = CandidServiceParser.parseService( idlFileService.serviceDefinition)
         val serviceClass = KotlinClassDefinitionType.Class(
             className = "${fileName}Service"
         )
@@ -42,15 +46,13 @@ internal class IDLFileServiceConverter(
                 id = "canister",
                 typeVariable = "ICPPrincipal",
                 isOptional = false,
-                comment = KotlinCommentGenerator.getNullableKotlinComment(idlFileService.comment)
             )
         )
-        serviceDeclaration.initArgsDeclaration?.let {
-            TODO("Support Service init args")
-        }
+
+        // TODO Support Service init args
         serviceClass.params.addAll(params)
 
-        val classFunctions = serviceDeclaration.services.map {
+        val classFunctions = services.map {
             idlServiceToKotlinClass(it)
         }
         serviceClass.innerClasses.addAll(classFunctions)
@@ -66,13 +68,13 @@ internal class IDLFileServiceConverter(
         )
 
         val innerClasses = mutableListOf<KotlinClassDefinitionType>()
-       /* val inputArgs = CandidServiceParamParser
+        val inputArgs = CandidServiceParamParser
             .parseServiceParam(idlService.inputParamsDeclaration)
             .params
             .map {
-                kotlinClassParam(it)
+                kotlinClassParam(it, null)
             }
-        icpQuery.inputArgs.addAll(inputArgs)*/
+        icpQuery.inputArgs.addAll(inputArgs)
 
         val outputParams = CandidServiceParamParser
             .parseServiceParam(idlService.outputParamsDeclaration)
@@ -149,6 +151,8 @@ internal class IDLFileServiceConverter(
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> TODO()
             is IDLTypeRecord -> {
+                if(classForRecordDefinition.containsKey(idlType.recordDeclaration))
+                    return classForRecordDefinition[idlType.recordDeclaration]!!
                 val recordDeclaration = CandidRecordParser.parseRecord(idlType.recordDeclaration)
                 val kotlinClass = KotlinClassDefinitionType.Class(
                     className = className

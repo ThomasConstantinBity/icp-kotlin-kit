@@ -14,6 +14,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.CandidServiceParamParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimEndOfLineComment
 import guru.zoroark.tegral.niwen.lexer.matchers.matches

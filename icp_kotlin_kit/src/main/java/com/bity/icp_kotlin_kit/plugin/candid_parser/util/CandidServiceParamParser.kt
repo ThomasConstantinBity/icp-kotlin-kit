@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.util
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.Token
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceParam
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
@@ -48,6 +49,7 @@ internal object CandidServiceParamParser {
             "nat64" isToken Token.Nat64
             "nat" isToken Token.Nat
 
+            matches("""vec\s+record\s+\{([^{}]*|\{[^{}]*\})*}""") isToken Token.Vec
             matches("""vec\s+(\w+\s+)*\s*(\{([^{}]*|\{[^{}]*\})*})?\w*""") isToken Token.Vec
             matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
 
@@ -59,12 +61,14 @@ internal object CandidServiceParamParser {
     private val serviceParamParser = niwenParser {
 
         IDLServiceParam root {
+            expect(Token.LParen)
             repeated<IDLServiceParam, IDLType> {
                 expect(IDLType) storeIn item
                 optional {
                     expect(Token.Comma)
                 }
             } storeIn IDLServiceParam::params
+            expect(Token.RParen)
         }
 
         IDLType {
