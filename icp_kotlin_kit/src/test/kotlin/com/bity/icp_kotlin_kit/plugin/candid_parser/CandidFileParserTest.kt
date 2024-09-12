@@ -1,22 +1,22 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.io.File
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 internal class CandidFileParserTest {
 
-    @MethodSource("fileInputs")
+    @MethodSource("vec")
     @ParameterizedTest
-    fun `parse file input`(
+    fun `parse vec`(
         input: String,
         expectedResult: IDLFileDeclaration
     ) {
@@ -24,39 +24,72 @@ internal class CandidFileParserTest {
         assertEquals(expectedResult, fileDeclaration)
     }
 
-    @MethodSource("candidFilePath")
+    @MethodSource("record")
     @ParameterizedTest
-    fun `parse did files`(
-        filePath: String,
+    fun `parse record`(
+        input: String,
         expectedResult: IDLFileDeclaration
     ) {
-        val classLoader = this.javaClass.classLoader
-        val file = File(classLoader.getResource(filePath)!!.file)
-        assertTrue(file.exists())
-        val fileDeclaration = CandidFileParser.parseFile(file.readText())
+        val fileDeclaration = CandidFileParser.parseFile(input)
+        assertEquals(expectedResult, fileDeclaration)
+    }
+
+    @MethodSource("typeAlias")
+    @ParameterizedTest
+    fun `type alias`(
+        input: String,
+        expectedResult: IDLFileDeclaration
+    ) {
+        val fileDeclaration = CandidFileParser.parseFile(input)
+        assertEquals(expectedResult, fileDeclaration)
+    }
+
+    @MethodSource("variant")
+    @ParameterizedTest
+    fun `parse variant`(
+        input: String,
+        expectedResult: IDLFileDeclaration
+    ) {
+        val fileDeclaration = CandidFileParser.parseFile(input)
         assertEquals(expectedResult, fileDeclaration)
     }
 
     companion object {
 
         @JvmStatic
-        private fun fileInputs() = listOf(
+        private fun vec() = listOf(
+            Arguments.of(
+                "type Ledger = vec Block;",
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeVec(
+                            vecDeclaration = "Ledger",
+                            vecType = IDLTypeCustom(
+                                typeDef = "Block"
+                            )
+                        )
+                    )
+                )
+            )
+        )
 
+        @JvmStatic
+        private fun record() = listOf(
             Arguments.of(
                 """
-                    service : { 
-                        // Queries blocks in the specified range.
-                        query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;
-                    }
+                    type Tokens = record {
+                        e8s : nat64;
+                    };
                 """.trimIndent(),
                 IDLFileDeclaration(
-                    services = listOf(
-                        IDLService(
-                            comment = IDLSingleLineComment(listOf("Queries blocks in the specified range.")),
-                            id = "query_blocks",
-                            inputParamsDeclaration = "(GetBlocksArgs)",
-                            outputParamsDeclaration = "(QueryBlocksResponse)",
-                            serviceType = IDLServiceType.Query
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "Tokens",
+                            types = listOf(
+                                IDLTypeNat64(
+                                    id = "e8s"
+                                )
+                            )
                         )
                     )
                 )
@@ -64,381 +97,221 @@ internal class CandidFileParserTest {
 
             Arguments.of(
                 """
-                    service : {
-                        query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;
-                        archives : () -> (Archives) query;
-                        account_balance : (AccountBalanceArgs) -> (Tokens) query;
-                        transfer : (TransferArgs) -> (TransferResult);
-                    }
+                    type TimeStamp = record {
+                        timestamp_nanos: nat64;
+                    };
                 """.trimIndent(),
                 IDLFileDeclaration(
-                    services = listOf(
-                        IDLService(
-                            id = "query_blocks",
-                            inputParamsDeclaration = "(GetBlocksArgs)",
-                            outputParamsDeclaration = "(QueryBlocksResponse)",
-                            serviceType = IDLServiceType.Query
-                        ),
-                        IDLService(
-                            id = "archives",
-                            inputParamsDeclaration = "()",
-                            outputParamsDeclaration = "(Archives)",
-                            serviceType = IDLServiceType.Query
-                        ),
-                        IDLService(
-                            id = "account_balance",
-                            inputParamsDeclaration = "(AccountBalanceArgs)",
-                            outputParamsDeclaration = "(Tokens)",
-                            serviceType = IDLServiceType.Query
-                        ),
-                        IDLService(
-                            id = "transfer",
-                            inputParamsDeclaration = "(TransferArgs)",
-                            outputParamsDeclaration = "(TransferResult)",
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "TimeStamp",
+                            types = listOf(
+                                IDLTypeNat64(
+                                    id = "timestamp_nanos"
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type Transaction = record {
+                        operation: opt Transfer;
+                        memo: Memo;
+                        created_at_time: TimeStamp;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "Transaction",
+                            types = listOf(
+                                IDLTypeCustom(
+                                    id = "operation",
+                                    isOptional = true,
+                                    typeDef = "Transfer"
+                                ),
+                                IDLTypeCustom(
+                                    id = "memo",
+                                    typeDef = "Memo"
+                                ),
+                                IDLTypeCustom(
+                                    id = "created_at_time",
+                                    typeDef = "TimeStamp"
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type Block = record {
+                        parent_hash: opt Hash;
+                        transaction: Transaction;
+                        timestamp: TimeStamp;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "Block",
+                            types = listOf(
+                                IDLTypeCustom(
+                                    id = "parent_hash",
+                                    isOptional = true,
+                                    typeDef = "Hash"
+                                ),
+                                IDLTypeCustom(
+                                    id = "transaction",
+                                    typeDef = "Transaction"
+                                ),
+                                IDLTypeCustom(
+                                    id = "timestamp",
+                                    typeDef = "TimeStamp"
+                                )
+                            )
                         )
                     )
                 )
             )
-
-            /*Arguments.of(
-                """
-                    type Subaccount = blob;
-                    service : {
-                            icrc7_token_metadata : (token_ids : vec nat)-> (vec record { nat; opt record { text; Value } }) query;
-
-                    }
-                """.trimIndent(),
-                IDLFileDeclaration(
-                    types = listOf(
-                        IDLFileType(
-                            typeDefinition = "type Subaccount = blob;"
-                        )
-                    ),
-                    services = TODO()
-                )
-            ),*/
-
-            /*Arguments.of(
-                """
-                    type Subaccount = blob;
-                    service : {
-                        icrc7_token_metadata : (token_ids : vec nat) -> (vec opt vec record { text; Value }) query;
-                    }
-                """.trimIndent(),
-                IDLFileDeclaration(
-                    types = listOf(
-                        IDLFileType(
-                            typeDefinition = "type Subaccount = blob;"
-                        )
-                    ),
-                    services = TODO()
-                )
-            ),*/
-
-            /*Arguments.of(
-                """
-                    type Subaccount = blob;
-                    service : {
-                        icrc7_collection_metadata : () -> (vec record { text; Value } ) query;
-                    }
-                """.trimIndent(),
-                IDLFileDeclaration(
-                    types = listOf(
-                        IDLFileType(
-                            typeDefinition = "type Subaccount = blob;"
-                        )
-                    ),
-                    services = TODO()
-                )
-            )*/
         )
 
         @JvmStatic
-        private fun candidFilePath() = listOf(
+        private fun typeAlias() = listOf(
             Arguments.of(
-                "candid_file/LedgerCanister.did",
+                "type AccountIdentifier = blob;",
                 IDLFileDeclaration(
-                    comment = IDLSingleLineComment(listOf("https://internetcomputer.org/docs/current/references/ledger/")),
                     types = listOf(
-                        IDLFileType(
-                            typeDefinition = """
-                                type Tokens = record {
-                                    e8s : nat64;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            comment = IDLSingleLineComment(
-                                listOf(
-                                    "Account identifier is a 32-byte array.",
-                                    "The first 4 bytes is big-endian encoding of a CRC32 checksum of the last 28 bytes"
+                        IDLTypeCustom(
+                            typeDef = "AccountIdentifier",
+                            type = IDLTypeBlob()
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                "type Memo = nat64;",
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeCustom(
+                            typeDef = "Memo",
+                            type = IDLTypeNat64()
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                "type SubAccount = blob;",
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeCustom(
+                            typeDef = "SubAccount",
+                            type = IDLTypeBlob()
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                "type Hash = blob;",
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeCustom(
+                            typeDef = "Hash",
+                            type = IDLTypeBlob()
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                "type BlockIndex = nat64;",
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeCustom(
+                            typeDef = "BlockIndex",
+                            type = IDLTypeNat64()
+                        )
+                    )
+                )
+            )
+        )
+
+        @JvmStatic
+        private fun variant() = listOf(
+            Arguments.of(
+                """
+                    type Transfer = variant {
+                        Mint: record {
+                            to: AccountIdentifier;
+                            amount: Tokens;
+                        };
+                        Burn: record {
+                            from: AccountIdentifier;
+                            amount: Tokens;
+                        };
+                        Send: record {
+                            from: AccountIdentifier;
+                            to: AccountIdentifier;
+                            amount: Tokens;
+                        };
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeVariant(
+                            id = "Transfer",
+                            records = listOf(
+                                IDLRecord(
+                                    recordName = "Mint",
+                                    types = listOf(
+                                        IDLTypeCustom(
+                                            id = "to",
+                                            typeDef = "AccountIdentifier"
+                                        ),
+                                        IDLTypeCustom(
+                                            id = "amount",
+                                            typeDef = "Tokens"
+                                        )
+                                    )
+                                ),
+                                IDLRecord(
+                                    recordName = "Burn",
+                                    types = listOf(
+                                        IDLTypeCustom(
+                                            id = "from",
+                                            typeDef = "AccountIdentifier"
+                                        ),
+                                        IDLTypeCustom(
+                                            id = "amount",
+                                            typeDef = "Tokens"
+                                        )
+                                    )
+                                ),
+                                IDLRecord(
+                                    recordName = "Send",
+                                    types = listOf(
+                                        IDLTypeCustom(
+                                            id = "from",
+                                            typeDef = "AccountIdentifier"
+                                        ),
+                                        IDLTypeCustom(
+                                            id = "to",
+                                            typeDef = "AccountIdentifier"
+                                        ),
+                                        IDLTypeCustom(
+                                            id = "amount",
+                                            typeDef = "Tokens"
+                                        )
+                                    )
                                 )
-                            ),
-                            typeDefinition = "type AccountIdentifier = blob;"
-                        ),
-                        IDLFileType(
-                            comment = IDLSingleLineComment(listOf("There are three types of operations: minting tokens, burning tokens & transferring tokens")),
-                            typeDefinition = """
-                                type Transfer = variant {
-                                    Mint: record {
-                                        to: AccountIdentifier;
-                                        amount: Tokens;
-                                    };
-                                    Burn: record {
-                                        from: AccountIdentifier;
-                                        amount: Tokens;
-                                    };
-                                    Send: record {
-                                        from: AccountIdentifier;
-                                        to: AccountIdentifier;
-                                        amount: Tokens;
-                                    };
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = "type Memo = nat64;"
-                        ),
-                        IDLFileType(
-                            typeDefinition = "type SubAccount = blob;"
-                        ),
-                        IDLFileType(
-                            typeDefinition = "type Hash = blob;"
-                        ),
-                        IDLFileType(
-                            comment = IDLSingleLineComment(listOf("Timestamps are represented as nanoseconds from the UNIX epoch in UTC timezone")),
-                            typeDefinition = """
-                                type TimeStamp = record {
-                                    timestamp_nanos: nat64;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = """
-                                type Transaction = record {
-                                    operation: opt Transfer;
-                                    memo: Memo;
-                                    created_at_time: TimeStamp;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = """
-                                type Block = record {
-                                    parent_hash: opt Hash;
-                                    transaction: Transaction;
-                                    timestamp: TimeStamp;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = "type BlockIndex = nat64;"
-                        ),
-                        IDLFileType(
-                            comment = IDLSingleLineComment(listOf("The ledger is a list of blocks")),
-                            typeDefinition = "type Ledger = vec Block;"
-                        ),
-                        IDLFileType(
-                            comment = IDLSingleLineComment(listOf("Arguments for the `transfer` call.")),
-                            typeDefinition = """
-                                type TransferArgs = record {
-                                    // Transaction memo.
-                                    // See comments for the `Memo` type.
-                                    memo: Memo;
-                                    // The amount that the caller wants to transfer to the destination address.
-                                    amount: Tokens;
-                                    // The amount that the caller pays for the transaction.
-                                    // Must be 10000 e8s.
-                                    fee: Tokens;
-                                    // The subaccount from which the caller wants to transfer funds.
-                                    // If null, the ledger uses the default (all zeros) subaccount to compute the source address.
-                                    // See comments for the `SubAccount` type.
-                                    from_subaccount: opt SubAccount;
-                                    // The destination account.
-                                    // If the transfer is successful, the balance of this address increases by `amount`.
-                                    to: AccountIdentifier;
-                                    // The point in time when the caller created this request.
-                                    // If null, the ledger uses current ICP time as the timestamp.
-                                    created_at_time: opt TimeStamp;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = """
-                                type TransferError = variant {
-                                    // The fee that the caller specified in the transfer request was not the one that ledger expects.
-                                    // The caller can change the transfer fee to the `expected_fee` and retry the request.
-                                    BadFee : record { expected_fee : Tokens; };
-                                    // The account specified by the caller doesn't have enough funds.
-                                    InsufficientFunds : record { balance: Tokens; };
-                                    // The request is too old.
-                                    // The ledger only accepts requests created within 24 hours window.
-                                    // This is a non-recoverable error.
-                                    TxTooOld : record { allowed_window_nanos: nat64 };
-                                    // The caller specified `created_at_time` that is too far in future.
-                                    // The caller can retry the request later.
-                                    TxCreatedInFuture : null;
-                                    // The ledger has already executed the request.
-                                    // `duplicate_of` field is equal to the index of the block containing the original transaction.
-                                    TxDuplicate : record { duplicate_of: BlockIndex; }
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = """
-                                type TransferResult = variant {
-                                    Ok : BlockIndex;
-                                    Err : TransferError;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = """
-                                type GetBlocksArgs = record {
-                                    // The index of the first block to fetch.
-                                    start : BlockIndex;
-                                    // Max number of blocks to fetch.
-                                    length : nat64;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            comment = IDLSingleLineComment(listOf("A prefix of the block range specified in the [GetBlocksArgs] request.")),
-                            typeDefinition = """
-                                type BlockRange = record {
-                                    // A prefix of the requested block range.
-                                    // The index of the first block is equal to [GetBlocksArgs.from].
-                                    //
-                                    // Note that the number of blocks might be less than the requested
-                                    // [GetBlocksArgs.len] for various reasons, for example:
-                                    //
-                                    // 1. The query might have hit the replica with an outdated state
-                                    //    that doesn't have the full block range yet.
-                                    // 2. The requested range is too large to fit into a single reply.
-                                    //
-                                    // NOTE: the list of blocks can be empty if:
-                                    // 1. [GetBlocksArgs.len] was zero.
-                                    // 2. [GetBlocksArgs.from] was larger than the last block known to the canister.
-                                    blocks : vec Block;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = """
-                                type QueryArchiveResult = variant {
-                                    Ok : BlockRange;
-                                    Err : null;      // we don't know the values here...
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            comment = IDLSingleLineComment(listOf("A function that is used for fetching archived ledger blocks.")),
-                            typeDefinition = "type QueryArchiveFn = func (GetBlocksArgs) -> (QueryArchiveResult) query;"
-                        ),
-                        IDLFileType(
-                            comment = IDLSingleLineComment(
-                                listOf(
-                                    "The result of a \"query_blocks\" call.",
-                                    "",
-                                    "The structure of the result is somewhat complicated because the main ledger canister might",
-                                    "not have all the blocks that the caller requested: One or more \"archive\" canisters might",
-                                    "store some of the requested blocks.",
-                                    "",
-                                    "Note: as of Q4 2021 when this interface is authored, ICP doesn't support making nested",
-                                    "query calls within a query call."
-                                )
-                            ),
-                            typeDefinition = """
-                                type QueryBlocksResponse = record {
-                                    // The total number of blocks in the chain.
-                                    // If the chain length is positive, the index of the last block is `chain_len - 1`.
-                                    chain_length : nat64;
-
-                                    // System certificate for the hash of the latest block in the chain.
-                                    // Only present if `query_blocks` is called in a non-replicated query context.
-                                    certificate : opt blob;
-
-                                    // List of blocks that were available in the ledger when it processed the call.
-                                    //
-                                    // The blocks form a contiguous range, with the first block having index
-                                    // [first_block_index] (see below), and the last block having index
-                                    // [first_block_index] + len(blocks) - 1.
-                                    //
-                                    // The block range can be an arbitrary sub-range of the originally requested range.
-                                    blocks : vec Block;
-
-                                    // The index of the first block in "blocks".
-                                    // If the blocks vector is empty, the exact value of this field is not specified.
-                                    first_block_index : BlockIndex;
-
-                                    // Encoding of instructions for fetching archived blocks whose indices fall into the
-                                    // requested range.
-                                    //
-                                    // For each entry `e` in [archived_blocks], `[e.from, e.from + len)` is a sub-range
-                                    // of the originally requested block range.
-                                    archived_blocks : vec record {
-                                        // The index of the first archived block that can be fetched using the callback.
-                                        start : BlockIndex;
-
-                                        // The number of blocks that can be fetched using the callback.
-                                        length : nat64;
-
-                                        // The function that should be called to fetch the archived blocks.
-                                        // The range of the blocks accessible using this function is given by [from]
-                                        // and [len] fields above.
-                                        callback : QueryArchiveFn;
-                                    };
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = """
-                                type Archive = record {
-                                    canister_id: principal;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = """
-                                type Archives = record {
-                                    archives: vec Archive;
-                                };
-                            """.trimIndent()
-                        ),
-                        IDLFileType(
-                            typeDefinition = """
-                                type AccountBalanceArgs = record {
-                                    account: AccountIdentifier;
-                                };
-                            """.trimIndent()
-                        ),
-                    ),
-                    services = listOf(
-                        IDLService(
-                            comment = IDLSingleLineComment(listOf("Queries blocks in the specified range.")),
-                            id = "query_blocks",
-                            inputParamsDeclaration = "(GetBlocksArgs)",
-                            outputParamsDeclaration = "(QueryBlocksResponse)",
-                            serviceType = IDLServiceType.Query
-                        ),
-                        IDLService(
-                            comment = IDLSingleLineComment(listOf("Returns the existing archive canisters information.")),
-                            id = "archives",
-                            inputParamsDeclaration = "()",
-                            outputParamsDeclaration = "(Archives)",
-                            serviceType = IDLServiceType.Query
-                        ),
-                        IDLService(
-                            comment = IDLSingleLineComment(listOf("Get the amount of ICP on the specified account.")),
-                            id = "account_balance",
-                            inputParamsDeclaration = "(AccountBalanceArgs)",
-                            outputParamsDeclaration = "(Tokens)",
-                            serviceType = IDLServiceType.Query
-                        ),
-                        IDLService(
-                            id = "transfer",
-                            inputParamsDeclaration = "(TransferArgs)",
-                            outputParamsDeclaration = "(TransferResult)",
+                            )
                         )
                     )
                 )

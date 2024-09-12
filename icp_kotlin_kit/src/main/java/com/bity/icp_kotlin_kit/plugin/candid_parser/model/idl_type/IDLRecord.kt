@@ -30,10 +30,13 @@ import guru.zoroark.tegral.niwen.parser.reflective
  * }
  * ```
  */
-internal class IDLRecord(
-    comment: IDLComment? = null,
-    id: String? = null,
-    isOptional: Boolean = false,
+
+// TODO rename
+internal data class IDLRecord(
+    override val comment: IDLComment? = null,
+    override val id: String? = null,
+    override val isOptional: Boolean = false,
+    val recordName: String? = null,
     val types: List<IDLType>,
 ) : IDLType(
     comment = comment,
@@ -49,7 +52,7 @@ internal class IDLRecord(
 
         other as IDLRecord
 
-        if (comment != other.comment) return false
+        if (recordName != other.recordName) return false
         if (types != other.types) return false
 
         return true
@@ -57,7 +60,7 @@ internal class IDLRecord(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + (comment?.hashCode() ?: 0)
+        result = 31 * result + (recordName?.hashCode() ?: 0)
         result = 31 * result + types.hashCode()
         return result
     }

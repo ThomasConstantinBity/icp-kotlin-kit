@@ -29,10 +29,7 @@ internal class CandidVecParserTest {
             Arguments.of(
                 "vec opt Account",
                 IDLVec(
-                    type = IDLTypeCustom(
-                        isOptional = true,
-                        typeDef = "Account"
-                    )
+                    type = TODO()
                 )
             ),
 
@@ -47,10 +44,7 @@ internal class CandidVecParserTest {
             Arguments.of(
                 "vec opt vec record { text; Value }",
                 IDLVec(
-                    type = IDLTypeVec(
-                        isOptional = true,
-                        vecDeclaration = "vec record { text; Value }"
-                    )
+                    type = TODO()
                 )
             )
         )

@@ -3,7 +3,6 @@ package com.bity.icp_kotlin_kit.plugin.file_generator
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
@@ -98,13 +97,7 @@ internal class KotlinClassGeneratorTest {
             Arguments.of(
                 IDLTypeDeclaration(
                     id = "generated_candid_file.Tokens",
-                    type = IDLTypeRecord(
-                        recordDeclaration = """
-                            record {
-                                e8s : nat64;
-                            }
-                        """.trimIndent()
-                    )
+                    type = TODO()
                 ),
                 """
                     class generated_candid_file.Tokens (
@@ -119,25 +112,7 @@ internal class KotlinClassGeneratorTest {
             Arguments.of(
                 IDLTypeDeclaration(
                     id = "generated_candid_file.Transfer",
-                    type = IDLTypeVariant(
-                        variantDeclaration = """
-                            variant {
-                                Mint: record {
-                                    to: generated_candid_file.AccountIdentifier;
-                                    amount: generated_candid_file.Tokens;
-                                };
-                                Burn: record {
-                                    from: generated_candid_file.AccountIdentifier;
-                                    amount: generated_candid_file.Tokens;
-                                };
-                                Send: record {
-                                    from: generated_candid_file.AccountIdentifier;
-                                    to: generated_candid_file.AccountIdentifier;
-                                    amount: generated_candid_file.Tokens;
-                                };
-                            }
-                        """.trimIndent()
-                    )
+                    type = TODO()
                 ),
                 """
                     sealed class generated_candid_file.Transfer {

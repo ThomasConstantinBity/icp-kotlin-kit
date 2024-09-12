@@ -4,13 +4,10 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleL
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import kotlin.reflect.typeOf
 import kotlin.test.assertEquals
 
 internal class CandidRecordParserTest {

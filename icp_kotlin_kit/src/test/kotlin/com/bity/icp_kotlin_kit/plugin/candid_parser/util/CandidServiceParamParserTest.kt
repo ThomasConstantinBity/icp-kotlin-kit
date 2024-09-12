@@ -40,9 +40,7 @@ internal class CandidServiceParamParserTest {
                 "(vec record { nat; opt record { text; Value } })",
                 IDLServiceParam(
                     params = listOf(
-                        IDLTypeVec(
-                            vecDeclaration = "vec record { nat; opt record { text; Value } }"
-                        )
+                        TODO()
                     )
                 )
             ),
@@ -51,9 +49,7 @@ internal class CandidServiceParamParserTest {
                 "(vec TransferArg)",
                 IDLServiceParam(
                     params = listOf(
-                        IDLTypeVec(
-                            vecDeclaration = "vec TransferArg"
-                        )
+                        TODO()
                     )
                 )
             ),
@@ -62,9 +58,7 @@ internal class CandidServiceParamParserTest {
                 "(vec opt TransferResult)",
                 IDLServiceParam(
                     params = listOf(
-                        IDLTypeVec(
-                            vecDeclaration = "vec opt TransferResult"
-                        )
+                        TODO()
                     )
                 )
             ),
@@ -73,9 +67,7 @@ internal class CandidServiceParamParserTest {
                 "(vec opt vec record { text; Value })",
                 IDLServiceParam(
                     params = listOf(
-                        IDLTypeVec(
-                            vecDeclaration = "vec opt vec record { text; Value }"
-                        )
+                        TODO()
                     )
                 )
             )
@@ -88,10 +80,7 @@ internal class CandidServiceParamParserTest {
                 "(token_ids : vec nat)",
                 IDLServiceParam(
                     params = listOf(
-                        IDLTypeVec(
-                            id = "token_ids",
-                            vecDeclaration = "vec nat"
-                        )
+                        TODO()
                     )
                 )
             ),
@@ -100,10 +89,7 @@ internal class CandidServiceParamParserTest {
                 "(account : Account, prev : opt nat, take : opt nat)",
                 IDLServiceParam(
                     params = listOf(
-                        IDLTypeCustom(
-                            id = "account",
-                            typeDef = "Account"
-                        ),
+                        TODO(),
                         IDLTypeNat(
                             id = "prev",
                             isOptional = true

@@ -6,6 +6,14 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclar
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
 import guru.zoroark.tegral.niwen.lexer.Lexer
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
@@ -16,6 +24,7 @@ import guru.zoroark.tegral.niwen.parser.dsl.expect
 import guru.zoroark.tegral.niwen.parser.dsl.item
 import guru.zoroark.tegral.niwen.parser.dsl.niwenParser
 import guru.zoroark.tegral.niwen.parser.dsl.optional
+import guru.zoroark.tegral.niwen.parser.dsl.or
 import guru.zoroark.tegral.niwen.parser.dsl.repeated
 import guru.zoroark.tegral.niwen.parser.dsl.self
 
@@ -24,19 +33,32 @@ internal object CandidFileParser {
     private val fileLexer = niwenLexer {
         state {
             matches("//.*") isToken Token.SingleLineComment
+
             "{" isToken Token.LBrace
             "}" isToken Token.RBrace
             ":" isToken Token.Colon
             ";" isToken Token.Semi
             "->" isToken Token.Arrow
+            "=" isToken Token.Equals
+
+            "opt" isToken Token.Opt
+
             "import" isToken Token.Import
+
+            "type" isToken  Token.Type
             "service" isToken Token.Service
 
-            // We need to match all the type definitions including function
-            matches("""type\s+\w+\s*=\s*[\w\s]+(\((\w+(, \w+)*)?\) -> \((\w+(, \w+)*)\)\s*\w*|\{[^{}]*+(?:\{[^{}]*+}[^{}]*+)*})?;""") isToken Token.Type
+            "vec" isToken Token.Vec
+            "record" isToken Token.Record
+            "variant" isToken Token.Variant
+
+            "blob" isToken Token.Blob
+            "nat64" isToken Token.Nat64
 
             matches("""\bquery\b(?!_)""") isToken Token.Query
             matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
+
+            // TODO replace
             matches("""\((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*\)""") isToken Token.ServiceArgs
 
             matches("[ \t\r\n]+").ignore
@@ -49,11 +71,14 @@ internal object CandidFileParser {
 
             // TODO, need to add imports
 
-            optional { expect(IDLComment) storeIn IDLFileDeclaration::comment }
+            optional {
+                expect(IDLComment) storeIn IDLFileDeclaration::comment
+            }
 
             optional {
-                repeated<IDLFileDeclaration, IDLFileType>(min = 1) {
-                    expect(IDLFileType) storeIn item
+                repeated<IDLFileDeclaration, IDLType>(min = 1) {
+                    expect(Token.Type)
+                    expect(IDLType) storeIn item
                 } storeIn IDLFileDeclaration::types
             }
 
@@ -66,13 +91,6 @@ internal object CandidFileParser {
                 } storeIn IDLFileDeclaration::services
                 expect(Token.RBrace)
             }
-        }
-
-        IDLFileType {
-            optional {
-                expect(IDLComment) storeIn IDLFileType::comment
-            }
-            expect(Token.Type) storeIn IDLFileType::typeDefinition
         }
 
         IDLService {
@@ -105,10 +123,99 @@ internal object CandidFileParser {
                 expect(Token.SingleLineComment) transform { it.trimCommentLine() } storeIn item
             } storeIn IDLSingleLineComment::commentLines
         }
+
+        IDLType {
+            either {
+                expect(IDLRecord) storeIn self()
+            } or {
+                expect(IDLTypeNat64) storeIn self()
+            } or {
+                expect(IDLTypeBlob) storeIn self()
+            } or {
+                expect(IDLTypeCustom) storeIn self()
+            } or {
+                expect(IDLTypeVariant) storeIn self()
+            } or {
+                expect(IDLTypeVec) storeIn self()
+            }
+        }
+
+        IDLRecord {
+            expect(Token.Id) storeIn IDLRecord::recordName
+
+            either {
+                expect(Token.Equals)
+                expect(Token.Record)
+                expect(Token.LBrace)
+            } or {
+                expect(Token.Colon)
+                expect(Token.Record)
+                expect(Token.LBrace)
+            }
+            repeated(min = 1) {
+                expect(IDLType) storeIn item
+                optional { expect(Token.Semi) }
+            } storeIn IDLRecord::types
+            expect(Token.RBrace)
+            expect(Token.Semi)
+        }
+
+        IDLTypeVariant {
+            expect(Token.Id) storeIn IDLTypeVariant::id
+            expect(Token.Equals)
+            expect(Token.Variant)
+            expect(Token.LBrace)
+            repeated(min = 1) {
+                expect(IDLType) storeIn item
+            } storeIn IDLTypeVariant::records
+            expect(Token.RBrace)
+            expect(Token.Semi)
+        }
+
+        IDLTypeCustom {
+            either {
+                expect(Token.Id) storeIn IDLTypeCustom::typeDef
+                expect(Token.Equals)
+                expect(IDLType) storeIn IDLTypeCustom::type
+            } or {
+                expect(Token.Id) storeIn IDLTypeCustom::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeCustom::isOptional
+                }
+                expect(Token.Id) storeIn IDLTypeCustom::typeDef
+            } or {
+                expect(Token.Id) storeIn IDLTypeCustom::typeDef
+            }
+            expect(Token.Semi)
+        }
+
+        IDLTypeBlob {
+            expect(Token.Blob)
+        }
+
+        IDLTypeNat64 {
+            either {
+                expect(Token.Id) storeIn IDLTypeNat64::id
+                expect(Token.Colon)
+                expect(Token.Nat64)
+                expect(Token.Semi)
+            } or {
+                expect(Token.Nat64)
+            }
+        }
+
+        IDLTypeVec {
+            expect(Token.Id) storeIn IDLTypeVec::vecDeclaration
+            expect(Token.Equals)
+            expect(Token.Vec)
+            expect(IDLType) storeIn IDLTypeVec::vecType
+        }
     }
 
     fun parseFile(input: String): IDLFileDeclaration {
-        // debug(fileLexer, input)
+        debug(fileLexer, input)
         return fileParser.parse(fileLexer.tokenize(input))
     }
 

@@ -8,24 +8,11 @@ internal class IDLTypeVariant(
     comment: IDLComment? = null,
     isOptional: Boolean = false,
     id: String? = null,
-    val variantDeclaration: String
+    val records: List<IDLType>
 ) : IDLType(
     comment = comment,
     id = id,
     isOptional = isOptional
 ) {
     companion object : ParserNodeDeclaration<IDLTypeVariant> by reflective()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as IDLTypeVariant
-
-        return variantDeclaration == other.variantDeclaration
-    }
-
-    override fun hashCode(): Int {
-        return variantDeclaration.hashCode()
-    }
 }

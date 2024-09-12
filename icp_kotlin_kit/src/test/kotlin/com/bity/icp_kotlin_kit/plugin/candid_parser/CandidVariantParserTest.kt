@@ -3,7 +3,6 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariantDeclaration
@@ -38,9 +37,7 @@ internal class CandidVariantParserTest {
                     variants = listOf(
                         IDLVariant(
                             id = "Ok",
-                            type = IDLTypeCustom(
-                                typeDef = "generated_candid_file.BlockRange"
-                            )
+                            type = TODO()
                         ),
                         IDLVariant(
                             comment = IDLSingleLineComment(listOf("we don't know the values here...")),
@@ -73,37 +70,15 @@ internal class CandidVariantParserTest {
                     variants = listOf(
                         IDLVariant(
                             id = "Mint",
-                            type = IDLTypeRecord(
-                                recordDeclaration = """
-                                    record {
-                                        to: generated_candid_file.AccountIdentifier;
-                                        amount: generated_candid_file.Tokens;
-                                    }
-                                """.trimIndent()
-                            )
+                            type = TODO()
                         ),
                         IDLVariant(
                             id = "Burn",
-                            type = IDLTypeRecord(
-                                recordDeclaration = """
-                                   record {
-                                       from: generated_candid_file.AccountIdentifier;
-                                       amount: generated_candid_file.Tokens;
-                                   }
-                                """.trimIndent()
-                            )
+                            type = TODO()
                         ),
                         IDLVariant(
                             id = "Send",
-                            type = IDLTypeRecord(
-                                recordDeclaration = """
-                                    record {
-                                        from: generated_candid_file.AccountIdentifier;
-                                        to: generated_candid_file.AccountIdentifier;
-                                        amount: generated_candid_file.Tokens;
-                                    }
-                                """.trimIndent()
-                            )
+                            type = TODO()
                         )
                     )
                 )

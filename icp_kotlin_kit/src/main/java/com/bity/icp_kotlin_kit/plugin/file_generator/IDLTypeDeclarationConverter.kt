@@ -21,7 +21,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
@@ -108,10 +107,6 @@ internal class IDLTypeDeclarationConverter(
 
             is IDLTypePrincipal -> TODO()
 
-            is IDLTypeRecord -> convertIDLTypeRecord(
-                idlType = type,
-                className = className,
-            )
             is IDLTypeVariant -> convertIDLTypeVariant(
                 sealedClassName = className,
                 idlTypeVariant = type,
@@ -182,7 +177,7 @@ internal class IDLTypeDeclarationConverter(
                 variantId ?: throw RuntimeException("Missing object name")
             )
             is IDLTypePrincipal -> TODO()
-            is IDLTypeRecord -> {
+            /*is IDLTypeRecord -> {
                 val className = variantId ?: IDLTypeHelper.kotlinTypeVariable(type)
                 val record = getClassDefinition(
                     className = "${className}Record",
@@ -201,7 +196,7 @@ internal class IDLTypeDeclarationConverter(
                     )
                 )
                 kotlinClass
-            }
+            }*/
             is IDLTypeVariant -> TODO()
 
             // TODO, handle vec record?
@@ -218,7 +213,7 @@ internal class IDLTypeDeclarationConverter(
         // TODO, add to hashMap?
     }
 
-    private fun convertIDLTypeRecord(
+    /*private fun convertIDLTypeRecord(
         idlType: IDLTypeRecord,
         className: String,
     ): KotlinClassDefinitionType {
@@ -245,7 +240,7 @@ internal class IDLTypeDeclarationConverter(
         }
         kotlinClass.params.addAll(classParameters)
         return kotlinClass
-    }
+    }*/
 
     private fun getClassToGenerate(idlType: IDLType): List<IDLType> {
         return when(idlType) {
@@ -254,12 +249,13 @@ internal class IDLTypeDeclarationConverter(
                 if(generatedClasses.containsKey(idlType.typeDef)) emptyList() else
                     listOf(idlType)
 
-            is IDLTypeRecord,
+            is IDLRecord,
             is IDLTypeVariant -> { listOf(idlType) }
 
             is IDLTypeVec -> {
-                val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
-                getClassToGenerate(idlVec.type)
+                TODO()
+                /*val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
+                getClassToGenerate(idlVec.type)*/
             }
             else -> { emptyList() }
         }
@@ -269,8 +265,8 @@ internal class IDLTypeDeclarationConverter(
         sealedClassName: String,
         idlTypeVariant: IDLTypeVariant,
     ): KotlinClassDefinitionType {
-        val idlVariantDeclaration = CandidVariantParser.parseVariant(idlTypeVariant.variantDeclaration)
-        val sealedClass = KotlinClassDefinitionType.SealedClass(sealedClassName)
+        val idlVariantDeclaration = TODO() // CandidVariantParser.parseVariant(idlTypeVariant.variantDeclaration)
+        /*val sealedClass = KotlinClassDefinitionType.SealedClass(sealedClassName)
         generatedClasses[sealedClassName] = sealedClass
         val classes = idlVariantDeclaration.variants.map {
             val clasDefinition = getClassDefinitionForSealedClass(
@@ -281,7 +277,7 @@ internal class IDLTypeDeclarationConverter(
             clasDefinition
         }
         generatedClasses[sealedClassName]?.innerClasses?.addAll(classes)
-        return sealedClass
+        return sealedClass*/
     }
 
     private fun convertIDLTypeFuncDeclaration(
@@ -316,9 +312,9 @@ internal class IDLTypeDeclarationConverter(
         idlType: IDLTypeVec
     ): KotlinClassDefinitionType {
 
-        val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
+        val idlVec = TODO()// CandidVecParser.parseVec(idlType.vecDeclaration)
 
-        val classToGenerate = getClassToGenerate(idlVec.type)
+        /*val classToGenerate = getClassToGenerate(idlVec.type)
         val kotlinArray = KotlinClassDefinitionType.Array(
             arrayName = className,
             parentClassName = parentClassName,
@@ -336,7 +332,7 @@ internal class IDLTypeDeclarationConverter(
                 is IDLTypeNat64 -> TODO()
                 is IDLTypeNull -> TODO()
                 is IDLTypePrincipal -> TODO()
-                is IDLTypeRecord -> getClassDefinition(
+                is IDLRecord -> getClassDefinition(
                     className = "${className}Record",
                     parentClassName = className,
                     type = it
@@ -344,10 +340,9 @@ internal class IDLTypeDeclarationConverter(
                 is IDLTypeText -> TODO()
                 is IDLTypeVariant -> TODO()
                 is IDLTypeVec -> TODO()
-                is IDLRecord -> TODO()
             }
             kotlinArray.innerClasses.add(arrayClassDefinition)
         }
-        return kotlinArray
+        return kotlinArray*/
     }
 }

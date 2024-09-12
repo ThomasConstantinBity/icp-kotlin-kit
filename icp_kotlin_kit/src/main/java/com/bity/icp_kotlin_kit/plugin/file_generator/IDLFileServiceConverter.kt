@@ -1,6 +1,5 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidRecordParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
@@ -17,12 +16,10 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.CandidServiceParamParser
-import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.classNameFromVariableName
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 
@@ -119,8 +116,7 @@ internal class IDLFileServiceConverter(
             is IDLTypeText,
             is IDLTypeCustom -> emptyList()
 
-            is IDLRecord,
-            is IDLTypeRecord -> listOf(idlType)
+            is IDLRecord -> listOf(idlType)
 
             is IDLFun -> TODO()
             is IDLTypeFuncDeclaration -> TODO()
@@ -128,8 +124,9 @@ internal class IDLFileServiceConverter(
             is IDLTypeNull -> TODO()
 
             is IDLTypeVec -> {
-                val idlVec = CandidVecParser.parseVec(idlType.vecDeclaration)
-                innerClassesToDeclare(idlVec.type)
+                val idlVec = TODO() //  CandidVecParser.parseVec(idlType.vecDeclaration)
+                // innerClassesToDeclare(idlVec.type)
+                TODO()
             }
         }
 
@@ -145,8 +142,9 @@ internal class IDLFileServiceConverter(
             is IDLTypeNat64 -> TODO()
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> TODO()
-            is IDLTypeRecord -> {
-                if(classForRecordDefinition.containsKey(idlType.recordDeclaration))
+            is IDLRecord -> {
+                TODO()
+                /*if(classForRecordDefinition.containsKey(idlType.recordDeclaration))
                     return classForRecordDefinition[idlType.recordDeclaration]!!.name
                 val className = "UnnamedClass${unnamedClassIndex}"
                 val recordDeclaration = CandidRecordParser.parseRecord(idlType.recordDeclaration)
@@ -169,12 +167,11 @@ internal class IDLFileServiceConverter(
                 classForRecordDefinition[idlType.recordDeclaration] = kotlinClass
                 unnamedClassIndex++
                 classForRecordDefinition
-                className
+                className*/
             }
             is IDLTypeText -> TODO()
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> TODO()
-            is IDLRecord -> TODO()
         }
     }
 }

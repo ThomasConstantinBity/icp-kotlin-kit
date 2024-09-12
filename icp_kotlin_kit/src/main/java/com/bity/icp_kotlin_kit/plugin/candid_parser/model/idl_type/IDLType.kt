@@ -5,9 +5,9 @@ import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.dsl.subtype
 
 internal sealed class IDLType(
-    val comment: IDLComment?,
-    val isOptional: Boolean,
-    val id: String?
+    open val comment: IDLComment?,
+    open val isOptional: Boolean,
+    open val id: String?
 ) {
     companion object : ParserNodeDeclaration<IDLType> by subtype()
 

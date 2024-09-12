@@ -4,11 +4,12 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
-internal class IDLTypeCustom(
-    comment: IDLComment? = null,
-    isOptional: Boolean = false,
-    id: String? = null,
-    val typeDef: String
+internal data class IDLTypeCustom(
+    override val comment: IDLComment? = null,
+    override val isOptional: Boolean = false,
+    override val id: String? = null,
+    val typeDef: String,
+    val type: IDLType? = null
 ) : IDLType(
     comment = comment,
     id = id,
@@ -24,12 +25,16 @@ internal class IDLTypeCustom(
 
         other as IDLTypeCustom
 
-        return typeDef == other.typeDef
+        if (typeDef != other.typeDef) return false
+        if (type != other.type) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + typeDef.hashCode()
+        result = 31 * result + type.hashCode()
         return result
     }
 }

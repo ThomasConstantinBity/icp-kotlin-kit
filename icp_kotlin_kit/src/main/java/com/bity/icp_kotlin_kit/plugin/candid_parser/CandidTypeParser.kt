@@ -3,14 +3,16 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFuncDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
@@ -44,9 +46,9 @@ internal object CandidTypeParser {
             "->" isToken Token.Arrow
             "null" isToken Token.Null
             "text" isToken Token.Text
+            "record" isToken Token.Record
 
             matches ("vec [^;]+") isToken Token.Vec
-            matches("""record\s+\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}""") isToken Token.Record
             matches("variant\\s*\\{[^{}]*+(?:\\{[^{}]*+}[^{}]*+)*}") isToken Token.Variant
             matches("func \\([^}]+\\)( query)?") isToken Token.Func
 
@@ -87,9 +89,11 @@ internal object CandidTypeParser {
     private val typeParser = niwenParser {
 
         IDLTypeDeclaration root {
+
             optional {
                 expect(IDLComment) storeIn IDLTypeDeclaration::comment
             }
+
             expect(Token.Type)
             expect(Token.Id) storeIn IDLTypeDeclaration::id
             expect(Token.Equals)
@@ -131,36 +135,234 @@ internal object CandidTypeParser {
             } or {
                 expect(IDLTypeFuncDeclaration) storeIn self()
             } or {
-                expect(IDLTypeRecord) storeIn self()
-            } or {
                 expect(IDLTypeVariant) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
+            } or {
+                expect(IDLRecord) storeIn self()
             }
         }
 
-        IDLTypeBlob { expect(Token.Blob) }
-        IDLTypeText { expect(Token.Text) }
-        IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
+        IDLTypeBoolean {
+            optional {
+                expect(IDLComment) storeIn IDLTypeBoolean::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeBoolean::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeBoolean::isOptional
+            }
+            expect(Token.Boolean)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeBoolean::comment
+            }
+        }
+
+        IDLTypeBlob {
+            optional {
+                expect(IDLComment) storeIn IDLTypeBlob::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeBlob::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeBlob::isOptional
+            }
+            expect(Token.Blob)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeBlob::comment
+            }
+        }
+
+        IDLTypeText {
+            optional {
+                expect(IDLComment) storeIn IDLTypeText::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeText::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeText::isOptional
+            }
+            expect(Token.Text)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeText::comment
+            }
+        }
+
+        IDLTypePrincipal {
+            optional {
+                expect(IDLComment) storeIn IDLTypePrincipal::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypePrincipal::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypePrincipal::isOptional
+            }
+            expect(Token.Principal)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypePrincipal::comment
+            }
+        }
+
+        IDLTypeCustom {
+            optional {
+                expect(IDLComment) storeIn IDLTypeCustom::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeCustom::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeCustom::isOptional
+            }
+            expect(Token.Id) storeIn IDLTypeCustom::typeDef
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeCustom::comment
+            }
+        }
+
+        IDLTypeVec {
+            optional {
+                expect(IDLComment) storeIn IDLTypeVec::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeVec::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeVec::isOptional
+            }
+            expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeVec::comment
+            }
+        }
 
         /**
          * Type Int
          */
-        IDLTypeInt { expect(Token.Int) }
+        IDLTypeInt {
+            optional {
+                expect(IDLComment) storeIn IDLTypeInt::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeInt::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeInt::isOptional
+            }
+            expect(Token.Int)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeInt::comment
+            }
+        }
 
         /**
          * Type Nat
          */
-        IDLTypeNat { expect(Token.Nat) }
-        IDLTypeNat64 { expect(Token.Nat64) }
+        IDLTypeNat {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeNat::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeNat::isOptional
+            }
+            expect(Token.Nat)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat::comment
+            }
+        }
 
-        IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
-        IDLTypeFuncDeclaration { expect(Token.Func) storeIn IDLTypeFuncDeclaration::funcDeclaration }
-        IDLTypeRecord { expect(Token.Record) storeIn IDLTypeRecord::recordDeclaration }
-        IDLTypeVariant { expect(Token.Variant) storeIn IDLTypeVariant::variantDeclaration }
+        IDLTypeNat64 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat64::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeNat64::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeNat64::isOptional
+            }
+            expect(Token.Nat64)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat64::comment
+            }
+        }
+
+        IDLRecord {
+
+            optional {
+                expect(IDLComment) storeIn IDLRecord::comment
+            }
+
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLRecord::isOptional
+            }
+
+            expect(Token.Record)
+            expect(Token.LBrace)
+            repeated {
+                expect(IDLType) storeIn item
+            } storeIn IDLRecord::types
+            expect(Token.RBrace)
+            optional {
+                expect(IDLComment) storeIn IDLRecord::comment
+            }
+        }
     }
 
     fun parseType(input: String): IDLTypeDeclaration {
+        CandidFileParser.debug(typeLexer, input)
         return typeParser.parse(typeLexer.tokenize(input))
     }
 }

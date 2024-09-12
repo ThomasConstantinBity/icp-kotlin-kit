@@ -9,7 +9,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_variant.IDLVariant
@@ -134,8 +133,6 @@ internal object CandidVariantParser {
             } or {
                 expect(IDLTypeNat64) storeIn self()
             } or {
-                expect(IDLTypeRecord) storeIn self()
-            } or {
                 expect(IDLTypeNull) storeIn self()
             } or {
                 expect(IDLTypeVec) storeIn self()
@@ -147,10 +144,6 @@ internal object CandidVariantParser {
         IDLTypeText { expect(Token.Text) }
         IDLTypeVec { expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration }
         IDLTypeCustom { expect(Token.Id) storeIn IDLTypeCustom::typeDef }
-        IDLTypeRecord {
-            expect(Token.Record) transform { indentString(it) } storeIn IDLTypeRecord::recordDeclaration
-            optional { expect(Token.Semi) }
-        }
 
         /**
          * Type Int

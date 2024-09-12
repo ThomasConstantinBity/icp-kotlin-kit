@@ -34,7 +34,7 @@ internal class KotlinFileGenerator(
 
         val typeDeclarationConverter = IDLTypeDeclarationConverter(
             fileName = fileName,
-            types = idlFileDeclaration.types
+            types = TODO()// idlFileDeclaration.types
         )
         val kotlinGeneratedClasses = typeDeclarationConverter.convertTypes()
 

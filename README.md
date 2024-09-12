@@ -24,3 +24,17 @@
 - Prepare and make available comprehensive documentation, including guides and API references.
 - Develop sample applications and code snippets showcasing library usage.
 - Release the open-source libraries on popular code hosting platforms.
+
+
+### Improvements
+#### Use default class for common declaration:
+
+In the following example
+```candid
+service : {
+    icrc7_collection_metadata : () -> (vec record { text; nat64 } ) query;
+    icrc7_token_metadata : (token_ids : vec nat)-> (vec record { nat; opt record { text; nat64 } }) query;
+}
+```
+
+'record { text; nat64 }' is repeated, we can simplify the code generation using a single class.
