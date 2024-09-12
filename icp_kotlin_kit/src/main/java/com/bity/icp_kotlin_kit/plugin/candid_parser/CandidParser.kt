@@ -19,7 +19,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
 import guru.zoroark.tegral.niwen.lexer.Lexer
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
-import guru.zoroark.tegral.niwen.lexer.matchers.repeated
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
 import guru.zoroark.tegral.niwen.parser.dsl.emit
@@ -39,7 +38,7 @@ import guru.zoroark.tegral.niwen.parser.dsl.self
 //    Ok : BlockRange;
 //
 //};
-internal object CandidFileParser {
+internal object CandidParser {
 
     private val fileLexer = niwenLexer {
         state {

@@ -1,6 +1,5 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.util
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.Token
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLServiceParam
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType

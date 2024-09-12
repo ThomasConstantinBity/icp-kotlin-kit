@@ -1,9 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidRecordParser
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidTypeParser
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVariantParser
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
+
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinTypeDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
@@ -48,8 +45,8 @@ internal class IDLTypeDeclarationConverter(
         fileName: String,
     ): KotlinTypeDefinition {
 
-        val idlTypeDeclaration = CandidTypeParser.parseType(input)
-        val comment = KotlinCommentGenerator.getNullableKotlinComment(idlTypeDeclaration.comment)
+        val idlTypeDeclaration = TODO() // CandidTypeParser.parseType(input)
+        /*val comment = KotlinCommentGenerator.getNullableKotlinComment(idlTypeDeclaration.comment)
 
         val classDefinitionType = getClassDefinition(
             className = idlTypeDeclaration.id,
@@ -61,7 +58,7 @@ internal class IDLTypeDeclarationConverter(
             comment = comment,
             candidDefinition = input,
             classDefinitionType = classDefinitionType
-        )
+        )*/
     }
 
     private fun getClassDefinition(

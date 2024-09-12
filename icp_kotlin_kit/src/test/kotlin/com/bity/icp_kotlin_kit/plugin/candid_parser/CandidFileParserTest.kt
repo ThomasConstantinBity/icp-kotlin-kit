@@ -25,7 +25,7 @@ internal class CandidFileParserTest {
         input: String,
         expectedResult: IDLFileDeclaration
     ) {
-        val fileDeclaration = CandidFileParser.parseFile(input)
+        val fileDeclaration = CandidParser.parseFile(input)
         assertEquals(expectedResult, fileDeclaration)
     }
 
@@ -35,7 +35,7 @@ internal class CandidFileParserTest {
         input: String,
         expectedResult: IDLFileDeclaration
     ) {
-        val fileDeclaration = CandidFileParser.parseFile(input)
+        val fileDeclaration = CandidParser.parseFile(input)
         assertEquals(expectedResult, fileDeclaration)
     }
 
@@ -45,7 +45,7 @@ internal class CandidFileParserTest {
         input: String,
         expectedResult: IDLFileDeclaration
     ) {
-        val fileDeclaration = CandidFileParser.parseFile(input)
+        val fileDeclaration = CandidParser.parseFile(input)
         assertEquals(expectedResult, fileDeclaration)
     }
 
@@ -55,7 +55,7 @@ internal class CandidFileParserTest {
         input: String,
         expectedResult: IDLFileDeclaration
     ) {
-        val fileDeclaration = CandidFileParser.parseFile(input)
+        val fileDeclaration = CandidParser.parseFile(input)
         assertEquals(expectedResult, fileDeclaration)
     }
 
@@ -65,7 +65,7 @@ internal class CandidFileParserTest {
         input: String,
         expectedResult: IDLFileDeclaration
     ) {
-        val fileDeclaration = CandidFileParser.parseFile(input)
+        val fileDeclaration = CandidParser.parseFile(input)
         assertEquals(expectedResult, fileDeclaration)
     }
 

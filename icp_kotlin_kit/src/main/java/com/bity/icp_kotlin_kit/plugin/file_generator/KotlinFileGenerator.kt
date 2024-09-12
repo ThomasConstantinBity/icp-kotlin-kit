@@ -1,6 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidFileParser
+import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
@@ -27,7 +27,7 @@ internal class KotlinFileGenerator(
             throw IllegalStateException("file $didFilePath not found")
         }
 
-        idlFileDeclaration = CandidFileParser.parseFile(inputFile.readText())
+        idlFileDeclaration = CandidParser.parseFile(inputFile.readText())
     }
 
     fun generateKotlinFile() {

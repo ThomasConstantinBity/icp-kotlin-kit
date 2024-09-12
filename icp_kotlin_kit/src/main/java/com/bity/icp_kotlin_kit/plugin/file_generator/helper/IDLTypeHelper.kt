@@ -1,6 +1,5 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidVecParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
