@@ -180,11 +180,7 @@ internal class CandidTypeParserTest {
                 IDLTypeDeclaration(
                     comment = IDLSingleLineComment(listOf("Timestamps are represented as nanoseconds from the UNIX epoch in UTC timezone")),
                     id = "generated_candid_file.TimeStamp",
-                    type = IDLTypeRecord("""
-                        record {
-                            timestamp_nanos: nat64;
-                        }
-                    """.trimIndent())
+                    type = TODO()
                 )
             ),
 
@@ -200,15 +196,7 @@ internal class CandidTypeParserTest {
                 """.trimIndent(),
                 IDLTypeDeclaration(
                     id = "TransferArg",
-                    type = IDLTypeRecord("""
-                        record {
-                            from_subaccount: opt blob; // The subaccount to transfer the token from
-                            to : Account;
-                            token_id : nat;
-                            memo : opt blob;
-                            created_at_time : opt nat64;
-                        }
-                    """.trimIndent())
+                    type = TODO()
                 )
             ),
 
@@ -392,16 +380,7 @@ internal class CandidTypeParserTest {
                 IDLTypeDeclaration(
                     comment = IDLSingleLineComment(listOf("Generic value in accordance with ICRC-3")),
                     id = "Value",
-                    type = IDLTypeVariant("""
-                        variant {
-                            Blob : blob;
-                            Text : text;
-                            Nat : nat;
-                            Int : int;
-                            Array : vec Value;
-                            Map : vec record { text; Value };
-                        }
-                    """.trimIndent())
+                    type = TODO()
                 )
             ),
 
@@ -414,12 +393,7 @@ internal class CandidTypeParserTest {
                 """.trimIndent(),
                 IDLTypeDeclaration(
                     id = "generated_candid_file.TransferResult",
-                    type = IDLTypeVariant("""
-                        variant {
-                            Ok : nat; // generated_candid_file.Transaction index for successful transfer
-                            Err : generated_candid_file.TransferError;
-                        }
-                    """.trimIndent())
+                    type = TODO()
                 )
             )
         )

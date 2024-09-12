@@ -4,11 +4,10 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.dsl.subtype
 
-// TODO, remove = null and fix compile errors
 internal sealed class IDLType(
-    val comment: IDLComment? = null,
+    val comment: IDLComment?,
     val isOptional: Boolean,
-    val id: String? = null
+    val id: String?
 ) {
     companion object : ParserNodeDeclaration<IDLType> by subtype()
 

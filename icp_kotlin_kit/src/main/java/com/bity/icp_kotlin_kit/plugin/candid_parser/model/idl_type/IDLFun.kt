@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.IDLFunArg
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
@@ -8,11 +9,16 @@ import guru.zoroark.tegral.niwen.parser.reflective
 // TODO, params can be null
 // TODO fun can be null
 internal class IDLFun(
+    comment: IDLComment? = null,
+    isOptional: Boolean = false,
+    id: String? = null,
     val inputParams: List<IDLFunArg> = listOf(),
     val outputParams: List<IDLFunArg> = listOf(),
     val funType: FunType? = null,
 ) : IDLType(
-    isOptional = false
+    comment = comment,
+    id = id,
+    isOptional = isOptional
 ) {
     companion object : ParserNodeDeclaration<IDLFun> by reflective()
 

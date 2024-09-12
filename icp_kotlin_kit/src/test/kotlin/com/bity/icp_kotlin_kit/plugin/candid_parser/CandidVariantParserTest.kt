@@ -38,7 +38,9 @@ internal class CandidVariantParserTest {
                     variants = listOf(
                         IDLVariant(
                             id = "Ok",
-                            type = IDLTypeCustom("generated_candid_file.BlockRange")
+                            type = IDLTypeCustom(
+                                typeDef = "generated_candid_file.BlockRange"
+                            )
                         ),
                         IDLVariant(
                             comment = IDLSingleLineComment(listOf("we don't know the values here...")),

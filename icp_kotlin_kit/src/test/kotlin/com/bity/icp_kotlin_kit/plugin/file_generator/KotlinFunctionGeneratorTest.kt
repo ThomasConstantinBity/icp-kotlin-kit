@@ -29,31 +29,31 @@ internal class KotlinFunctionGeneratorTest {
         private fun funcDeclaration() = listOf(
             Arguments.of(
                 "FunctionId",
-                IDLTypeFuncDeclaration("func () -> ()"),
+                IDLTypeFuncDeclaration(funcDeclaration = "func () -> ()"),
                 "typealias FunctionId = () -> Unit"
             ),
 
             Arguments.of(
                 "FunctionId",
-                IDLTypeFuncDeclaration("func (text) -> (text)"),
+                IDLTypeFuncDeclaration(funcDeclaration = "func (text) -> (text)"),
                 "typealias FunctionId = (String) -> String"
             ),
 
             Arguments.of(
                 "FunctionId",
-                IDLTypeFuncDeclaration("func (dividend : nat, divisor : nat) -> (div : nat, mod : nat)"),
+                IDLTypeFuncDeclaration(funcDeclaration = "func (dividend : nat, divisor : nat) -> (div : nat, mod : nat)"),
                 "typealias FunctionId = (dividend: UInt, divisor: UInt) -> NTuple2(div: UInt, mod: UInt)"
             ),
 
             Arguments.of(
                 "FunctionId",
-                IDLTypeFuncDeclaration("func () -> (int) query"),
+                IDLTypeFuncDeclaration(funcDeclaration = "func () -> (int) query"),
                 "typealias FunctionId = () -> Int"
             ),
 
             Arguments.of(
                 "FunctionId",
-                IDLTypeFuncDeclaration("func (func (int) -> ()) -> ()"),
+                IDLTypeFuncDeclaration(funcDeclaration = "func (func (int) -> ()) -> ()"),
                 "typealias FunctionId = ((Int) -> Unit) -> Unit"
             )
         )

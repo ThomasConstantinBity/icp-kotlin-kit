@@ -35,7 +35,7 @@ internal class IDLRecord(
     id: String? = null,
     isOptional: Boolean = false,
     val types: List<IDLType>,
-): IDLType(
+) : IDLType(
     comment = comment,
     id = id,
     isOptional = isOptional

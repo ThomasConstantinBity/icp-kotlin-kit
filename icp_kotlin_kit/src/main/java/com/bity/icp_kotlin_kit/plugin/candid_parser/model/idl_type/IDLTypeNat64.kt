@@ -22,4 +22,8 @@ internal class IDLTypeNat64(
         return true
     }
 
+    // Override to remove compiler warning
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
 }

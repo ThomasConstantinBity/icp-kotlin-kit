@@ -68,7 +68,9 @@ internal object CandidRecordParser {
 
         IDLRecord root {
 
-            // TODO support comment
+            optional {
+                expect(IDLComment) storeIn IDLRecord::comment
+            }
 
             optional {
                 expect(Token.Opt)
@@ -130,75 +132,201 @@ internal object CandidRecordParser {
             } or {
                 expect(IDLRecord) storeIn self()
             }
-            optional {
-                expect(Token.Semi)
-            }
         }
 
         IDLTypeBoolean {
+            optional {
+                expect(IDLComment) storeIn IDLTypeBoolean::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeBoolean::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeBoolean::isOptional
             }
             expect(Token.Boolean)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeBoolean::comment
+            }
         }
 
         IDLTypeBlob {
+            optional {
+                expect(IDLComment) storeIn IDLTypeBlob::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeBlob::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeBlob::isOptional
             }
             expect(Token.Blob)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeBlob::comment
+            }
         }
 
         IDLTypeText {
+            optional {
+                expect(IDLComment) storeIn IDLTypeText::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeText::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeText::isOptional
             }
             expect(Token.Text)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeText::comment
+            }
         }
 
         IDLTypePrincipal {
+            optional {
+                expect(IDLComment) storeIn IDLTypePrincipal::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypePrincipal::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypePrincipal::isOptional
             }
             expect(Token.Principal)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypePrincipal::comment
+            }
         }
 
         IDLTypeCustom {
+            optional {
+                expect(IDLComment) storeIn IDLTypeCustom::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeCustom::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeCustom::isOptional
             }
             expect(Token.Id) storeIn IDLTypeCustom::typeDef
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeCustom::comment
+            }
         }
 
         IDLTypeVec {
+            optional {
+                expect(IDLComment) storeIn IDLTypeVec::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeVec::id
+                expect(Token.Colon)
+            }
             optional {
                 expect(Token.Opt)
                 emit(true) storeIn IDLTypeVec::isOptional
             }
             expect(Token.Vec) storeIn IDLTypeVec::vecDeclaration
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeVec::comment
+            }
         }
 
         /**
          * Type Int
          */
-        IDLTypeInt { expect(Token.Int) }
+        IDLTypeInt {
+            optional {
+                expect(IDLComment) storeIn IDLTypeInt::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeInt::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeInt::isOptional
+            }
+            expect(Token.Int)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeInt::comment
+            }
+        }
 
         /**
          * Type Nat
          */
-        IDLTypeNat { expect(Token.Nat) }
+        IDLTypeNat {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat::comment
+            }
+            optional {
+                expect(Token.Id) storeIn IDLTypeNat::id
+                expect(Token.Colon)
+            }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeNat::isOptional
+            }
+            expect(Token.Nat)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat::comment
+            }
+        }
 
         IDLTypeNat64 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat64::comment
+            }
             optional {
                 expect(Token.Id) storeIn IDLTypeNat64::id
                 expect(Token.Colon)
             }
+            optional {
+                expect(Token.Opt)
+                emit(true) storeIn IDLTypeNat64::isOptional
+            }
             expect(Token.Nat64)
+            optional {
+                expect(Token.Semi)
+            }
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat64::comment
+            }
         }
     }
 
