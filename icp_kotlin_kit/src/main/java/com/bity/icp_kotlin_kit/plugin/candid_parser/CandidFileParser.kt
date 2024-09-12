@@ -173,6 +173,9 @@ internal object CandidFileParser {
         }
 
         IDLTypeCustom {
+            optional {
+                expect(IDLComment) storeIn IDLTypeCustom::comment
+            }
             either {
                 expect(Token.Id) storeIn IDLTypeCustom::typeDef
                 expect(Token.Equals)

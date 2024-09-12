@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLSingleLineComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
@@ -172,6 +173,34 @@ internal class CandidFileParserTest {
                                 IDLTypeCustom(
                                     id = "timestamp",
                                     typeDef = "TimeStamp"
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type TransferArgs = record {
+                        // Transaction memo.
+                        // See comments for the `Memo` type.
+                        memo: Memo;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "TransferArgs",
+                            types = listOf(
+                                IDLTypeCustom(
+                                    comment = IDLSingleLineComment(
+                                        listOf("Transaction memo.",
+                                            "See comments for the `Memo` type."
+                                        )
+                                    ),
+                                    id = "memo",
+                                    typeDef = "Memo"
                                 )
                             )
                         )
