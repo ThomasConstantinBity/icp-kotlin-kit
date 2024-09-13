@@ -68,13 +68,13 @@ internal class KotlinFileGenerator(
         )
 
         // Service declaration
-        val idlFileServiceConverter = IDLFileServiceConverter(
+        /*val idlFileServiceConverter = IDLFileServiceConverter(
             fileName = fileName,
             services = idlFileDeclaration.services,
         )
         fileText.appendLine(
             idlFileServiceConverter.getKotlinServiceDefinition().kotlinDefinition()
-        )
+        )*/
 
         fileText.appendLine("}")
         outputFile.writeText(fileText.toString().toKotlinFileString())

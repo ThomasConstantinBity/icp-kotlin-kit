@@ -9,7 +9,7 @@ internal data class IDLFun(
     override val comment: IDLComment? = null,
     override val isOptional: Boolean = false,
     override val id: String? = null,
-    val funcName: String,
+    val funcName: String? = null,
     val inputArgs: List<IDLType> = emptyList(),
     val outputArgs: List<IDLType> = emptyList(),
     val funType: FunType? = null
@@ -30,15 +30,19 @@ internal data class IDLFun(
         if (funcName != other.funcName) return false
         if (inputArgs != other.inputArgs) return false
         if (outputArgs != other.outputArgs) return false
+        if (funType != other.funType) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + funcName.hashCode()
+        result = 31 * result + (funcName?.hashCode() ?: 0)
         result = 31 * result + inputArgs.hashCode()
         result = 31 * result + outputArgs.hashCode()
+        result = 31 * result + (funType?.hashCode() ?: 0)
         return result
     }
+
+
 }

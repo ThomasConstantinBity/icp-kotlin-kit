@@ -69,6 +69,16 @@ internal class CandidFileParserTest {
         assertEquals(expectedResult, fileDeclaration)
     }
 
+    @MethodSource("service")
+    @ParameterizedTest
+    fun `parse service`(
+        input: String,
+        expectedResult: IDLFileDeclaration
+    ) {
+        val fileDeclaration = CandidParser.parseFile(input)
+        assertEquals(expectedResult, fileDeclaration)
+    }
+
     companion object {
 
         @JvmStatic
@@ -715,6 +725,83 @@ internal class CandidFileParserTest {
                                 )
                             ),
                             funType = FunType.Query
+                        )
+                    )
+                )
+            )
+        )
+
+        @JvmStatic
+        private fun service() = listOf(
+            Arguments.of(
+                """
+                    service : {
+                        // Queries blocks in the specified range.
+                        query_blocks : (GetBlocksArgs) -> (QueryBlocksResponse) query;
+                        
+                        // Returns the existing archive canisters information.
+                        archives : () -> (Archives) query;
+                        
+                        // Get the amount of ICP on the specified account.
+                        account_balance : (AccountBalanceArgs) -> (Tokens) query;
+                        
+                        transfer : (TransferArgs) -> (TransferResult);
+                    }
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    services = listOf(
+                        IDLFun(
+                            comment = IDLSingleLineComment(listOf("Queries blocks in the specified range.")),
+                            id = "query_blocks",
+                            inputArgs = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "GetBlocksArgs"
+                                )
+                            ),
+                            outputArgs = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "QueryBlocksResponse"
+                                )
+                            ),
+                            funType = FunType.Query
+                        ),
+                        IDLFun(
+                            comment = IDLSingleLineComment(listOf("Returns the existing archive canisters information.")),
+                            id = "archives",
+                            outputArgs = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "Archives"
+                                )
+                            ),
+                            funType = FunType.Query
+                        ),
+                        IDLFun(
+                            comment = IDLSingleLineComment(listOf("Get the amount of ICP on the specified account.")),
+                            id = "account_balance",
+                            inputArgs = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "AccountBalanceArgs"
+                                )
+                            ),
+                            outputArgs = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "Tokens"
+                                )
+                            ),
+                            funType = FunType.Query
+                        ),
+                        IDLFun(
+                            id = "transfer",
+                            inputArgs = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "TransferArgs"
+                                )
+                            ),
+                            outputArgs = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "TransferResult"
+                                )
+                            )
                         )
                     )
                 )

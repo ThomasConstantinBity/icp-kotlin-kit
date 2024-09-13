@@ -98,8 +98,8 @@ internal object CandidParser {
                 expect(Token.Service)
                 expect(Token.Colon)
                 expect(Token.LBrace)
-                repeated<IDLFileDeclaration, IDLService>(min = 1) {
-                    expect(IDLService) storeIn item
+                repeated<IDLFileDeclaration, IDLFun>(min = 1) {
+                    expect(IDLFun) storeIn item
                 } storeIn IDLFileDeclaration::services
                 expect(Token.RBrace)
             }
@@ -304,9 +304,19 @@ internal object CandidParser {
         }
 
         IDLFun {
-            expect(Token.Id) storeIn IDLFun::funcName
-            expect(Token.Equals)
-            expect(Token.Func)
+
+            optional {
+                expect(IDLComment) storeIn IDLFun::comment
+            }
+
+            either {
+                expect(Token.Id) storeIn IDLFun::funcName
+                expect(Token.Equals)
+                expect(Token.Func)
+            } or {
+                expect(Token.Id) storeIn IDLFun::id
+                expect(Token.Colon)
+            }
 
             // Input args declaration
             expect(Token.LParen)
