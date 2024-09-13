@@ -1,20 +1,25 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator
 
-internal class KotlinClassParameter(
-    private val comment: String? = null,
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.file_generator.KotlinCommentGenerator
+
+internal data class KotlinClassParameter(
+    private val comment: IDLComment? = null,
     private val id: String,
     val isOptional: Boolean,
-    typeVariable: String
+    private val typeVariable: String
 ) {
 
-    val typeDeclaration = if (isOptional) "$typeVariable?" else typeVariable
+    private val typeDeclaration = if (isOptional) "$typeVariable?" else typeVariable
 
-    fun kotlinDefinition(): String {
+    fun constructorDefinition(): String {
         val kotlinDefinition = StringBuilder()
-        comment?.let { kotlinDefinition.append(it) }
+        comment?.let {
+            kotlinDefinition.append(
+                KotlinCommentGenerator.getKotlinComment(it)
+            )
+        }
         kotlinDefinition.append("val $id: $typeDeclaration")
         return kotlinDefinition.toString()
     }
-
-    fun functionInputArgument(): String = "$id: $typeDeclaration"
 }

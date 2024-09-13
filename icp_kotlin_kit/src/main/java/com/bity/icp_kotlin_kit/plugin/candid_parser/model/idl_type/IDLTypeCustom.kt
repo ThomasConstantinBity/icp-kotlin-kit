@@ -1,6 +1,9 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
@@ -17,6 +20,39 @@ internal data class IDLTypeCustom(
 ) {
 
     companion object : ParserNodeDeclaration<IDLTypeCustom> by reflective()
+
+    override fun typeVariable(): String {
+        requireNotNull(typeDef)
+        return typeDef
+    }
+
+    override fun getKotlinClassParameter(): KotlinClassParameter {
+        val typeVariable = type?.typeVariable() ?: typeDef
+        requireNotNull(id)
+        requireNotNull(typeVariable)
+        return KotlinClassParameter(
+            comment = comment,
+            id = id,
+            isOptional = isOptional,
+            typeVariable = typeVariable
+        )
+    }
+
+    override fun getKotlinClassDefinition(): KotlinClassDefinition {
+        requireNotNull(typeDef)
+        val kotlinClass = KotlinClassDefinition.Class(
+            className = typeDef
+        )
+        kotlinClass.params.add(
+            KotlinClassParameter(
+                comment = comment,
+                id = typeDef.kotlinVariableName(),
+                isOptional = isOptional,
+                typeVariable = typeDef
+            )
+        )
+        return kotlinClass
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

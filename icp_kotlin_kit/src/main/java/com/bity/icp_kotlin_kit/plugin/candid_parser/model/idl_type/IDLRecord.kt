@@ -1,6 +1,9 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
@@ -44,6 +47,51 @@ internal data class IDLRecord(
     isOptional = isOptional
 ) {
     companion object : ParserNodeDeclaration<IDLRecord> by reflective()
+
+    override fun typeVariable(): String {
+        TODO()
+    }
+
+    override fun getKotlinClassDefinition(): KotlinClassDefinition {
+        requireNotNull(recordName)
+        val kotlinClassDefinition = KotlinClassDefinition.Class(
+            className = recordName
+        )
+        val params = types.map { idlType ->
+            val innerClassToDeclare = IDLTypeHelper.getInnerTypeToDeclare(idlType)
+            if(innerClassToDeclare != null) {
+                val className = "_Class"
+                kotlinClassDefinition.innerClasses.add(
+                    toKotlinClassDefinition(
+                        className = className,
+                        idlRecord = innerClassToDeclare
+                    )
+                )
+                val paramId = idlType.id
+                requireNotNull(paramId)
+                KotlinClassParameter(
+                    comment = idlType.comment,
+                    id = paramId,
+                    isOptional = idlType.isOptional,
+                    typeVariable = className
+                )
+            } else idlType.getKotlinClassParameter()
+
+        }
+        kotlinClassDefinition.params.addAll(params)
+        return kotlinClassDefinition
+    }
+
+    private fun toKotlinClassDefinition(
+        idlRecord: IDLRecord,
+        className: String
+    ): KotlinClassDefinition {
+        return KotlinClassDefinition.Class(
+            className = className
+        ).apply {
+            params.addAll(idlRecord.types.map { it.getKotlinClassParameter() })
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

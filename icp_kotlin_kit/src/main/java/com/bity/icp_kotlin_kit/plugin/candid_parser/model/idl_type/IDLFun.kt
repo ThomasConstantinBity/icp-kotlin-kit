@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
@@ -19,6 +20,15 @@ internal data class IDLFun(
     isOptional = isOptional
 ) {
     companion object : ParserNodeDeclaration<IDLFun> by reflective()
+
+    override fun getKotlinClassDefinition(): KotlinClassDefinition {
+        requireNotNull(funcName)
+        return KotlinClassDefinition.Function(
+            functionName = funcName,
+            inputArgs = inputArgs.map { it.getKotlinClassDefinition() },
+            outputArgs = outputArgs.map { it.getKotlinClassDefinition() }
+        )
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

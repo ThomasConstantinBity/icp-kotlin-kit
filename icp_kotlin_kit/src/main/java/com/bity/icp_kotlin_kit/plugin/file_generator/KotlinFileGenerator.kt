@@ -1,15 +1,16 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidParser
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import java.io.File
 import java.lang.IllegalStateException
 
 internal class KotlinFileGenerator(
     private val didFilePath: String,
-    private val showCandidDefinition: Boolean = true,
     outputFilePath: String,
 ) {
 
@@ -32,20 +33,28 @@ internal class KotlinFileGenerator(
 
     fun generateKotlinFile() {
 
-        val typeDeclarationConverter = IDLTypeDeclarationConverter(
+        // TypeAliases must be declared before object declaration
+        writeTypeAliases()
+        fileText.appendLine("\n")
+
+        fileText.appendLine("object $fileName {")
+        writeClasses()
+        fileText.appendLine("}")
+        outputFile.writeText(fileText.toString().toKotlinFileString())
+        /*val typeDeclarationConverter = IDLTypeDeclarationConverter(
             fileName = fileName,
             types = TODO()// idlFileDeclaration.types
         )
         val kotlinGeneratedClasses = typeDeclarationConverter.convertTypes()
 
         val typeAliases = kotlinGeneratedClasses.filter {
-            it.classDefinitionType is KotlinClassDefinitionType.TypeAlias
+            it.classDefinitionType is KotlinClassDefinition.TypeAlias
         }
 
         val classes = kotlinGeneratedClasses.filter {
-            it.classDefinitionType is KotlinClassDefinitionType.Class
-                    || it.classDefinitionType is KotlinClassDefinitionType.SealedClass
-                    || it.classDefinitionType is KotlinClassDefinitionType.Function
+            it.classDefinitionType is KotlinClassDefinition.Class
+                    || it.classDefinitionType is KotlinClassDefinition.SealedClass
+                    || it.classDefinitionType is KotlinClassDefinition.Function
         }
 
         // TypeAliases must be declare before object definition
@@ -65,7 +74,7 @@ internal class KotlinFileGenerator(
             classes.joinToString("\n") {
                 it.kotlinDefinition(showCandidDefinition)
             }
-        )
+        )*/
 
         // Service declaration
         /*val idlFileServiceConverter = IDLFileServiceConverter(
@@ -75,9 +84,42 @@ internal class KotlinFileGenerator(
         fileText.appendLine(
             idlFileServiceConverter.getKotlinServiceDefinition().kotlinDefinition()
         )*/
+    }
 
-        fileText.appendLine("}")
-        outputFile.writeText(fileText.toString().toKotlinFileString())
+    private fun writeTypeAliases() {
+        idlFileDeclaration.types
+            .filter { it is IDLTypeCustom || it is IDLTypeVec }
+            .map { type ->
+                when(type) {
+                    is IDLTypeCustom -> {
+                        val typeAliasId = type.typeDef
+                            ?: throw IllegalStateException("typeAliasId required for $type")
+                        val typeAliasType = type.type
+                            ?: throw IllegalStateException("type required for $type")
+                        KotlinClassDefinition.TypeAlias(
+                            typeAliasId = typeAliasId,
+                            type = typeAliasType
+                        )
+                    }
+                    is IDLTypeVec -> {
+                        val typeAliasId = type.vecDeclaration
+                            ?: throw IllegalStateException("typeAliasId required for $type")
+                        KotlinClassDefinition.TypeAlias(
+                            typeAliasId = typeAliasId,
+                            type = type
+                        )
+                    }
+                    else -> throw Error("$type can't be a typealias")
+                }
+            }
+            .forEach { fileText.appendLine(it.kotlinDefinition()) }
+    }
+
+    private fun writeClasses() {
+        idlFileDeclaration.types
+            .filter { it !is IDLTypeCustom && it !is IDLTypeVec }
+            .map { it.getKotlinClassDefinition() }
+            .forEach { fileText.appendLine(it.kotlinDefinition()) }
     }
 
     companion object {

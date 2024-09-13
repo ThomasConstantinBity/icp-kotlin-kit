@@ -89,7 +89,6 @@ internal object CandidParser {
 
             optional {
                 repeated<IDLFileDeclaration, IDLType>(min = 1) {
-                    expect(Token.Type)
                     expect(IDLType) storeIn item
                 } storeIn IDLFileDeclaration::types
             }
@@ -165,6 +164,7 @@ internal object CandidParser {
             }
 
             either {
+                expect(Token.Type)
                 expect(Token.Id) storeIn IDLRecord::recordName
                 expect(Token.Equals)
                 expect(Token.Record)
@@ -189,6 +189,12 @@ internal object CandidParser {
         }
 
         IDLTypeVariant {
+
+            optional {
+                expect(IDLComment) storeIn IDLTypeVariant::comment
+            }
+
+            expect(Token.Type)
             expect(Token.Id) storeIn IDLTypeVariant::variantDeclaration
             expect(Token.Equals)
             expect(Token.Variant)
@@ -207,6 +213,7 @@ internal object CandidParser {
             }
 
             either {
+                expect(Token.Type)
                 expect(Token.Id) storeIn IDLTypeCustom::typeDef
                 expect(Token.Equals)
                 expect(IDLType) storeIn IDLTypeCustom::type
@@ -245,6 +252,11 @@ internal object CandidParser {
         }
 
         IDLTypeBlob {
+
+            optional {
+                expect(IDLComment) storeIn IDLTypeBlob::comment
+            }
+
             either {
                 optional {
                     expect(Token.Opt)
@@ -279,7 +291,13 @@ internal object CandidParser {
         }
 
         IDLTypeVec {
+
+            optional {
+                expect(IDLComment) storeIn IDLTypeVec::comment
+            }
+
             either {
+                expect(Token.Type)
                 expect(Token.Id) storeIn IDLTypeVec::vecDeclaration
                 expect(Token.Equals)
                 expect(Token.Vec)
@@ -293,6 +311,11 @@ internal object CandidParser {
         }
 
         IDLTypeNull {
+
+            optional {
+                expect(IDLComment) storeIn IDLTypeNull::comment
+            }
+
             expect(Token.Id) storeIn IDLTypeNull::nullDefinition
             expect(Token.Colon)
             expect(Token.Null)
@@ -310,6 +333,7 @@ internal object CandidParser {
             }
 
             either {
+                expect(Token.Type)
                 expect(Token.Id) storeIn IDLFun::funcName
                 expect(Token.Equals)
                 expect(Token.Func)
@@ -349,16 +373,15 @@ internal object CandidParser {
     }
 
     fun parseFile(input: String): IDLFileDeclaration {
-        debug(fileLexer, input)
+        // debug(input)
         return fileParser.parse(fileLexer.tokenize(input))
     }
 
     // TODO delete
-    fun debug(lexer: Lexer, input: String) {
+    private fun debug(input: String) {
         println(input)
-        lexer.tokenize(input).forEachIndexed { i, t ->
+        fileLexer.tokenize(input).forEachIndexed { i, t ->
             println("[$i] - ${t.tokenType} '${t.string}'")
-
         }
     }
 }

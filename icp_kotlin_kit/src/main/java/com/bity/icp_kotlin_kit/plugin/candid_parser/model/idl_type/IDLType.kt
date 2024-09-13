@@ -1,5 +1,7 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.dsl.subtype
@@ -11,6 +13,20 @@ internal sealed class IDLType(
     open val id: String?
 ) {
     companion object : ParserNodeDeclaration<IDLType> by subtype()
+
+    // TODO, make fun abstract
+    open fun typeVariable(): String = TODO("not implemented for $this")
+    open fun getKotlinClassDefinition(): KotlinClassDefinition = TODO("not implemented for $this")
+    open fun getKotlinClassParameter(): KotlinClassParameter {
+        val varId = id
+        requireNotNull(varId)
+        return KotlinClassParameter(
+            comment = comment,
+            id = varId,
+            isOptional = isOptional,
+            typeVariable = typeVariable()
+        )
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

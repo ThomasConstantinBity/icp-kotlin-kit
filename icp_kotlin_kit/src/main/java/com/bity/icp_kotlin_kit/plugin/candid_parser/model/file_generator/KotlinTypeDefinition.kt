@@ -6,7 +6,7 @@ internal data class KotlinTypeDefinition(
     val className: String,
     val comment: String? = null,
     val candidDefinition: String,
-    val classDefinitionType: KotlinClassDefinitionType,
+    val classDefinitionType: KotlinClassDefinition,
 ) {
     fun kotlinDefinition(showCandidDefinition: Boolean): String {
         val kotlinDefinition = StringBuilder()

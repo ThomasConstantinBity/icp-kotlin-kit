@@ -1,6 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator
 
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinitionType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_service.IDLService
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
@@ -31,11 +31,11 @@ internal class IDLFileServiceConverter(
      * using an hash map where the key is the record definition (ex: record { text; Value })
      * and the value is the generated class
      */
-    private val classForRecordDefinition = hashMapOf<String, KotlinClassDefinitionType>()
+    private val classForRecordDefinition = hashMapOf<String, KotlinClassDefinition>()
     private var unnamedClassIndex = 1
 
-    fun getKotlinServiceDefinition(): KotlinClassDefinitionType {
-        val serviceClass = KotlinClassDefinitionType.Class(
+    fun getKotlinServiceDefinition(): KotlinClassDefinition {
+        val serviceClass = KotlinClassDefinition.Class(
             className = "${fileName}Service"
         )
         val params = mutableListOf(
@@ -56,8 +56,9 @@ internal class IDLFileServiceConverter(
         return serviceClass
     }
 
-    private fun idlServiceToKotlinClass(idlService: IDLService): KotlinClassDefinitionType {
-        val icpQuery = KotlinClassDefinitionType.ICPQuery(
+    private fun idlServiceToKotlinClass(idlService: IDLService): KotlinClassDefinition {
+        TODO()
+        /*val icpQuery = KotlinClassDefinition.ICPQuery(
             comment = idlService.comment,
             queryName = idlService.id,
             inputParamsDeclaration = idlService.inputParamsDeclaration,
@@ -87,7 +88,7 @@ internal class IDLFileServiceConverter(
         }
 
         icpQuery.outputArgs.addAll(outputArgs)
-        return icpQuery
+        return icpQuery*/
     }
 
     private fun kotlinClassParam(
@@ -144,7 +145,7 @@ internal class IDLFileServiceConverter(
                     return classForRecordDefinition[idlType.recordDeclaration]!!.name
                 val className = "UnnamedClass${unnamedClassIndex}"
                 val recordDeclaration = CandidRecordParser.parseRecord(idlType.recordDeclaration)
-                val kotlinClass = KotlinClassDefinitionType.Class(
+                val kotlinClass = KotlinClassDefinition.Class(
                     className = className
                 )
                 val params = recordDeclaration.types.map { type ->

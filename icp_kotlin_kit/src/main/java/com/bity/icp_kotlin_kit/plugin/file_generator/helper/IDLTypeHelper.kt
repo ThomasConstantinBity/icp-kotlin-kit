@@ -14,9 +14,16 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrinci
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 
 internal object IDLTypeHelper {
+
+    fun getInnerTypeToDeclare(idlType: IDLType): IDLRecord? {
+        return when(idlType) {
+            is IDLRecord -> return idlType
+            is IDLTypeVec -> return getInnerTypeToDeclare(idlType.vecType)
+            else -> null
+        }
+    }
 
     // TODO, can remove className ?
     fun kotlinTypeVariable(
@@ -28,9 +35,9 @@ internal object IDLTypeHelper {
             is IDLTypeBlob -> "ByteArray"
             is IDLTypeBoolean -> "Boolean"
             is IDLTypeCustom -> {
-                TODO()
-                /*if (className != null) "$className.${type.typeDef}"
-                else type.typeDef*/
+                type.typeDef
+                    ?: className
+                    ?: throw RuntimeException("Unable to define kotlin type variable for $type")
             }
 
             is IDLTypeInt -> {
@@ -45,18 +52,7 @@ internal object IDLTypeHelper {
 
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
-            is IDLTypeVec -> {
-                TODO()
-                /*val idlVec = CandidVecParser.parseVec(type.vecDeclaration)
-                val typeArray = StringBuilder(
-                    kotlinTypeVariable(
-                        type = idlVec.type,
-                        className = className
-                    )
-                )
-                if (idlVec.isOptional) typeArray.append("?")
-                if(className != "Array") "Array<$typeArray>" else "kotlin.Array<$typeArray>"*/
-            }
+            is IDLTypeVec -> "Array<${kotlinTypeVariable(type.vecType)}${if(type.isOptional) "?" else ""}>"
         }
 
     fun kotlinGenericVariableName(idlType: IDLType) =

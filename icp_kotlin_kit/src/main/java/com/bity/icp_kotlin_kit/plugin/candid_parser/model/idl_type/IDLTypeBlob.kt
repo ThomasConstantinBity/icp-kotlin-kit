@@ -15,6 +15,8 @@ internal class IDLTypeBlob(
 ) {
     companion object : ParserNodeDeclaration<IDLTypeBlob> by reflective()
 
+    override fun typeVariable(): String = "ByteArray"
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
