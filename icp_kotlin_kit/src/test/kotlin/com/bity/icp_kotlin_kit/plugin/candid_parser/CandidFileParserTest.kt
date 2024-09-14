@@ -7,6 +7,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
@@ -470,6 +471,49 @@ internal class CandidFileParserTest {
                                 IDLTypeCustom(
                                     id = "account",
                                     typeDef = "AccountIdentifier"
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    type TransferArg = record {
+                        from_subaccount: opt blob; // The subaccount to transfer the token from
+                        to : Account;
+                        token_id : nat;
+                        memo : opt blob;
+                        created_at_time : opt nat64;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "TransferArg",
+                            types = listOf(
+                                IDLTypeBlob(
+                                    comment = IDLSingleLineComment(
+                                        listOf("The subaccount to transfer the token from")
+                                    ),
+                                    id = "from_subaccount",
+                                    isOptional = true
+                                ),
+                                IDLTypeCustom(
+                                    id = "to",
+                                    typeDef = "Account"
+                                ),
+                                IDLTypeNat(
+                                    id = "token_id"
+                                ),
+                                IDLTypeBlob(
+                                    id = "memo",
+                                    isOptional = true
+                                ),
+                                IDLTypeNat64(
+                                    id = "created_at_time",
+                                    isOptional = true
                                 )
                             )
                         )

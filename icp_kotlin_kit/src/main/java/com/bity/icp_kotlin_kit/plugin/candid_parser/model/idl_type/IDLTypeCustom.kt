@@ -47,19 +47,30 @@ internal data class IDLTypeCustom(
 
     override fun getKotlinClassDefinition(): KotlinClassDefinition {
         requireNotNull(typeDef)
-        val className = id ?: typeDef
-        val kotlinClass = KotlinClassDefinition.Class(
-            className = className
-        )
-        kotlinClass.params.add(
-            KotlinClassParameter(
-                comment = comment,
-                id = typeDef.kotlinVariableName(),
-                isOptional = isOptional,
-                typeVariable = typeDef
-            )
-        )
-        return kotlinClass
+        return when {
+
+            id == null -> {
+                KotlinClassDefinition.Object(
+                    objectName = typeDef
+                )
+            }
+
+            else -> {
+                val className = id
+                val kotlinClass = KotlinClassDefinition.Class(
+                    className = className
+                )
+                kotlinClass.params.add(
+                    KotlinClassParameter(
+                        comment = comment,
+                        id = typeDef.kotlinVariableName(),
+                        isOptional = isOptional,
+                        typeVariable = typeDef
+                    )
+                )
+                return kotlinClass
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {

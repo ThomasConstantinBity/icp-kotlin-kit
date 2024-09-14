@@ -298,6 +298,10 @@ internal object CandidParser {
                     expect(Token.Semi)
                 }
             }
+
+            optional {
+                expect(IDLComment) storeIn IDLTypeBlob::comment
+            }
         }
 
         IDLTypeNat64 {
@@ -307,6 +311,10 @@ internal object CandidParser {
             either {
                 expect(Token.Id) storeIn IDLTypeNat64::id
                 expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeNat64::isOptional
+                }
                 expect(Token.Nat64)
                 optional {
                     expect(Token.Semi)

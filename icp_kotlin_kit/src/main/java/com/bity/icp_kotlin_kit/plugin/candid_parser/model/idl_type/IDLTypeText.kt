@@ -15,8 +15,6 @@ internal class IDLTypeText(
 ) {
     companion object : ParserNodeDeclaration<IDLTypeText> by reflective()
 
-    override fun typeVariable(className: String?): String = "String"
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
