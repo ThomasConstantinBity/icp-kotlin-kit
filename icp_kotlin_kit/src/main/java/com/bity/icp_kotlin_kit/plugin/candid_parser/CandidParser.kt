@@ -11,9 +11,12 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
@@ -65,8 +68,11 @@ internal object CandidParser {
             "record" isToken Token.Record
             "variant" isToken Token.Variant
 
+            "text" isToken Token.Text
             "null" isToken Token.Null
             "blob" isToken Token.Blob
+            matches("""\bint\b""") isToken Token.Int
+            matches("""\bnat\b""") isToken Token.Nat
             "nat64" isToken Token.Nat64
             "principal" isToken Token.Principal
 
@@ -154,6 +160,12 @@ internal object CandidParser {
                 expect(IDLFun) storeIn self()
             } or {
                 expect(IDLTypePrincipal) storeIn self()
+            } or {
+                expect(IDLTypeText) storeIn self()
+            } or {
+                expect(IDLTypeNat) storeIn self()
+            } or {
+                expect(IDLTypeInt) storeIn self()
             }
         }
 
@@ -232,7 +244,9 @@ internal object CandidParser {
                 optional {
                     expect (IDLComment) storeIn IDLTypeCustom::comment
                 }
-                expect(Token.Semi)
+                optional {
+                    expect(Token.Semi)
+                }
             } or {
                 expect(Token.Id) storeIn IDLTypeCustom::typeDef
                 optional {
@@ -246,6 +260,15 @@ internal object CandidParser {
                         expect(Token.Comma)
                     } or {
                         expect(Token.RParen)
+                    }
+                }
+            } or {
+                expect(Token.Id) storeIn IDLTypeCustom::typeDef
+                lookahead {
+                    either {
+                        expect(Token.Semi)
+                    } or {
+                        expect(Token.RBrace)
                     }
                 }
             }
@@ -271,6 +294,9 @@ internal object CandidParser {
                     emit(true) storeIn IDLTypeBlob::isOptional
                 }
                 expect(Token.Blob)
+                optional {
+                    expect(Token.Semi)
+                }
             }
         }
 
@@ -287,6 +313,52 @@ internal object CandidParser {
                 }
             } or {
                 expect(Token.Nat64)
+            }
+        }
+
+        IDLTypeNat {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat::comment
+            }
+
+            expect(Token.Id) storeIn IDLTypeNat::id
+            expect(Token.Colon)
+            expect(Token.Nat)
+            optional {
+                expect(Token.Semi)
+            }
+        }
+
+        IDLTypeInt {
+            optional {
+                expect(IDLComment) storeIn IDLTypeInt::comment
+            }
+
+            expect(Token.Id) storeIn IDLTypeInt::id
+            expect(Token.Colon)
+            expect(Token.Int)
+            optional {
+                expect(Token.Semi)
+            }
+        }
+
+        IDLTypeText {
+            optional {
+                expect(IDLComment) storeIn IDLTypeText::comment
+            }
+
+            either {
+                expect(Token.Id) storeIn IDLTypeText::id
+                expect(Token.Colon)
+                expect(Token.Text)
+                optional {
+                    expect(Token.Semi)
+                }
+            } or {
+                expect(Token.Text)
+                optional {
+                    expect(Token.Semi)
+                }
             }
         }
 
@@ -369,11 +441,15 @@ internal object CandidParser {
             expect(Token.Id) storeIn IDLTypePrincipal::id
             expect(Token.Colon)
             expect(Token.Principal)
+
+            optional {
+                expect(Token.Semi)
+            }
         }
     }
 
     fun parseFile(input: String): IDLFileDeclaration {
-        // debug(input)
+        debug(input)
         return fileParser.parse(fileLexer.tokenize(input))
     }
 

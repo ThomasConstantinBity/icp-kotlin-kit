@@ -1,7 +1,10 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
@@ -19,7 +22,43 @@ internal data class IDLTypeVec(
     companion object : ParserNodeDeclaration<IDLTypeVec> by reflective()
 
     override fun typeVariable(className: String?): String =
-        "Array<${vecType.typeVariable(className)}>"
+        "kotlin.Array<${vecType.typeVariable(className)}>"
+
+    override fun getKotlinClassDefinition(): KotlinClassDefinition {
+        requireNotNull(id)
+        val kotlinClass = KotlinClassDefinition.Class(
+            className = id
+        )
+        // If vecType is TypeRecord we need to declare an inner class
+        val innerTypeToDeclare = IDLTypeHelper.getInnerTypeToDeclare(vecType)
+        if(innerTypeToDeclare != null) {
+            val className = "_ArrayClass"
+            kotlinClass.innerClasses.add(
+                IDLTypeRecordHelper.kotlinClassDefinition(
+                    idlRecord = innerTypeToDeclare,
+                    className = className
+                )
+            )
+            kotlinClass.params.add(
+                KotlinClassParameter(
+                    comment = comment,
+                    id = "values",
+                    isOptional = isOptional,
+                    typeVariable = "kotlin.Array<$className>"
+                )
+            )
+        } else {
+            kotlinClass.params.add(
+                KotlinClassParameter(
+                    comment = comment,
+                    id = "values",
+                    isOptional = isOptional,
+                    typeVariable = typeVariable()
+                )
+            )
+        }
+        return kotlinClass
+    }
 
     override fun getKotlinClassParameter(className: String?): KotlinClassParameter {
         requireNotNull(id)

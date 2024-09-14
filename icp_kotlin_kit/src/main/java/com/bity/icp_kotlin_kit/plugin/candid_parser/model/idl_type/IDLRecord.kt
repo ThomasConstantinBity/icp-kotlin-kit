@@ -4,6 +4,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinC
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
@@ -65,7 +66,7 @@ internal data class IDLRecord(
             if(innerClassToDeclare != null) {
                 className = "_Class${innerClassIndex++}"
                 kotlinClassDefinition.innerClasses.add(
-                    toKotlinClassDefinition(
+                    IDLTypeRecordHelper.kotlinClassDefinition(
                         className = className,
                         idlRecord = innerClassToDeclare
                     )
@@ -75,17 +76,6 @@ internal data class IDLRecord(
         }
         kotlinClassDefinition.params.addAll(params)
         return kotlinClassDefinition
-    }
-
-    private fun toKotlinClassDefinition(
-        idlRecord: IDLRecord,
-        className: String
-    ): KotlinClassDefinition {
-        return KotlinClassDefinition.Class(
-            className = className
-        ).apply {
-            params.addAll(idlRecord.types.map { it.getKotlinClassParameter() })
-        }
     }
 
     override fun equals(other: Any?): Boolean {

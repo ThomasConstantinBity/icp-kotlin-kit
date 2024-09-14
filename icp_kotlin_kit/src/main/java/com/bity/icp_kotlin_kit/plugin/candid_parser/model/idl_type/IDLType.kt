@@ -3,6 +3,7 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.dsl.subtype
 
@@ -16,10 +17,15 @@ internal sealed class IDLType(
 
     // TODO, make fun abstract
     open fun typeVariable(className: String? = null): String = TODO("not implemented for $this")
-    open fun getKotlinClassDefinition(): KotlinClassDefinition = TODO("not implemented for $this")
+    open fun getKotlinClassDefinition(): KotlinClassDefinition {
+        val objectName = id
+        requireNotNull(objectName)
+        return KotlinClassDefinition.Object(
+            objectName = objectName
+        )
+    }
     open fun getKotlinClassParameter(className: String? = null): KotlinClassParameter {
-        val varId = id
-        requireNotNull(varId)
+        val varId = id ?: IDLTypeHelper.kotlinTypeVariable(this)
         return KotlinClassParameter(
             comment = comment,
             id = varId,

@@ -10,6 +10,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import org.junit.jupiter.params.ParameterizedTest
@@ -32,6 +33,16 @@ internal class CandidFileParserTest {
     @MethodSource("vec")
     @ParameterizedTest
     fun `parse vec`(
+        input: String,
+        expectedResult: IDLFileDeclaration
+    ) {
+        val fileDeclaration = CandidParser.parseFile(input)
+        assertEquals(expectedResult, fileDeclaration)
+    }
+
+    @MethodSource("vecRecord")
+    @ParameterizedTest
+    fun `parse vec record`(
         input: String,
         expectedResult: IDLFileDeclaration
     ) {
@@ -91,6 +102,28 @@ internal class CandidFileParserTest {
                             vecDeclaration = "Ledger",
                             vecType = IDLTypeCustom(
                                 typeDef = "Block"
+                            )
+                        )
+                    )
+                )
+            )
+        )
+
+        @JvmStatic
+        private fun vecRecord() = listOf(
+            Arguments.of(
+                "type Map = vec record { text; Value };",
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeVec(
+                            vecDeclaration = "Map",
+                            vecType = IDLRecord(
+                                types = listOf(
+                                    IDLTypeText(),
+                                    IDLTypeCustom(
+                                        typeDef = "Value"
+                                    )
+                                )
                             )
                         )
                     )
