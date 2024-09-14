@@ -21,7 +21,7 @@ internal object CandidDecoder {
 
     inline fun <reified T>decode(candidValue: CandidValue?): T? {
         candidValue ?: return null
-        // println("[Decode] - Decoding into ${T::class.java.simpleName}")
+        println("[Decode] - Decoding into ${T::class.java.simpleName}")
         val res = when(candidValue) {
             is CandidValue.Blob -> candidValue.data
             is CandidValue.Bool -> candidValue.bool

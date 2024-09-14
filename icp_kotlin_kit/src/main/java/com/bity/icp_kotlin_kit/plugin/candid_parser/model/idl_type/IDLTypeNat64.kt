@@ -18,7 +18,7 @@ internal class IDLTypeNat64(
 ) {
     companion object : ParserNodeDeclaration<IDLTypeNat64> by reflective()
 
-    override fun getKotlinClassParameter(): KotlinClassParameter {
+    override fun getKotlinClassParameter(className: String?): KotlinClassParameter {
         requireNotNull(id)
         return KotlinClassParameter(
             comment = comment,

@@ -21,27 +21,35 @@ internal data class IDLTypeCustom(
 
     companion object : ParserNodeDeclaration<IDLTypeCustom> by reflective()
 
-    override fun typeVariable(): String {
+    override fun typeVariable(className: String?): String {
         requireNotNull(typeDef)
         return typeDef
     }
 
-    override fun getKotlinClassParameter(): KotlinClassParameter {
+    override fun getKotlinClassParameter(className: String?): KotlinClassParameter {
         val typeVariable = type?.typeVariable() ?: typeDef
-        requireNotNull(id)
         requireNotNull(typeVariable)
-        return KotlinClassParameter(
-            comment = comment,
-            id = id,
-            isOptional = isOptional,
-            typeVariable = typeVariable
-        )
+        return when {
+            id != null -> KotlinClassParameter(
+                comment = comment,
+                id = id,
+                isOptional = isOptional,
+                typeVariable = typeVariable
+            )
+            else -> KotlinClassParameter(
+                comment = comment,
+                id = typeVariable.kotlinVariableName(),
+                isOptional = isOptional,
+                typeVariable = typeVariable
+            )
+        }
     }
 
     override fun getKotlinClassDefinition(): KotlinClassDefinition {
         requireNotNull(typeDef)
+        val className = id ?: typeDef
         val kotlinClass = KotlinClassDefinition.Class(
-            className = typeDef
+            className = className
         )
         kotlinClass.params.add(
             KotlinClassParameter(

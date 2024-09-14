@@ -5,12 +5,12 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.KotlinCommentGenerator
 
 internal data class KotlinClassParameter(
     private val comment: IDLComment? = null,
-    private val id: String,
+    val id: String,
     val isOptional: Boolean,
     private val typeVariable: String
 ) {
 
-    private val typeDeclaration = if (isOptional) "$typeVariable?" else typeVariable
+    val typeDeclaration = if (isOptional) "$typeVariable?" else typeVariable
 
     fun constructorDefinition(): String {
         val kotlinDefinition = StringBuilder()
@@ -22,4 +22,6 @@ internal data class KotlinClassParameter(
         kotlinDefinition.append("val $id: $typeDeclaration")
         return kotlinDefinition.toString()
     }
+
+    fun functionInputArgument(): String = "$id: $typeDeclaration"
 }

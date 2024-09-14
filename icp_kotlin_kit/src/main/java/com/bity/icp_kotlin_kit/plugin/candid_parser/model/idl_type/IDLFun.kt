@@ -25,7 +25,6 @@ internal data class IDLFun(
         requireNotNull(funcName)
         return KotlinClassDefinition.Function(
             functionName = funcName,
-            inputArgs = inputArgs.map { it.getKotlinClassDefinition() },
             outputArgs = outputArgs.map { it.getKotlinClassDefinition() }
         )
     }

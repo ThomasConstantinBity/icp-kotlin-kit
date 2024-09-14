@@ -18,13 +18,16 @@ internal data class IDLTypeVec(
 ) {
     companion object : ParserNodeDeclaration<IDLTypeVec> by reflective()
 
-    override fun getKotlinClassParameter(): KotlinClassParameter {
+    override fun typeVariable(className: String?): String =
+        "Array<${vecType.typeVariable(className)}>"
+
+    override fun getKotlinClassParameter(className: String?): KotlinClassParameter {
         requireNotNull(id)
         return KotlinClassParameter(
             comment = comment,
             id = id,
             isOptional = isOptional,
-            typeVariable = "Array<${vecType.typeVariable()}>"
+            typeVariable = typeVariable(className)
         )
     }
 

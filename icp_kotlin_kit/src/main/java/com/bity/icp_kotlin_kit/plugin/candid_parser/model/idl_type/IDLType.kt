@@ -15,9 +15,9 @@ internal sealed class IDLType(
     companion object : ParserNodeDeclaration<IDLType> by subtype()
 
     // TODO, make fun abstract
-    open fun typeVariable(): String = TODO("not implemented for $this")
+    open fun typeVariable(className: String? = null): String = TODO("not implemented for $this")
     open fun getKotlinClassDefinition(): KotlinClassDefinition = TODO("not implemented for $this")
-    open fun getKotlinClassParameter(): KotlinClassParameter {
+    open fun getKotlinClassParameter(className: String? = null): KotlinClassParameter {
         val varId = id
         requireNotNull(varId)
         return KotlinClassParameter(

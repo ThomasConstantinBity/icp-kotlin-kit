@@ -48,6 +48,11 @@ internal data class IDLRecord(
 ) {
     companion object : ParserNodeDeclaration<IDLRecord> by reflective()
 
+    override fun typeVariable(className: String?): String {
+        requireNotNull(className)
+        return className
+    }
+
     override fun getKotlinClassDefinition(): KotlinClassDefinition {
         requireNotNull(recordName)
         val kotlinClassDefinition = KotlinClassDefinition.Class(
@@ -55,24 +60,18 @@ internal data class IDLRecord(
         )
         var innerClassIndex = 1
         val params = types.map { idlType ->
+            var className: String? = null
             val innerClassToDeclare = IDLTypeHelper.getInnerTypeToDeclare(idlType)
             if(innerClassToDeclare != null) {
-                val className = "_Class${innerClassIndex++}"
+                className = "_Class${innerClassIndex++}"
                 kotlinClassDefinition.innerClasses.add(
                     toKotlinClassDefinition(
                         className = className,
                         idlRecord = innerClassToDeclare
                     )
                 )
-                val paramId = idlType.id
-                requireNotNull(paramId)
-                KotlinClassParameter(
-                    comment = idlType.comment,
-                    id = paramId,
-                    isOptional = idlType.isOptional,
-                    typeVariable = className
-                )
-            } else idlType.getKotlinClassParameter()
+            }
+            idlType.getKotlinClassParameter(className)
 
         }
         kotlinClassDefinition.params.addAll(params)

@@ -3,12 +3,14 @@ package com.bity.icp_kotlin_kit.plugin.file_generator
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 import java.io.File
 import java.lang.IllegalStateException
+import kotlin.reflect.jvm.internal.impl.load.kotlin.KotlinClassFinder.Result.KotlinClass
 
 internal class KotlinFileGenerator(
     private val didFilePath: String,
@@ -47,7 +49,11 @@ internal class KotlinFileGenerator(
 
     private fun writeTypeAliases() {
         idlFileDeclaration.types
-            .filter { it is IDLTypeCustom || it is IDLTypeVec }
+            .filter {
+                it is IDLTypeCustom
+                        || it is IDLTypeVec
+                        || it is IDLFun
+            }
             .map { type ->
                 when(type) {
                     is IDLTypeCustom -> {
@@ -67,6 +73,13 @@ internal class KotlinFileGenerator(
                             typeClassName = fileName
                         )
                     }
+                    is IDLFun -> {
+                        requireNotNull(type.funcName)
+                        KotlinClassDefinition.Function(
+                            functionName = type.funcName,
+                            outputArgs = type.outputArgs.map { it.getKotlinClassDefinition() }
+                        )
+                    }
                     else -> throw Error("$type can't be a typealias")
                 }
             }
@@ -84,10 +97,11 @@ internal class KotlinFileGenerator(
         val serviceFunctions = idlFileDeclaration.services
             .map {
                 requireNotNull(it.id)
-                KotlinClassDefinition.Function(
-                    functionName = it.id,
-                    inputArgs = it.inputArgs.map { arg -> arg.getKotlinClassDefinition() },
-                    outputArgs = it.outputArgs.map { arg -> arg.getKotlinClassDefinition() },
+                KotlinClassDefinition.ICPQuery(
+                    comment = it.comment,
+                    queryName = it.id,
+                    inputArgs = it.inputArgs.map { arg -> arg.getKotlinClassParameter() },
+                    outputArgs = it.outputArgs.map { arg -> arg.getKotlinClassParameter() }
                 )
             }
         fileText.appendLine(
