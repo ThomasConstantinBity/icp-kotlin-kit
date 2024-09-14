@@ -72,7 +72,6 @@ internal data class IDLRecord(
                 )
             }
             idlType.getKotlinClassParameter(className)
-
         }
         kotlinClassDefinition.params.addAll(params)
         return kotlinClassDefinition

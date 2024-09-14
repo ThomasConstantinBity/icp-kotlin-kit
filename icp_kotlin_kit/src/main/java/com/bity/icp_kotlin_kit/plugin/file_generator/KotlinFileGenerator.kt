@@ -52,7 +52,6 @@ internal class KotlinFileGenerator(
             .filter {
                 it is IDLTypeCustom
                         || it is IDLTypeVec
-                        || it is IDLFun
             }
             .map { type ->
                 when(type) {
@@ -71,13 +70,6 @@ internal class KotlinFileGenerator(
                             typeAliasId = type.vecDeclaration,
                             type = type,
                             typeClassName = fileName
-                        )
-                    }
-                    is IDLFun -> {
-                        requireNotNull(type.funcName)
-                        KotlinClassDefinition.Function(
-                            functionName = type.funcName,
-                            outputArgs = type.outputArgs.map { it.getKotlinClassDefinition() }
                         )
                     }
                     else -> throw Error("$type can't be a typealias")

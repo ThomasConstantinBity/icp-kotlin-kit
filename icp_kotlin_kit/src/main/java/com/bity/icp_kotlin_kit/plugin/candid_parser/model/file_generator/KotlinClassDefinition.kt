@@ -23,13 +23,13 @@ internal sealed class KotlinClassDefinition(
 
     class Function(
         private val functionName: String,
-        private val outputArgs: List<KotlinClassDefinition>,
+        private val outputArgs: List<KotlinClassParameter>,
     ): KotlinClassDefinition(functionName) {
 
         override fun kotlinDefinition(): String {
             val functionResult = when(val size = outputArgs.size) {
                 0 -> "Unit"
-                1 -> outputArgs.first().name
+                1 -> outputArgs.first().typeDeclaration
                 else -> TODO("Function must return multiple args, use NTuple$size")
             }
             return """
@@ -112,6 +112,8 @@ internal sealed class KotlinClassDefinition(
         var params: MutableList<KotlinClassParameter> = mutableListOf()
 
         override fun kotlinDefinition(): String {
+            if(className == "TransferArgs")
+                println()
             val constructor = params.joinToString(
                 prefix = "(\n",
                 separator = ",\n",

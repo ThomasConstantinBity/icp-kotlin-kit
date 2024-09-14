@@ -15,7 +15,7 @@ internal data class KotlinClassParameter(
     fun constructorDefinition(): String {
         val kotlinDefinition = StringBuilder()
         comment?.let {
-            kotlinDefinition.append(
+            kotlinDefinition.appendLine(
                 KotlinCommentGenerator.getKotlinComment(it)
             )
         }
