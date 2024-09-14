@@ -17,7 +17,7 @@ open class ICPQuery(
     private val icpCanisterRepository: ICPCanisterRepository = provideICPCanisterRepository()
 
     internal suspend fun query(
-        args: List<Any>?,
+        args: List<Any?>?,
         certification: ICPRequestCertification,
         sender: ICPSigningPrincipal?,
         pollingValues: PollingValues

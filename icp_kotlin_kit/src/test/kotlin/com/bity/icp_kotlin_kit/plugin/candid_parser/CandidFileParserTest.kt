@@ -882,6 +882,71 @@ internal class CandidFileParserTest {
                         )
                     )
                 )
+            ),
+
+            Arguments.of(
+                """
+                    service : {
+                        icrc7_transfer : (vec TransferArg) -> (vec opt TransferResult);
+                    }
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    services = listOf(
+                        IDLFun(
+                            id = "icrc7_transfer",
+                            inputArgs = listOf(
+                                IDLTypeVec(
+                                    vecType = IDLTypeCustom(
+                                        typeDef = "TransferArg"
+                                    )
+                                )
+                            ),
+                            outputArgs = listOf(
+                                IDLTypeVec(
+                                    vecType = IDLTypeCustom(
+                                        isOptional = true,
+                                        typeDef = "TransferResult"
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    service : {
+                        icrc7_tokens_of : (account : Account, prev : opt nat, take : opt nat) -> (vec nat) query;
+                    }
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    services = listOf(
+                        IDLFun(
+                            id = "icrc7_tokens_of",
+                            inputArgs = listOf(
+                                IDLTypeCustom(
+                                    id = "account",
+                                    typeDef = "Account"
+                                ),
+                                IDLTypeNat(
+                                    id = "prev",
+                                    isOptional = true
+                                ),
+                                IDLTypeNat(
+                                    id = "take",
+                                    isOptional = true
+                                )
+                            ),
+                            outputArgs = listOf(
+                                IDLTypeVec(
+                                    vecType = IDLTypeNat()
+                                )
+                            ),
+                            funType = FunType.Query
+                        )
+                    )
+                )
             )
         )
     }

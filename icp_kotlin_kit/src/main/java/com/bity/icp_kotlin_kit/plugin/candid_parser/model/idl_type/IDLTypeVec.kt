@@ -3,6 +3,7 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
@@ -61,10 +62,10 @@ internal data class IDLTypeVec(
     }
 
     override fun getKotlinClassParameter(className: String?): KotlinClassParameter {
-        requireNotNull(id)
+        val paramId = id ?: IDLTypeHelper.kotlinTypeVariable(vecType, className).kotlinVariableName()
         return KotlinClassParameter(
             comment = comment,
-            id = id,
+            id = paramId,
             isOptional = isOptional,
             typeVariable = typeVariable(className)
         )
