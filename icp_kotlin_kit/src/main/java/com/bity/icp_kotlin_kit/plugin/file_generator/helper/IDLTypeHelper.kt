@@ -35,9 +35,11 @@ internal object IDLTypeHelper {
             is IDLTypeBlob -> "ByteArray"
             is IDLTypeBoolean -> "Boolean"
             is IDLTypeCustom -> {
-                type.typeDef
-                    ?: className
-                    ?: throw RuntimeException("Unable to define kotlin type variable for $type")
+                requireNotNull(type.typeDef)
+                when {
+                    className != null -> "$className.${type.typeDef}"
+                    else -> type.typeDef
+                }
             }
 
             is IDLTypeInt -> {
@@ -52,7 +54,7 @@ internal object IDLTypeHelper {
 
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
-            is IDLTypeVec -> "Array<${kotlinTypeVariable(type.vecType)}${if(type.isOptional) "?" else ""}>"
+            is IDLTypeVec -> "Array<${kotlinTypeVariable(type.vecType, className)}${if(type.isOptional) "?" else ""}>"
         }
 
     fun kotlinGenericVariableName(idlType: IDLType) =

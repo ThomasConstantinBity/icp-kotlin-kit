@@ -13,10 +13,11 @@ internal sealed class KotlinClassDefinition(
 
     class TypeAlias(
         val typeAliasId: String,
-        val type: IDLType
+        val type: IDLType,
+        val typeClassName: String?
     ): KotlinClassDefinition(typeAliasId) {
         override fun kotlinDefinition(): String =
-            "typealias $typeAliasId = ${IDLTypeHelper.kotlinTypeVariable(type)}"
+            "typealias $typeAliasId = ${IDLTypeHelper.kotlinTypeVariable(type, typeClassName)}"
     }
 
     class Function(

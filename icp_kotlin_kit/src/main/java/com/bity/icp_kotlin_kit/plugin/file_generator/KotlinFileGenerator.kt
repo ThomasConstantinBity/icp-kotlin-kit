@@ -6,6 +6,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclar
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
 import java.io.File
 import java.lang.IllegalStateException
 
@@ -39,51 +40,9 @@ internal class KotlinFileGenerator(
 
         fileText.appendLine("object $fileName {")
         writeClasses()
+        writeService()
         fileText.appendLine("}")
         outputFile.writeText(fileText.toString().toKotlinFileString())
-        /*val typeDeclarationConverter = IDLTypeDeclarationConverter(
-            fileName = fileName,
-            types = TODO()// idlFileDeclaration.types
-        )
-        val kotlinGeneratedClasses = typeDeclarationConverter.convertTypes()
-
-        val typeAliases = kotlinGeneratedClasses.filter {
-            it.classDefinitionType is KotlinClassDefinition.TypeAlias
-        }
-
-        val classes = kotlinGeneratedClasses.filter {
-            it.classDefinitionType is KotlinClassDefinition.Class
-                    || it.classDefinitionType is KotlinClassDefinition.SealedClass
-                    || it.classDefinitionType is KotlinClassDefinition.Function
-        }
-
-        // TypeAliases must be declare before object definition
-        typeAliases.forEach {
-            fileText.appendLine(it.kotlinDefinition(showCandidDefinition))
-        }
-
-        // Add file comment
-        idlFileDeclaration.comment?.let {
-            fileText.append(KotlinCommentGenerator.getKotlinComment(it))
-        }
-
-        fileText.appendLine("object $fileName {\n")
-
-        // Additional classes declaration
-        fileText.appendLine(
-            classes.joinToString("\n") {
-                it.kotlinDefinition(showCandidDefinition)
-            }
-        )*/
-
-        // Service declaration
-        /*val idlFileServiceConverter = IDLFileServiceConverter(
-            fileName = fileName,
-            services = idlFileDeclaration.services,
-        )
-        fileText.appendLine(
-            idlFileServiceConverter.getKotlinServiceDefinition().kotlinDefinition()
-        )*/
     }
 
     private fun writeTypeAliases() {
@@ -92,21 +51,20 @@ internal class KotlinFileGenerator(
             .map { type ->
                 when(type) {
                     is IDLTypeCustom -> {
-                        val typeAliasId = type.typeDef
-                            ?: throw IllegalStateException("typeAliasId required for $type")
-                        val typeAliasType = type.type
-                            ?: throw IllegalStateException("type required for $type")
+                        requireNotNull(type.typeDef)
+                        requireNotNull(type.type)
                         KotlinClassDefinition.TypeAlias(
-                            typeAliasId = typeAliasId,
-                            type = typeAliasType
+                            typeAliasId = type.typeDef,
+                            type = type.type,
+                            typeClassName = fileName
                         )
                     }
                     is IDLTypeVec -> {
-                        val typeAliasId = type.vecDeclaration
-                            ?: throw IllegalStateException("typeAliasId required for $type")
+                        requireNotNull(type.vecDeclaration)
                         KotlinClassDefinition.TypeAlias(
-                            typeAliasId = typeAliasId,
-                            type = type
+                            typeAliasId = type.vecDeclaration,
+                            type = type,
+                            typeClassName = fileName
                         )
                     }
                     else -> throw Error("$type can't be a typealias")
@@ -122,15 +80,36 @@ internal class KotlinFileGenerator(
             .forEach { fileText.appendLine(it.kotlinDefinition()) }
     }
 
+    private fun writeService() {
+        val serviceFunctions = idlFileDeclaration.services
+            .map {
+                requireNotNull(it.id)
+                KotlinClassDefinition.Function(
+                    functionName = it.id,
+                    inputArgs = it.inputArgs.map { arg -> arg.getKotlinClassDefinition() },
+                    outputArgs = it.outputArgs.map { arg -> arg.getKotlinClassDefinition() },
+                )
+            }
+        fileText.appendLine(
+            """
+                class ${fileName}Service(
+                    private val canister: ICPPrincipal
+                ) {
+                    ${serviceFunctions.joinToString(
+                        prefix = "\n",
+                        separator = "\n\n"
+                    ) { it.kotlinDefinition() }}
+                }
+            """.trimIndent()
+        )
+    }
+
     companion object {
         private const val HEADER = """// TODO, add package name
         
         import java.math.BigInteger
         import com.bity.icp_kotlin_kit.candid.CandidDecoder
-        import com.bity.icp_kotlin_kit.candid.CandidEncoder
-        import com.bity.icp_kotlin_kit.domain.model.ICPMethod
         import com.bity.icp_kotlin_kit.domain.usecase.ICPQuery
-        import com.bity.icp_kotlin_kit.candid.model.CandidValue
         import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
         import com.bity.icp_kotlin_kit.domain.request.PollingValues
         import com.bity.icp_kotlin_kit.provideICPCanisterRepository

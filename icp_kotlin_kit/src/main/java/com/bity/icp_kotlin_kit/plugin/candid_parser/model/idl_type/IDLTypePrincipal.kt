@@ -16,6 +16,8 @@ internal class IDLTypePrincipal(
 
     companion object : ParserNodeDeclaration<IDLTypePrincipal> by reflective()
 
+    override fun typeVariable(): String = "ICPPrincipal"
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
