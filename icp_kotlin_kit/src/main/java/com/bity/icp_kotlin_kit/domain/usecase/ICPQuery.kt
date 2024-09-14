@@ -18,9 +18,9 @@ open class ICPQuery(
 
     internal suspend fun query(
         args: List<Any>?,
-        certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
-        sender: ICPSigningPrincipal? = null,
-        pollingValues: PollingValues = PollingValues()
+        certification: ICPRequestCertification,
+        sender: ICPSigningPrincipal?,
+        pollingValues: PollingValues
     ): Result<CandidValue> {
         val icpMethod = ICPMethod(
             canister = canister,

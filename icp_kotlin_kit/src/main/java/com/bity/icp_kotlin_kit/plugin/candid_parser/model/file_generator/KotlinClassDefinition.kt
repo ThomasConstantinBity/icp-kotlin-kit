@@ -40,13 +40,22 @@ internal sealed class KotlinClassDefinition(
                     methodName = methodName,
                     canister = canister
                 ) {
-                    suspend operator fun invoke(args: List<Any>): $functionResult {
-                        val result = query(args).getOrThrow()
+                    suspend operator fun invoke(
+                        args: List<Any>,
+                        certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
+			            sender: ICPSigningPrincipal? = null,
+			            pollingValues: PollingValues = PollingValues()
+                    ): $functionResult {
+                        val result = query(
+                            args = args,
+                            certification = certification,
+				            sender = sender,
+				            pollingValues = pollingValues
+                        ).getOrThrow()
                         return CandidDecoder.decodeNotNull(result)
                     }
                 }
                 """.trimIndent()
-
         }
     }
 
@@ -139,7 +148,7 @@ internal sealed class KotlinClassDefinition(
     ) : KotlinClassDefinition(queryName) {
 
         override fun kotlinDefinition(): String {
-            val inputArgsDefinition = inputArgs.joinToString(", ") { it.functionInputArgument() }
+            // val inputArgsDefinition = inputArgs.joinToString(", ") { it.functionInputArgument() }
             val returnParam = when (outputArgs.size) {
                 0 -> ""
                 1 -> ": ${outputArgs.first().typeDeclaration}"
@@ -148,7 +157,7 @@ internal sealed class KotlinClassDefinition(
             val kotlinComment = KotlinCommentGenerator.getNullableKotlinComment(comment) ?: ""
             return """
             $kotlinComment
-            suspend fun ${queryName}($inputArgsDefinition)$returnParam {
+            suspend fun ${queryName}${inputArgsDefinition()}$returnParam {
                 val icpQuery = ICPQuery(
                     methodName = "$queryName",
                     canister = canister
@@ -165,9 +174,33 @@ internal sealed class KotlinClassDefinition(
         """.trimIndent()
         }
 
+        private fun inputArgsDefinition(): String {
+            val input = if(inputArgs.isNotEmpty())
+            inputArgs.joinToString(
+                separator = ",\n",
+                prefix = "(\n",
+                postfix = ",\n"
+            ) { it.functionInputArgument() }
+            else "("
+            return """
+                $input
+                certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
+			    sender: ICPSigningPrincipal? = null,
+			    pollingValues: PollingValues = PollingValues()
+            )
+            """.trimIndent()
+        }
+
         private fun callQueryFun(): String {
             val argsList = inputArgs.joinToString(", ") { it.id }
-            return "val result = icpQuery.query(listOf($argsList)).getOrThrow()"
+            return """
+                val result = icpQuery.query(
+                    args = listOf($argsList),
+                    certification = certification,
+				    sender = sender,
+				    pollingValues = pollingValues
+                ).getOrThrow()
+            """.trimIndent()
         }
 
         private fun returnStatement(): String {
