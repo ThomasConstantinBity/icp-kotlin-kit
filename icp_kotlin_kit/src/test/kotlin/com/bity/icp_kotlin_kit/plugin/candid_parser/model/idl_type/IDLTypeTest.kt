@@ -85,7 +85,7 @@ internal class IDLTypeTest {
              */
             Arguments.of(
                 IDLTypeVariant(
-                    id = "Transfer",
+                    variantDeclaration = "Transfer",
                     types = listOf(
                         IDLRecord(
                             recordName = "Mint",

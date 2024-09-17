@@ -14,7 +14,6 @@ import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.UnnamedClassHelper
 import java.io.File
 import java.lang.IllegalStateException
-import kotlin.reflect.jvm.internal.impl.load.kotlin.KotlinClassFinder.Result.KotlinClass
 
 internal class KotlinFileGenerator(
     private val didFilePath: String,

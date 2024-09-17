@@ -8,10 +8,11 @@ import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.candid.model.CandidVariant
 import com.bity.icp_kotlin_kit.candid.model.CandidVector
 import com.bity.icp_kotlin_kit.candid.serializer.CandidSerializer
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.math.BigInteger
-import kotlin.test.DefaultAsserter
 
 @OptIn(ExperimentalStdlibApi::class)
 internal class CandidConversionTest {
@@ -25,13 +26,11 @@ internal class CandidConversionTest {
         val expected = CandidSerializer.magicBytes + expectedSerialized
         val encoded = CandidSerializer.encode(candidValue)
         println("[${candidValue.string}]: expected ${expected.toHexString()}, got ${encoded.toHexString()}")
-        DefaultAsserter.assertTrue(
-            "Error while encoding ${candidValue.string}",
+        assertTrue(
             expected.contentEquals(encoded)
         )
         val decoded = CandidDeserializer.decode(encoded)
-        DefaultAsserter.assertEquals(
-            "Error while decoding ${candidValue.string}",
+        assertEquals(
             candidValue,
             decoded.first()
         )
@@ -45,17 +44,11 @@ internal class CandidConversionTest {
     ) {
         val encoded = CandidSerializer.encode(candidValues)
         val expected = CandidSerializer.magicBytes + expectedSerialized
-        DefaultAsserter.assertTrue(
-            "Error while decoding ${candidValues.forEach { it.string }}. " +
-                    "Expected: ${expected.toHexString()}, got: ${encoded.toHexString()}",
+        assertTrue(
             expected.contentEquals(encoded)
         )
         val decoded = CandidDeserializer.decode(encoded)
-        DefaultAsserter.assertEquals(
-            message = null,
-            expected = candidValues,
-            actual = decoded
-        )
+        assertTrue(candidValues == decoded)
     }
 
     private val CandidValue.string: String

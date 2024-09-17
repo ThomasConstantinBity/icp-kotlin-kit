@@ -19,16 +19,16 @@ dependencies {
     implementation(tegralLibs.niwen.parser)
     implementation(libs.bouncycastle)
     implementation(libs.commons.codec)
-    implementation(libs.kotlin.reflect)
+    // implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
+    // implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.bundles.retrofit)
     implementation(libs.jackson.dataformat.cbor)
     implementation(libs.jackson.module.kotlin)
+    implementation(libs.logging.interceptor)
 
     testImplementation(libs.bundles.junit.test)
     testImplementation(libs.bundles.kotlinx.test)
-
-    implementation(libs.logging.interceptor)
 }
 
 publishing {

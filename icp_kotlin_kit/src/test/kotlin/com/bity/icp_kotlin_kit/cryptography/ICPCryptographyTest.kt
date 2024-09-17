@@ -1,10 +1,10 @@
 package com.bity.icp_kotlin_kit.cryptography
 
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class ICPCryptographyTest {
 
@@ -14,10 +14,8 @@ class ICPCryptographyTest {
         data: ByteArray,
         expectedResult: String
     ) {
-        assertEquals(
-            expected = expectedResult,
-            actual = ICPCryptography.encodeCanonicalText(data)
-        )
+        val result = ICPCryptography.encodeCanonicalText(data)
+        assertEquals(expectedResult, result)
     }
 
     @ParameterizedTest(name = "Decoding {0}")

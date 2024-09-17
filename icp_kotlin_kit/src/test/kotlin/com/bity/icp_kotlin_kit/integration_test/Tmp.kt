@@ -3,20 +3,13 @@ package com.bity.icp_kotlin_kit.integration_test
 // TODO, add package name
 
 import com.bity.icp_kotlin_kit.candid.CandidDecoder
-import com.bity.icp_kotlin_kit.candid.CandidEncoder
-import com.bity.icp_kotlin_kit.candid.model.CandidValue
-import com.bity.icp_kotlin_kit.candid.model.CandidVector
 import com.bity.icp_kotlin_kit.domain.model.ICPAccount
-import com.bity.icp_kotlin_kit.domain.model.ICPMethod
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
-import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
 import com.bity.icp_kotlin_kit.domain.request.PollingValues
 import com.bity.icp_kotlin_kit.domain.usecase.ICPQuery
-import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.NTuple3
-import com.bity.icp_kotlin_kit.provideICPCanisterRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 

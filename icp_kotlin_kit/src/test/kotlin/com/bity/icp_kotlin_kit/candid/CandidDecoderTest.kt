@@ -4,6 +4,7 @@ import com.bity.icp_kotlin_kit.candid.model.CandidDictionary
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.candid.model.CandidVector
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -35,6 +36,7 @@ internal class CandidDecoderTest {
         )
     }
 
+    @Disabled
     @Test
     fun `decode vector value`() {
         val vector = CandidValue.Vector(

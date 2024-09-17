@@ -6,14 +6,12 @@ import com.bity.icp_kotlin_kit.data.repository.ICPCanisterRepositoryImpl
 import com.bity.icp_kotlin_kit.data.repository.ICPRosettaRepositoryImpl
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
 import com.bity.icp_kotlin_kit.domain.repository.ICPRosettaRepository
-import com.bity.icp_kotlin_kit.domain.usecase.ICPLedgerCanisterUseCase
 import com.bity.icp_kotlin_kit.util.jackson.CborConverterFactory
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 

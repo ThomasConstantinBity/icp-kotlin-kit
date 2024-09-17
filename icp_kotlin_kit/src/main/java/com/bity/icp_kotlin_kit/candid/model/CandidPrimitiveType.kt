@@ -28,6 +28,7 @@ internal enum class CandidPrimitiveType(
     // SERVICE(-23);
 
     companion object {
+        @OptIn(ExperimentalStdlibApi::class)
         fun candidPrimitiveTypeByValue(value: Int): CandidPrimitiveType? =
             entries.find { it.value == value }
     }

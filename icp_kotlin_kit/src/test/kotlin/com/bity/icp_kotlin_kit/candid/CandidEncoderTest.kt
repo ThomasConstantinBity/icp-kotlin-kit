@@ -3,10 +3,10 @@ package com.bity.icp_kotlin_kit.candid
 import com.bity.icp_kotlin_kit.candid.model.CandidPrimitiveType
 import com.bity.icp_kotlin_kit.candid.model.CandidType
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import kotlin.test.assertEquals
 
 internal class CandidEncoderTest {
 
