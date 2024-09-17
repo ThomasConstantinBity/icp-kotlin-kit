@@ -21,9 +21,20 @@ internal sealed class IDLType(
     open fun getKotlinClassDefinition(): KotlinClassDefinition {
         val objectName = id
         requireNotNull(objectName)
-        return KotlinClassDefinition.Object(
-            objectName = objectName
+        val kotlinClass = KotlinClassDefinition.Class(
+            className = objectName
         )
+        kotlinClass.params.add(
+            KotlinClassParameter(
+                id = IDLTypeHelper.kotlinVariableName(
+                    type = this,
+                    className = null
+                ),
+                isOptional = isOptional,
+                typeVariable = typeVariable()
+            )
+        )
+        return kotlinClass
     }
     open fun getKotlinClassParameter(className: String? = null): KotlinClassParameter {
         val varId = id ?: IDLTypeHelper.kotlinVariableName(this, className)
