@@ -6,9 +6,12 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFloat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat8
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
@@ -23,6 +26,16 @@ internal object IDLTypeHelper {
             is IDLTypeVec -> return getInnerTypeToDeclare(idlType.vecType)
             else -> null
         }
+    }
+
+    fun kotlinVariableName(
+        type: IDLType,
+        className: String?
+    ): String {
+        return kotlinTypeVariable(
+            type = type,
+            className = className
+        ).replaceFirstChar { it.lowercase() }
     }
 
     // TODO, can remove className ?
@@ -42,11 +55,15 @@ internal object IDLTypeHelper {
                 }
             }
 
-            is IDLTypeInt -> {
-                if(className != "Int") "Int" else "kotlin.Int"
-            }
-            is IDLTypeNat -> "UInt"
+            is IDLTypeInt -> "BigInteger"
+            is IDLTypeInt64 -> "Long"
+
+            is IDLTypeNat -> "BigInteger"
+            is IDLTypeNat8 -> "UByte"
             is IDLTypeNat64 -> "ULong"
+
+            is IDLTypeFloat64 -> "Double"
+
             is IDLTypeNull -> TODO()
             is IDLTypePrincipal -> "ICPPrincipal"
             is IDLRecord -> className
@@ -55,22 +72,5 @@ internal object IDLTypeHelper {
             is IDLTypeText -> "String"
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> "Array<${kotlinTypeVariable(type.vecType, className)}${if(type.isOptional) "?" else ""}>"
-        }
-
-    fun kotlinGenericVariableName(idlType: IDLType) =
-        when(idlType) {
-            is IDLFun -> TODO()
-            is IDLTypeBlob -> "byteArray"
-            is IDLTypeBoolean -> "boolean"
-            is IDLTypeCustom -> TODO()// idlType.typeDef.kotlinVariableName()
-            is IDLTypeInt -> "intValue"
-            is IDLTypeNat -> "natValue"
-            is IDLTypeNat64 -> "nat64Value"
-            is IDLTypeNull -> TODO()
-            is IDLTypePrincipal -> "icpPrincipal"
-            is IDLTypeText -> "string"
-            is IDLTypeVariant -> TODO()
-            is IDLTypeVec -> TODO()
-            is IDLRecord -> TODO()
         }
 }

@@ -7,8 +7,11 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFloat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat8
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
@@ -780,6 +783,61 @@ internal class CandidFileParserTest {
                         )
                     )
                 )
+            ),
+            Arguments.of(
+                """
+                    type detail_value = variant {
+                        True;
+                        False;
+                        I64       : int64;
+                        U64       : nat64;
+                        Vec       : vec detail_value;
+                        Slice     : vec nat8;
+                        Text      : text;
+                        Float     : float64;
+                        Principal : principal;
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLTypeVariant(
+                            variantDeclaration = "detail_value",
+                            types = listOf(
+                                IDLTypeCustom(
+                                    typeDef = "True"
+                                ),
+                                IDLTypeCustom(
+                                    typeDef = "False"
+                                ),
+                                IDLTypeInt64(
+                                    id = "I64"
+                                ),
+                                IDLTypeNat64(
+                                    id = "U64"
+                                ),
+                                IDLTypeVec(
+                                    id = "Vec",
+                                    vecType = IDLTypeCustom(
+                                        typeDef = "detail_value"
+                                    )
+                                ),
+                                IDLTypeVec(
+                                    id = "Slice",
+                                    vecType = IDLTypeNat8()
+                                ),
+                                IDLTypeText(
+                                    id = "Text"
+                                ),
+                                IDLTypeFloat64(
+                                    id = "Float"
+                                ),
+                                IDLTypePrincipal(
+                                    id = "Principal"
+                                )
+                            )
+                        )
+                    )
+                )
             )
         )
 
@@ -941,6 +999,74 @@ internal class CandidFileParserTest {
                             outputArgs = listOf(
                                 IDLTypeVec(
                                     vecType = IDLTypeNat()
+                                )
+                            ),
+                            funType = FunType.Query
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    service : {
+                        icrc7_token_metadata : (token_ids : vec nat) -> (vec record { nat; opt record { text; Value } }) query;
+                    }
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    services = listOf(
+                        IDLFun(
+                            id = "icrc7_token_metadata",
+                            inputArgs = listOf(
+                                IDLTypeVec(
+                                    id = "token_ids",
+                                    vecType = IDLTypeNat()
+                                )
+                            ),
+                            outputArgs = listOf(
+                                IDLTypeVec(
+                                    vecType = IDLRecord(
+                                        types = listOf(
+                                            IDLTypeNat(),
+                                            IDLRecord(
+                                                isOptional = true,
+                                                types = listOf(
+                                                    IDLTypeText(),
+                                                    IDLTypeCustom(
+                                                        typeDef = "Value"
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            funType = FunType.Query
+                        )
+                    )
+                )
+            ),
+
+            Arguments.of(
+                """
+                    service : {
+                        icrc7_collection_metadata : () -> (vec record { text; Value } ) query;
+                    }
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    services = listOf(
+                        IDLFun(
+                            id = "icrc7_collection_metadata",
+                            outputArgs = listOf(
+                                IDLTypeVec(
+                                    vecType = IDLRecord(
+                                        types = listOf(
+                                            IDLTypeText(),
+                                            IDLTypeCustom(
+                                                typeDef = "Value"
+                                            )
+                                        )
+                                    )
                                 )
                             ),
                             funType = FunType.Query

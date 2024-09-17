@@ -5,15 +5,29 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 
 internal object IDLTypeRecordHelper {
 
+    // TODO, check inner declaration (record containing a record)
     fun kotlinClassDefinition(
         idlRecord: IDLRecord,
         className: String
     ): KotlinClassDefinition {
-        return KotlinClassDefinition.Class(
+        val kotlinClass = KotlinClassDefinition.Class(
             className = className
-        ).apply {
-            params.addAll(idlRecord.types.map { it.getKotlinClassParameter() })
+        )
+        val params = idlRecord.types.map {
+            var clazzName: String? = null
+            val innerClass = IDLTypeHelper.getInnerTypeToDeclare(it)
+            innerClass?.let { classToDeclare ->
+                clazzName = UnnamedClassHelper.getUnnamedClassName()
+                val clazz = kotlinClassDefinition(
+                    idlRecord = classToDeclare,
+                    className = clazzName!!
+                )
+                kotlinClass.innerClasses.add(clazz)
+            }
+            it.getKotlinClassParameter(clazzName)
         }
+        kotlinClass.params.addAll(params)
+        return kotlinClass
     }
 
 }

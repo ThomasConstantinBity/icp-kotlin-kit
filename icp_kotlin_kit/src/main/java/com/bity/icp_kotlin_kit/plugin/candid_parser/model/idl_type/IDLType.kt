@@ -26,12 +26,12 @@ internal sealed class IDLType(
         )
     }
     open fun getKotlinClassParameter(className: String? = null): KotlinClassParameter {
-        val varId = id ?: IDLTypeHelper.kotlinTypeVariable(this)
+        val varId = id ?: IDLTypeHelper.kotlinVariableName(this, className)
         return KotlinClassParameter(
             comment = comment,
             id = varId,
             isOptional = isOptional,
-            typeVariable = typeVariable()
+            typeVariable = typeVariable(className)
         )
     }
 

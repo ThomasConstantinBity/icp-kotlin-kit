@@ -2,12 +2,16 @@ package com.bity.icp_kotlin_kit.plugin.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
+import com.bity.icp_kotlin_kit.plugin.file_generator.helper.UnnamedClassHelper
 import java.io.File
 import java.lang.IllegalStateException
 import kotlin.reflect.jvm.internal.impl.load.kotlin.KotlinClassFinder.Result.KotlinClass
@@ -89,12 +93,21 @@ internal class KotlinFileGenerator(
         val serviceFunctions = idlFileDeclaration.services
             .map {
                 requireNotNull(it.id)
-                KotlinClassDefinition.ICPQuery(
+                val icpQuery = KotlinClassDefinition.ICPQuery(
                     comment = it.comment,
                     queryName = it.id,
-                    inputArgs = it.inputArgs.map { arg -> arg.getKotlinClassParameter() },
-                    outputArgs = it.outputArgs.map { arg -> arg.getKotlinClassParameter() }
                 )
+                val inputParams = generateFunctionParams(
+                    icpQuery = icpQuery,
+                    idlTypes = it.inputArgs
+                )
+                val outputParam = generateFunctionParams(
+                    icpQuery = icpQuery,
+                    idlTypes = it.outputArgs
+                )
+                icpQuery.inputArgs.addAll(inputParams)
+                icpQuery.outputArgs.addAll(outputParam)
+                icpQuery
             }
         fileText.appendLine(
             """
@@ -108,6 +121,25 @@ internal class KotlinFileGenerator(
                 }
             """.trimIndent()
         )
+    }
+
+    private fun generateFunctionParams(
+        icpQuery: KotlinClassDefinition.ICPQuery,
+        idlTypes: List<IDLType>
+    ): List<KotlinClassParameter> {
+        return idlTypes.map { idlType ->
+            var className: String? = null
+            val innerType = IDLTypeHelper.getInnerTypeToDeclare(idlType)
+            if(innerType != null) {
+                className = UnnamedClassHelper.getUnnamedClassName()
+                val innerClass = IDLTypeRecordHelper.kotlinClassDefinition(
+                    idlRecord = innerType,
+                    className = className
+                )
+                icpQuery.innerClasses.add(innerClass)
+            }
+            idlType.getKotlinClassParameter(className)
+        }
     }
 
     companion object {

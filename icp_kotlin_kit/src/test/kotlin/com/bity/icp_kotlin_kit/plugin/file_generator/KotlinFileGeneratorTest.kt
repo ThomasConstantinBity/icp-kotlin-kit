@@ -35,6 +35,10 @@ class KotlinFileGeneratorTest {
                 "src/test/resources/generated_candid_file/LedgerCanister.kt"
             ),
             Arguments.of(
+                "src/test/resources/candid_file/Tokens.did",
+                "src/test/resources/generated_candid_file/Tokens.kt"
+            ),
+            Arguments.of(
                 "src/test/resources/candid_file/ICRC7.did",
                 "src/test/resources/generated_candid_file/ICRC7.kt"
             )

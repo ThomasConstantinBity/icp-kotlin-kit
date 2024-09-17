@@ -143,12 +143,12 @@ internal sealed class KotlinClassDefinition(
     class ICPQuery(
         private val comment: IDLComment? = null,
         private val queryName: String,
-        private val inputArgs: List<KotlinClassParameter>,
-        private val outputArgs: List<KotlinClassParameter>
     ) : KotlinClassDefinition(queryName) {
 
+        val inputArgs = mutableListOf<KotlinClassParameter>()
+        val outputArgs = mutableListOf<KotlinClassParameter>()
+
         override fun kotlinDefinition(): String {
-            // val inputArgsDefinition = inputArgs.joinToString(", ") { it.functionInputArgument() }
             val returnParam = when (outputArgs.size) {
                 0 -> ""
                 1 -> ": ${outputArgs.first().typeDeclaration}"

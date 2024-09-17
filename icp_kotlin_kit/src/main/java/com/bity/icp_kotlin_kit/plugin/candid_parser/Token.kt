@@ -4,8 +4,6 @@ import guru.zoroark.tegral.niwen.lexer.TokenType
 
 internal enum class Token: TokenType {
     SingleLineComment,
-    EndOfLineComment,
-    StartComment,
     Equals,
     LParen,
     RParen,
@@ -13,12 +11,10 @@ internal enum class Token: TokenType {
     RBrace,
     Semi,
     Comma,
-    Dot,
     Colon,
     Arrow,
     Null,
     Vec,
-    VecDeclaration,
     Record,
     Variant,
     Func,
@@ -31,21 +27,18 @@ internal enum class Token: TokenType {
     Type,
     Import,
     Opt,
-    TestEqual,
-    NotEqual,
-    NotDecode,
     Principal,
     Id,
-    StartString,
     Text,
-    Sign,
-    Decimal,
-    Hex,
-    Float,
     Boolean,
 
+    Float,
+    Float64,
+
     Int,
+    Int64,
 
     Nat,
+    Nat8,
     Nat64
 }

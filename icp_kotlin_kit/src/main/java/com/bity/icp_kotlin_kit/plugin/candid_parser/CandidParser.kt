@@ -12,16 +12,18 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBlob
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolean
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFloat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat8
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrincipal
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.trimCommentLine
-import guru.zoroark.tegral.niwen.lexer.Lexer
 import guru.zoroark.tegral.niwen.lexer.matchers.matches
 import guru.zoroark.tegral.niwen.lexer.niwenLexer
 import guru.zoroark.tegral.niwen.parser.dsl.either
@@ -75,12 +77,18 @@ internal object CandidParser {
             "null" isToken Token.Null
             "blob" isToken Token.Blob
             matches("""\bint\b""") isToken Token.Int
+            matches("""\bint64\b""") isToken Token.Int64
+
             matches("""\bnat\b""") isToken Token.Nat
-            "nat64" isToken Token.Nat64
+            matches("""\bnat8\b""") isToken Token.Nat8
+            matches("""\bnat64\b""") isToken Token.Nat64
+
+            matches("""\bfloat64\b""") isToken Token.Float64
+
             "principal" isToken Token.Principal
 
             matches("""\bquery\b(?!_)""") isToken Token.Query
-            matches("[a-zA-Z_][a-zA-Z0-9_]*") isToken Token.Id
+            matches("""(")?[a-zA-Z_][a-zA-Z0-9_]*(")?""") isToken Token.Id
 
             matches("[ \t\r\n]+").ignore
             matches("//[^\n]*").ignore
@@ -171,6 +179,12 @@ internal object CandidParser {
                 expect(IDLTypeInt) storeIn self()
             } or {
                 expect(IDLTypeBoolean) storeIn self()
+            } or {
+                expect(IDLTypeInt64) storeIn self()
+            } or {
+                expect(IDLTypeNat8) storeIn self()
+            } or {
+                expect(IDLTypeFloat64) storeIn self()
             }
         }
 
@@ -192,6 +206,10 @@ internal object CandidParser {
                 expect(Token.Record)
                 expect(Token.LBrace)
             } or {
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLRecord::isOptional
+                }
                 expect(Token.Record)
                 expect(Token.LBrace)
             }
@@ -320,26 +338,6 @@ internal object CandidParser {
             }
         }
 
-        IDLTypeNat64 {
-            optional {
-                expect(IDLComment) storeIn IDLTypeNat64::comment
-            }
-            either {
-                expect(Token.Id) storeIn IDLTypeNat64::id
-                expect(Token.Colon)
-                optional {
-                    expect(Token.Opt)
-                    emit(true) storeIn IDLTypeNat64::isOptional
-                }
-                expect(Token.Nat64)
-                optional {
-                    expect(Token.Semi)
-                }
-            } or {
-                expect(Token.Nat64)
-            }
-        }
-
         IDLTypeBoolean {
             optional {
                 expect(IDLComment) storeIn IDLTypeBoolean::comment
@@ -401,6 +399,46 @@ internal object CandidParser {
             }
         }
 
+        IDLTypeNat8 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat8::comment
+            }
+            either {
+                expect(Token.Id) storeIn IDLTypeNat8::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeNat8::isOptional
+                }
+                expect(Token.Nat8)
+                optional {
+                    expect(Token.Semi)
+                }
+            } or {
+                expect(Token.Nat8)
+            }
+        }
+
+        IDLTypeNat64 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat64::comment
+            }
+            either {
+                expect(Token.Id) storeIn IDLTypeNat64::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeNat64::isOptional
+                }
+                expect(Token.Nat64)
+                optional {
+                    expect(Token.Semi)
+                }
+            } or {
+                expect(Token.Nat64)
+            }
+        }
+
         IDLTypeInt {
             optional {
                 expect(IDLComment) storeIn IDLTypeInt::comment
@@ -411,6 +449,58 @@ internal object CandidParser {
             expect(Token.Int)
             optional {
                 expect(Token.Semi)
+            }
+        }
+
+        IDLTypeInt64 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeInt64::comment
+            }
+
+            either {
+                expect(Token.Id) storeIn IDLTypeInt64::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeInt64::isOptional
+                }
+                expect(Token.Int64)
+
+                optional {
+                    expect(Token.Semi)
+                }
+            } or {
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeInt64::isOptional
+                }
+                expect(Token.Int64)
+            }
+        }
+
+        IDLTypeFloat64 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeFloat64::comment
+            }
+
+            either {
+                expect(Token.Id) storeIn IDLTypeFloat64::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeFloat64::isOptional
+                }
+                expect(Token.Float64)
+
+                optional {
+                    expect(Token.Semi)
+                }
+            } or {
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeFloat64::isOptional
+                }
+                expect(Token.Float64)
             }
         }
 
