@@ -4,10 +4,10 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
-internal class IDLTypePrincipal(
-    comment: IDLComment? = null,
-    id: String? = null,
-    isOptional: Boolean = false,
+internal data class IDLTypePrincipal(
+    override val comment: IDLComment? = null,
+    override val id: String? = null,
+    override val isOptional: Boolean = false,
 ) : IDLType(
     comment = comment,
     id = id,

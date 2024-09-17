@@ -85,8 +85,7 @@ internal object CandidParser {
 
             matches("""\bfloat64\b""") isToken Token.Float64
 
-            "principal" isToken Token.Principal
-
+            matches("""\bprincipal\b""") isToken Token.Principal
             matches("""\bquery\b(?!_)""") isToken Token.Query
             matches("""(")?[a-zA-Z_][a-zA-Z0-9_]*(")?""") isToken Token.Id
 
@@ -512,6 +511,10 @@ internal object CandidParser {
             either {
                 expect(Token.Id) storeIn IDLTypeText::id
                 expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeText::isOptional
+                }
                 expect(Token.Text)
                 optional {
                     expect(Token.Semi)
@@ -575,11 +578,11 @@ internal object CandidParser {
 
             either {
                 expect(Token.Type)
-                expect(Token.Id) storeIn IDLFun::funcName
+                expect(Token.Id) transform { it.replace("\"", "") } storeIn IDLFun::funcName
                 expect(Token.Equals)
                 expect(Token.Func)
             } or {
-                expect(Token.Id) storeIn IDLFun::id
+                expect(Token.Id) transform { it.replace("\"", "") } storeIn IDLFun::id
                 expect(Token.Colon)
             }
 
@@ -608,10 +611,21 @@ internal object CandidParser {
         }
 
         IDLTypePrincipal {
-            expect(Token.Id) storeIn IDLTypePrincipal::id
-            expect(Token.Colon)
-            expect(Token.Principal)
-
+            either {
+                expect(Token.Id) storeIn IDLTypePrincipal::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypePrincipal::isOptional
+                }
+                expect(Token.Principal)
+            } or {
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypePrincipal::isOptional
+                }
+                expect(Token.Principal)
+            }
             optional {
                 expect(Token.Semi)
             }

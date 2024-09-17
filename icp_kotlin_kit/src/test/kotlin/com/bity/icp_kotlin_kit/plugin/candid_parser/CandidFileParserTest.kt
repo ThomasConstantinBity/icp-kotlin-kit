@@ -522,6 +522,55 @@ internal class CandidFileParserTest {
                         )
                     )
                 )
+            ),
+
+            Arguments.of(
+                """
+                    type add_token_input = record {
+                        name        : text;
+                        description : text;
+                        thumbnail   : text;
+                        frontend    : opt text;
+                        principal_id : principal;
+                        details     : vec record { text; detail_value }
+                    };
+                """.trimIndent(),
+                IDLFileDeclaration(
+                    types = listOf(
+                        IDLRecord(
+                            recordName = "add_token_input",
+                            types = listOf(
+                                IDLTypeText(
+                                    id = "name"
+                                ),
+                                IDLTypeText(
+                                    id = "description"
+                                ),
+                                IDLTypeText(
+                                    id = "thumbnail"
+                                ),
+                                IDLTypeText(
+                                    id = "frontend",
+                                    isOptional = true
+                                ),
+                                IDLTypePrincipal(
+                                    id = "principal_id"
+                                ),
+                                IDLTypeVec(
+                                    id = "details",
+                                    vecType = IDLRecord(
+                                        types = listOf(
+                                            IDLTypeText(),
+                                            IDLTypeCustom(
+                                                typeDef = "detail_value"
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             )
         )
 
