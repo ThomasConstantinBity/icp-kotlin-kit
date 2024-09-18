@@ -1,19 +1,20 @@
 [versions]
 bouncycastle-version = "1.70"
 commons-codec-version = "1.16.0"
-koin = "3.5.0"
+koin = "4.0.0"
+kotlin-reflect = "1.9.20"
 koinAndroidxCompose = "4.0.0"
 loggingInterceptor = "5.0.0-alpha.10"
-material-compose = "1.2.1"
-compose = "1.6.8"
+material-compose = "1.3.0"
+compose = "1.7.1"
 
 kotlinx-coroutines-core = "1.8.0-RC2"
 
 navigationCompose = "2.8.0"
 retrofit = "2.11.0"
 retrofitConverter = "2.7.2"
-jackson-dataformat-cbor = "2.14.2"
-jackson-module-kotlin = "2.14.2"
+jackson-dataformat-cbor = "2.15.0"
+jackson-module-kotlin = "2.15.0"
 
 junit-jupiter-version = "5.10.1"
 kotlinx-coroutines-version = "1.7.3"
@@ -22,15 +23,16 @@ agp = "8.3.2"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 jetbrainsKotlinJvm = "1.9.0"
-uiToolingPreviewAndroid = "1.6.8"
+uiToolingPreviewAndroid = "1.7.1"
 lifecycleRuntimeKtx = "2.8.5"
-activityCompose = "1.9.0"
-composeBom = "2023.08.00"
+activityCompose = "1.9.2"
+composeBom = "2024.09.01"
 
 [libraries]
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec-version" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "bouncycastle-version" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin-reflect" }
 
 koin = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidxCompose" }

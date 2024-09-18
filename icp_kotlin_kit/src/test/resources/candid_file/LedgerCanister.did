@@ -132,14 +132,14 @@ type QueryArchiveResult = variant {
 // A function that is used for fetching archived ledger blocks.
 type QueryArchiveFn = func (GetBlocksArgs) -> (QueryArchiveResult) query;
 
-    // The result of a "query_blocks" call.
-    //
-    // The structure of the result is somewhat complicated because the main ledger canister might
-    // not have all the blocks that the caller requested: One or more "archive" canisters might
-    // store some of the requested blocks.
-    //
-    // Note: as of Q4 2021 when this interface is authored, ICP doesn't support making nested
-    // query calls within a query call.
+// The result of a "query_blocks" call.
+//
+// The structure of the result is somewhat complicated because the main ledger canister might
+// not have all the blocks that the caller requested: One or more "archive" canisters might
+// store some of the requested blocks.
+//
+// Note: as of Q4 2021 when this interface is authored, ICP doesn't support making nested
+// query calls within a query call.
 type QueryBlocksResponse = record {
     // The total number of blocks in the chain.
     // If the chain length is positive, the index of the last block is `chain_len - 1`.

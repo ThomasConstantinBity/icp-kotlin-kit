@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":icp_kotlin_kit"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -59,8 +60,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.tooling.preview)
     implementation(libs.compose.material)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.koin.androidx.compose)
 }

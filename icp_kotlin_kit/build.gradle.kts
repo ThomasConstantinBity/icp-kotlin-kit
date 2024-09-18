@@ -5,8 +5,6 @@ plugins {
     id("java-library")
     id("maven-publish")
     alias(libs.plugins.jetbrainsKotlinJvm)
-    `java-gradle-plugin`
-    // `kotlin-dsl`
 }
 
 java {
@@ -19,8 +17,7 @@ dependencies {
     implementation(tegralLibs.niwen.parser)
     implementation(libs.bouncycastle)
     implementation(libs.commons.codec)
-    // implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
-    // implementation(libs.kotlin.reflect)
+    implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.bundles.retrofit)
     implementation(libs.jackson.dataformat.cbor)
