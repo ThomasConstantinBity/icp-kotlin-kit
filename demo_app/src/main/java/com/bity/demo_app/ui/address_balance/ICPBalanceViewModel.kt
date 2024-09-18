@@ -9,9 +9,9 @@ import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
 import com.bity.icp_kotlin_kit.domain.usecase.LedgerCanister
 import kotlinx.coroutines.launch
 
-class AddressBalanceViewModel: ViewModel() {
+class ICPBalanceViewModel: ViewModel() {
 
-    var state by mutableStateOf(AddressBalanceState())
+    var state by mutableStateOf(ICPBalanceState())
         private set
 
     private val ledgerCanisterService = LedgerCanister.LedgerCanisterService(
@@ -21,7 +21,7 @@ class AddressBalanceViewModel: ViewModel() {
     @OptIn(ExperimentalStdlibApi::class)
     fun getICPBalance(account: String) {
         viewModelScope.launch {
-            state = AddressBalanceState(
+            state = ICPBalanceState(
                 isLoading = true
             )
             state = try {
@@ -32,11 +32,11 @@ class AddressBalanceViewModel: ViewModel() {
                     accountBalanceArgs = request
                 )
                 val icpBalance = (response.e8s.toLong() / 100000000.toFloat()).toBigDecimal()
-                AddressBalanceState(
+                ICPBalanceState(
                     balance = icpBalance
                 )
             } catch (t: Throwable) {
-                AddressBalanceState(
+                ICPBalanceState(
                     error = t.message
                 )
             }
