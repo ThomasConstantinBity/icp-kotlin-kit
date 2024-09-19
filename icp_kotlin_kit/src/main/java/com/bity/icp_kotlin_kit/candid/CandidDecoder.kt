@@ -1,7 +1,8 @@
 package com.bity.icp_kotlin_kit.candid
 
-import com.bity.icp_kotlin_kit.candid.model.CandidDictionary
+import com.bity.icp_kotlin_kit.candid.model.CandidRecord
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
+import com.bity.icp_kotlin_kit.candid.model.CandidVector
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import java.lang.RuntimeException
 import kotlin.reflect.KClass
@@ -12,7 +13,6 @@ import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.jvmErasure
 
 // TODO
-// - refactor
 // - remove println
 internal object CandidDecoder {
 
@@ -21,7 +21,9 @@ internal object CandidDecoder {
 
     inline fun <reified T>decode(candidValue: CandidValue?): T? {
         candidValue ?: return null
-        // println("[Decode] - Decoding into ${T::class.java.simpleName}")
+        println("[Decode] - Decoding into ${T::class.java.simpleName}")
+        // println("candidValue: $candidValue")
+        val clazz = T::class
         val res = when(candidValue) {
             is CandidValue.Blob -> candidValue.data
             is CandidValue.Bool -> candidValue.bool
@@ -41,10 +43,15 @@ internal object CandidDecoder {
             is CandidValue.Natural8 -> candidValue.uInt8
             CandidValue.Null -> TODO()
             is CandidValue.Option -> decodeOption(candidValue.option.value)
-            is CandidValue.Record -> buildObject(
-                candidValue.dictionary,
-                T::class.constructors.first()
-            )
+            is CandidValue.Record -> {
+                TODO()
+                /**
+                 * buildObject(
+                 *                 candidValue.dictionary,
+                 *                 T::class.constructors.first()
+                 *             )
+                 */
+            }
 
             CandidValue.Reserved -> TODO()
             is CandidValue.Text -> candidValue.string
@@ -77,7 +84,18 @@ internal object CandidDecoder {
                     }
                 }
             }
-            is CandidValue.Vector -> TODO()
+
+            is CandidValue.Vector -> {
+                require(clazz.java.isArray)
+                val componentType = clazz.java.componentType.kotlin
+                buildArray(
+                    candidVector = candidValue.vector,
+                    componentType = componentType
+                )
+            }
+
+            is CandidValue.Principal -> TODO()
+            is CandidValue.Service -> TODO()
         }
         return res as T
     }
@@ -89,24 +107,135 @@ internal object CandidDecoder {
     }
 
     private fun <T> buildObject(
-        candidDictionary: CandidDictionary,
+        candidRecord: CandidRecord,
         constructor: KFunction<T>,
     ): T {
-        val params = constructor.valueParameters.associateWith { param ->
-            // println("[BuildObject] - Getting value for ${param.name}")
-            val candidValue = candidDictionary[param.name] ?: throw IllegalArgumentException("Missing value for parameter: ${param.name}")
+        val params = constructor.valueParameters.mapIndexed { index, param ->
+            val key = param.name
+            requireNotNull(key)
+            val value = candidRecord[key]
+                ?: candidRecord[index.toULong()]
+                ?: throw IllegalArgumentException("Missing value for parameter: ${param.name}")
             // println("[BuildObject] - ${param.name} - ${param.type.classifier}")
-            val res = decode(candidValue, param.type)
-            // println("[BuildObject] - ${param.name} res: $res")
-            res
-        }
-        // println("[BuildObject] - calling constructor")
+            val res = decode(value, param.type)
+            println("[BuildObject] - ${param.name}: $res")
+            param to res
+        }.toMap()
+
+        // println("[BuildObject] - calling constructor for $constructor")
         val res = constructor.callBy(params)
-        // println("[BuildObject] - done")
+        // println("[BuildObject] - $res")
         return res
     }
 
-    fun decode(candidValue: CandidValue, type: KType): Any? {
+    private fun decode(candidValue: CandidValue, type: KType): Any? {
+        return when(candidValue) {
+            is CandidValue.Blob -> candidValue.data
+            is CandidValue.Bool -> candidValue.bool
+            CandidValue.Empty -> TODO()
+            is CandidValue.Float32 -> candidValue.float
+            is CandidValue.Float64 -> candidValue.double
+            is CandidValue.Function -> TODO()
+            is CandidValue.Integer -> candidValue.bigInt
+            is CandidValue.Integer16 -> candidValue.int16
+            is CandidValue.Integer32 -> candidValue.int32
+            is CandidValue.Integer64 -> candidValue.int64
+            is CandidValue.Integer8 -> candidValue.int8
+            is CandidValue.Natural -> candidValue.bigUInt
+            is CandidValue.Natural16 -> candidValue.uInt16
+            is CandidValue.Natural32 -> candidValue.uInt32
+            is CandidValue.Natural64 -> candidValue.uInt64
+            is CandidValue.Natural8 -> TODO()
+            CandidValue.Null -> TODO()
+            is CandidValue.Option -> candidValue.option.value?.let { decode(it, type) }
+
+            is CandidValue.Principal ->
+                candidValue.candidPrincipal?.bytes?.let {
+                    ICPPrincipal(it)
+                }
+            is CandidValue.Record -> TODO()
+            CandidValue.Reserved -> TODO()
+            is CandidValue.Service -> TODO()
+            is CandidValue.Text -> candidValue.string
+            is CandidValue.Variant -> {
+                val kClass = type.classifier as? KClass<*>
+                requireNotNull(kClass)
+                require(kClass.isSealed)
+                println(
+                    """
+                        candidValue: ${candidValue.variant.candidTypes.size}
+                    """.trimIndent()
+                )
+                kClass.sealedSubclasses.map {
+                    println(
+                        """
+                            $it has ${it.primaryConstructor?.parameters?.size ?: 0} params
+                        """.trimIndent()
+                    )
+                }
+                TODO()
+            }
+            is CandidValue.Vector -> {
+                val componentType = type.arguments.firstOrNull()?.type?.classifier as? KClass<*>
+                requireNotNull(componentType)
+                buildArray(
+                    candidVector = candidValue.vector,
+                    componentType = componentType
+                )
+            }
+        }
+    }
+
+    private fun buildArray (
+        candidVector: CandidVector,
+        componentType: KClass<*>
+    ): Any? {
+        return if (candidVector.values.isEmpty())
+            java.lang.reflect.Array.newInstance(componentType.java, 0)
+        else {
+            val newArray = java.lang.reflect.Array.newInstance(
+                componentType.java,
+                candidVector.values.size
+            ) as Array<Any>
+            val arrayValues = candidVector.values.map { value ->
+                when(value) {
+                    is CandidValue.Blob -> TODO()
+                    is CandidValue.Bool -> TODO()
+                    CandidValue.Empty -> TODO()
+                    is CandidValue.Float32 -> TODO()
+                    is CandidValue.Float64 -> TODO()
+                    is CandidValue.Function -> TODO()
+                    is CandidValue.Integer -> TODO()
+                    is CandidValue.Integer16 -> TODO()
+                    is CandidValue.Integer32 -> TODO()
+                    is CandidValue.Integer64 -> TODO()
+                    is CandidValue.Integer8 -> TODO()
+                    is CandidValue.Natural -> TODO()
+                    is CandidValue.Natural16 -> TODO()
+                    is CandidValue.Natural32 -> TODO()
+                    is CandidValue.Natural64 -> TODO()
+                    is CandidValue.Natural8 -> TODO()
+                    CandidValue.Null -> TODO()
+                    is CandidValue.Option -> TODO()
+                    is CandidValue.Record -> {
+                        buildObject(
+                            candidRecord = value.record,
+                            constructor = componentType.constructors.first()
+                        )
+                    }
+                    CandidValue.Reserved -> TODO()
+                    is CandidValue.Text -> TODO()
+                    is CandidValue.Variant -> TODO()
+                    is CandidValue.Vector -> TODO()
+                    is CandidValue.Principal -> TODO()
+                    is CandidValue.Service -> TODO()
+                }
+            }.toTypedArray()
+            arrayValues.copyInto(newArray, 0, 0, candidVector.values.size)
+        }
+    }
+
+    fun _decode(candidValue: CandidValue, type: KType): Any? {
 
         val kClass = type.classifier
         // println("[ObjectBuilderDecoder] - componentType: ${type.classifier}")
@@ -127,7 +256,8 @@ internal object CandidDecoder {
                 if (candidVector.values.isEmpty())
                     return java.lang.reflect.Array.newInstance(componentType.java, 0)
                 else {
-                    val newArray = java.lang.reflect.Array.newInstance(
+                    TODO()
+                    /*val newArray = java.lang.reflect.Array.newInstance(
                         componentType.java,
                         candidVector.values.size
                     ) as Array<Any>
@@ -151,26 +281,36 @@ internal object CandidDecoder {
                             is CandidValue.Natural8 -> TODO()
                             CandidValue.Null -> TODO()
                             is CandidValue.Option -> TODO()
-                            is CandidValue.Record -> buildObject(
-                                candidDictionary = value.dictionary,
-                                constructor = componentType.constructors.first()
-                            )
+                            is CandidValue.Record -> {
+                                *//**
+                                 * buildObject(
+                                 *                                 candidDictionary = value.dictionary,
+                                 *                                 constructor = componentType.constructors.first()
+                                 *                             )
+                                 *//*
+                                TODO()
+                            }
                             CandidValue.Reserved -> TODO()
                             is CandidValue.Text -> TODO()
                             is CandidValue.Variant -> TODO()
                             is CandidValue.Vector -> TODO()
+                            is CandidValue.Principal -> TODO()
+                            is CandidValue.Service -> TODO()
                         }
                     }.toTypedArray()
                     arrayValues.copyInto(newArray, 0, 0, candidVector.values.size)
-                    return newArray
+                    return newArray*/
                 }
             }
 
             candidValue is CandidValue.Function -> {
                 // TODO, null values to handle
-                val name = candidValue.function.method?.name
-                val principalId = ICPPrincipal.init(candidValue.function.method?.principalId!!)
-                return (type.classifier as KClass<*>).primaryConstructor!!.call(name!!, principalId)
+                /**
+                 * val name = candidValue.function.method?.name
+                 *                 val principalId = ICPPrincipal.init(candidValue.function.method?.principalId!!)
+                 *                 return (type.classifier as KClass<*>).primaryConstructor!!.call(name!!, principalId)
+                 */
+                TODO()
             }
 
             candidValue is CandidValue.Option -> {
@@ -207,14 +347,21 @@ internal object CandidDecoder {
                             is CandidValue.Natural8 -> TODO()
                             CandidValue.Null -> TODO()
                             is CandidValue.Option -> TODO()
-                            is CandidValue.Record -> buildObject(
-                                candidDictionary = candidValue.variant.value.dictionary,
-                                constructor = constructor
-                            )
+                            is CandidValue.Record -> {
+                                /**
+                                 * buildObject(
+                                 *                                 candidDictionary = candidValue.variant.value.dictionary,
+                                 *                                 constructor = constructor
+                                 *                             )
+                                 */
+                                TODO()
+                            }
                             CandidValue.Reserved -> TODO()
                             is CandidValue.Text -> TODO()
                             is CandidValue.Variant -> TODO()
                             is CandidValue.Vector -> TODO()
+                            is CandidValue.Principal -> TODO()
+                            is CandidValue.Service -> TODO()
                         }
                     } catch (t: Throwable) {
                         t.printStackTrace()
@@ -224,11 +371,14 @@ internal object CandidDecoder {
                 }
             }
 
-            candidValue is CandidValue.Record -> buildObject(
-                candidDictionary = candidValue.dictionary,
-                constructor = (type.classifier as KClass<*>).primaryConstructor
-                    ?: throw RuntimeException("Missing primary constructor")
-            )
+            /**
+             * buildObject(
+             *                 candidDictionary = candidValue.dictionary,
+             *                 constructor = (type.classifier as KClass<*>).primaryConstructor
+             *                     ?: throw RuntimeException("Missing primary constructor")
+             *             )
+             */
+            candidValue is CandidValue.Record -> TODO()
 
             else -> throw Exception("Unsupported type: $kClass for candid value: $candidValue")
         }

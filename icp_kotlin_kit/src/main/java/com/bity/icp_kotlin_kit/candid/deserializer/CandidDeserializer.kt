@@ -1,16 +1,20 @@
 package com.bity.icp_kotlin_kit.candid.deserializer
 
-import com.bity.icp_kotlin_kit.candid.model.CandidDictionary
 import com.bity.icp_kotlin_kit.candid.model.CandidFunction
+import com.bity.icp_kotlin_kit.candid.model.CandidKeyedType
 import com.bity.icp_kotlin_kit.candid.model.CandidPrimitiveType
-import com.bity.icp_kotlin_kit.candid.model.CandidType
+import com.bity.icp_kotlin_kit.candid.model.CandidPrincipal
+import com.bity.icp_kotlin_kit.candid.model.CandidRecord
+import com.bity.icp_kotlin_kit.candid.model.CandidService
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.candid.model.CandidVariant
 import com.bity.icp_kotlin_kit.candid.model.CandidVector
+import com.bity.icp_kotlin_kit.candid.model.ServiceMethod
 import com.bity.icp_kotlin_kit.candid.serializer.CandidSerializer
 import com.bity.icp_kotlin_kit.cryptography.LEB128
 import com.bity.icp_kotlin_kit.data.model.CandidDeserializationError
 import com.bity.icp_kotlin_kit.util.ext_function.readFrom
+import com.bity.icp_kotlin_kit.util.ext_function.readNextBytes
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.lang.UnsupportedOperationException
@@ -36,17 +40,17 @@ internal object CandidDeserializer {
         val nCandidValues: Int = LEB128.decodeUnsigned(stream)
         val decodedTypes = (0 until nCandidValues).map {
             val typeRef: Int = LEB128.decodeSigned(stream)
-            val candidType = typeTable.getTypeForReference(typeRef)
-            candidType
+            typeRef
         }
         val decodedValues = decodedTypes.map { candidType ->
-            val decodedValue = decodeValue(candidType, stream)
+            val decodedValue = decodeValue(candidType, stream, typeTable)
             decodedValue
         }
 
         require(stream.available() == 0) {
             throw CandidDeserializationError.UnSerializedBytesLeft()
         }
+        stream.close()
         return decodedValues
     }
 
@@ -55,106 +59,163 @@ internal object CandidDeserializer {
         CandidDeserializationError.InvalidTypeReference::class
     )
     private fun decodeValue(
-        type: CandidType,
-        stream: InputStream
-    ): CandidValue = when(type.primitiveType) {
-        CandidPrimitiveType.NULL ->
-            CandidValue.Null
-        CandidPrimitiveType.BOOL ->
-            CandidValue.Bool(stream.read() != 0)
-        CandidPrimitiveType.NATURAL ->
-            CandidValue.Natural(LEB128.decodeUnsigned(stream))
-        CandidPrimitiveType.INTEGER ->
-            CandidValue.Integer(LEB128.decodeSigned(stream))
-        CandidPrimitiveType.NATURAL8 -> CandidValue.Natural8(UByte.readFrom(stream))
-        CandidPrimitiveType.NATURAL16 -> CandidValue.Natural16(UShort.readFrom(stream))
-        CandidPrimitiveType.NATURAL32 -> CandidValue.Natural32(UInt.readFrom(stream))
-        CandidPrimitiveType.NATURAL64 -> CandidValue.Natural64(ULong.readFrom(stream))
-        CandidPrimitiveType.INTEGER8 -> CandidValue.Integer8(Byte.readFrom(stream))
-        CandidPrimitiveType.INTEGER16 -> CandidValue.Integer16(Short.readFrom(stream))
-        CandidPrimitiveType.INTEGER32 -> CandidValue.Integer32(Int.readFrom(stream))
-        CandidPrimitiveType.INTEGER64 -> CandidValue.Integer64(Long.readFrom(stream))
-        CandidPrimitiveType.FLOAT32 -> CandidValue.Float32(Float.readFrom(stream))
-        CandidPrimitiveType.FLOAT64 -> CandidValue.Float64(Double.readFrom(stream))
-        CandidPrimitiveType.TEXT -> {
-            val string = readStringFromInputStream(stream)
-            CandidValue.Text(string)
+        typeRef: Int,
+        stream: ByteArrayInputStream,
+        table: CandidDecodableTypeTable
+    ): CandidValue {
+        val primitiveType = CandidPrimitiveType.candidPrimitiveTypeByValue(typeRef)
+        return if(primitiveType != null) {
+            decodePrimitiveValue(primitiveType, stream)
+        } else {
+            decodeTypeTableValue(typeRef, stream, table)
         }
-        CandidPrimitiveType.FUNCTION -> {
-            val isPresent = stream.read() == 1
-            val serviceMethod: CandidFunction.ServiceMethod? = if(isPresent) {
-                require(stream.read() == 1) {
-                    throw CandidDeserializationError.InvalidTypeReference()
-                }
-                val principalIdLength: Int = LEB128.decodeUnsigned(stream)
-                val principalId = ByteArray(principalIdLength)
-                stream.read(principalId, 0, principalIdLength)
-                val name = readStringFromInputStream(stream)
-                CandidFunction.ServiceMethod(
-                    name = name,
-                    principalId = principalId
-                )
-            } else null
-            CandidValue.Function(
-                CandidFunction(
-                    signature = type.functionSignature!!,
-                    method = serviceMethod
-                )
-            )
+    }
 
-        }
-        CandidPrimitiveType.RESERVED ->
-            CandidValue.Reserved
-        CandidPrimitiveType.EMPTY ->
-            CandidValue.Empty
-        CandidPrimitiveType.OPTION -> {
-            val containedType = type.containedType!!
-            val isPresent = stream.read() == 1
-            if(isPresent) {
-                val value = decodeValue(containedType, stream)
-                CandidValue.Option(value)
-            } else {
-                CandidValue.Option(containedType)
+    private fun decodePrimitiveValue(
+        primitiveType: CandidPrimitiveType,
+        stream: ByteArrayInputStream
+    ): CandidValue {
+        return when (primitiveType) {
+            CandidPrimitiveType.NULL -> CandidValue.Null
+            CandidPrimitiveType.BOOL -> CandidValue.Bool(stream.read() != 0)
+            CandidPrimitiveType.NATURAL -> CandidValue.Natural(LEB128.decodeUnsigned(stream))
+            CandidPrimitiveType.INTEGER -> CandidValue.Integer(LEB128.decodeSigned(stream))
+            CandidPrimitiveType.NATURAL8 -> CandidValue.Natural8(UByte.readFrom(stream))
+            CandidPrimitiveType.NATURAL16 -> CandidValue.Natural16(UShort.readFrom(stream))
+            CandidPrimitiveType.NATURAL32 -> CandidValue.Natural32(UInt.readFrom(stream))
+            CandidPrimitiveType.NATURAL64 -> CandidValue.Natural64(ULong.readFrom(stream))
+            CandidPrimitiveType.INTEGER8 -> CandidValue.Integer8(Byte.readFrom(stream))
+            CandidPrimitiveType.INTEGER16 -> CandidValue.Integer16(Short.readFrom(stream))
+            CandidPrimitiveType.INTEGER32 -> CandidValue.Integer32(Int.readFrom(stream))
+            CandidPrimitiveType.INTEGER64 -> CandidValue.Integer64(Long.readFrom(stream))
+            CandidPrimitiveType.FLOAT32 -> CandidValue.Float32(Float.readFrom(stream))
+            CandidPrimitiveType.FLOAT64 -> CandidValue.Float64(Double.readFrom(stream))
+
+            CandidPrimitiveType.TEXT -> {
+                val string = readStringFromInputStream(stream)
+                CandidValue.Text(string)
             }
-        }
-        CandidPrimitiveType.VECTOR -> {
-            val containedType = type.containedType!!
-            val nItems: Int = LEB128.decodeUnsigned(stream)
-            val items = (0 until nItems).map {
-                decodeValue(containedType, stream)
+
+            CandidPrimitiveType.RESERVED -> CandidValue.Reserved
+            CandidPrimitiveType.EMPTY -> CandidValue.Empty
+            CandidPrimitiveType.PRINCIPAL -> {
+                val isPresent = stream.read() == 1
+                if(isPresent) {
+                    val nBytes: Int = LEB128.decodeUnsigned(stream)
+                    val bytes = ByteArray(nBytes) { stream.read().toByte() }
+                    CandidValue.Principal(
+                        candidPrincipal = CandidPrincipal(bytes)
+                    )
+                } else {
+                    CandidValue.Principal(candidPrincipal = null)
+                }
             }
-            // special handling of vector(nat8). We convert them to blob(Data)
-            if(containedType.primitiveType == CandidPrimitiveType.NATURAL8) {
-                // I can convert BigInt to byte because primitiveType is Natural8, the value is 1 byte
-                val data = items.map { it.natural8Value!!.toByte() }.toByteArray()
-                CandidValue.Blob(data)
-            } else {
-                CandidValue.Vector(CandidVector(containedType, items))
-            }
+
+            else -> throw CandidDeserializationError.InvalidPrimitive()
         }
-        CandidPrimitiveType.RECORD -> {
-            val rowTypes = type.keyedContainerRowTypes!!
-            val dictionary = hashMapOf<ULong, CandidValue>()
-            rowTypes.forEach {
-                dictionary[it.hashedKey] = decodeValue(it.type, stream)
+    }
+
+    private fun decodeTypeTableValue(
+        typeRef: Int,
+        stream: ByteArrayInputStream,
+        table: CandidDecodableTypeTable
+    ): CandidValue {
+        return when(val type = table.tableData[typeRef]) {
+
+            is CandidTypeTableData.Option -> {
+                val isPresent = stream.read() == 1
+                if(isPresent) {
+                    val value = decodeValue(type.containedType, stream, table)
+                    CandidValue.Option(value)
+                } else CandidValue.Option(table.getTypeForReference(type.containedType))
             }
-            CandidValue.Record(CandidDictionary(dictionary))
-        }
-        CandidPrimitiveType.VARIANT -> {
-            val rowTypes = type.keyedContainerRowTypes!!
-            val valueIndex: ULong = LEB128.decodeUnsigned(stream)
-            CandidValue.Variant(
-                CandidVariant(
-                    candidTypes = rowTypes,
-                    value = decodeValue(rowTypes[valueIndex.toInt()].type, stream),
-                    valueIndex = valueIndex
+
+            is CandidTypeTableData.Vector -> {
+                val nItems: UInt = LEB128.decodeUnsigned(stream)
+                val items = (0 until nItems.toInt()).map {
+                    decodeValue(type.containedType, stream, table)
+                }
+                // special handling of vector(nat8). We convert them to blob
+                if(type.containedType == CandidPrimitiveType.NATURAL8.value) {
+                    CandidValue.Blob(
+                        items.mapNotNull { it.natural8Value }
+                            .flatMap { it.toByteArray().asIterable() }
+                            .toByteArray()
+                    )
+                } else if(items.isEmpty())
+                    CandidValue.Vector(table.getTypeForReference(type.containedType))
+                else CandidValue.Vector(CandidVector(items))
+            }
+
+            is CandidTypeTableData.Record -> {
+                val dictionary = hashMapOf<Long, CandidValue>()
+                type.rows.forEach {
+                    dictionary[it.hashedKey] = decodeValue(it.type, stream, table)
+                }
+                CandidValue.Record(CandidRecord(dictionary))
+            }
+
+            is CandidTypeTableData.Variant -> {
+                val valueIndex: Int = LEB128.decodeUnsigned(stream)
+                val valueType = type.rows[valueIndex].type
+                CandidValue.Variant(
+                    variant = CandidVariant(
+                        candidTypesList = type.rows.map {
+                            CandidKeyedType(
+                                key = it.hashedKey,
+                                type = table.getTypeForReference(it.type)
+                            )
+                        },
+                        value = decodeValue(valueType, stream, table),
+                        valueIndex = valueIndex.toULong()
+                    )
                 )
-            )
+            }
+
+            is CandidTypeTableData.Function -> {
+                val isPresent = stream.read() == 1
+                val serviceMethod = if(isPresent) {
+                    require(stream.read() == 1) {
+                        throw CandidDeserializationError.InvalidTypeReference()
+                    }
+                    val principalIdLength: Int = LEB128.decodeUnsigned(stream)
+                    val principalId = stream.readNextBytes(principalIdLength)
+                    val name = readStringFromInputStream(stream)
+                    ServiceMethod(
+                        name = name,
+                        principal = CandidPrincipal(principalId)
+                    )
+                } else null
+                val functionSignature = table.getTypeForReference(typeRef).functionSignature
+                    ?: throw RuntimeException("serviceSignature must be not null")
+                CandidValue.Function(
+                    function = CandidFunction(
+                        signature = functionSignature,
+                        method = serviceMethod
+                    )
+                )
+            }
+
+            is CandidTypeTableData.Service -> {
+                val isPresent = stream.read() == 1
+                val principal = if(isPresent) {
+                    val principalLength: Int = LEB128.decodeUnsigned(stream)
+                    CandidPrincipal(stream.readNextBytes(principalLength))
+                } else null
+                val serviceSignature = table.getTypeForReference(typeRef).serviceSignature
+                    ?: throw RuntimeException("serviceSignature must be not null")
+                CandidValue.Service(
+                    CandidService(
+                        principal = principal,
+                        signature = serviceSignature
+                    )
+                )
+            }
         }
     }
 
     @Throws(CandidDeserializationError.InvalidUTF8String::class)
-    private fun readStringFromInputStream(inputStream: InputStream): String {
+    fun readStringFromInputStream(inputStream: InputStream): String {
         val length: Int = LEB128.decodeUnsigned(inputStream)
         val data = ByteArray(length)
         inputStream.read(data, 0, length)

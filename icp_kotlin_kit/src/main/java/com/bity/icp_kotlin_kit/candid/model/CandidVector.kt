@@ -2,18 +2,13 @@ package com.bity.icp_kotlin_kit.candid.model
 
 import com.bity.icp_kotlin_kit.data.model.CandidVectorError
 
-internal class CandidVector(
+internal data class CandidVector(
     val values: List<CandidValue>,
     val containedType: CandidType
 ) {
     constructor(containedType: CandidType): this(
         values = emptyList(),
         containedType = containedType
-    )
-
-    constructor(containedType: CandidPrimitiveType): this(
-        values = emptyList(),
-        containedType = CandidType.Primitive(containedType)
     )
 
     @Throws(CandidVectorError.NoElementsAndNoType::class)

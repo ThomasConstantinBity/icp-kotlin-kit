@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.bity.demo_app.ui.address_balance.AddressBalance
+import com.bity.demo_app.ui.icp_balance.AddressBalance
 import com.bity.demo_app.ui.main_screen.MainScreen
 import com.bity.demo_app.ui.theme.ICPKotlinKitTheme
 import com.bity.demo_app.ui.tokens_balance.TokensBalance

@@ -74,9 +74,9 @@ internal object CandidSerializer {
                 val typeReference = typeTable.getReference(value.candidType)
                 CandidEncodableValue.Record(
                     typeRef = typeReference,
-                    values = value.dictionary.candidSortedItems.map {
+                    values = value.record.candidSortedItems.map {
                         CandidEncodableValue.DictionaryEncodableItem(
-                            hashedKey = it.hashedKey,
+                            hashedKey = it.key.longValue.toULong(),
                             value = buildTree(it.value, typeTable)
                         )
                     }
@@ -99,6 +99,29 @@ internal object CandidSerializer {
                 CandidEncodableValue.Vector(
                     typeRef = typeReference,
                     candidEncodableValues = value.vector.values.map { buildTree(it, typeTable) }
+                )
+            }
+            is CandidValue.Principal -> {
+                val typeReference = typeTable.getReference(value.candidType)
+                val principal = value.candidPrincipal
+                if(principal != null) {
+                    CandidEncodableValue.Principal(
+                        typeRef = typeReference,
+                        principal.bytes
+                    )
+                } else {
+                    CandidEncodableValue.Principal(
+                        typeRef = typeReference,
+                        data = null
+                    )
+                }
+            }
+
+            is CandidValue.Service -> {
+                val typeReference = typeTable.getReference(value.candidType)
+                CandidEncodableValue.Service(
+                    typeRef = typeReference,
+                    principalId = value.candidService.principal?.bytes
                 )
             }
         }

@@ -1,23 +1,10 @@
 package com.bity.icp_kotlin_kit.candid
 
-import com.bity.icp_kotlin_kit.candid.model.CandidDictionary
-import com.bity.icp_kotlin_kit.candid.model.CandidPrimitiveType
 import com.bity.icp_kotlin_kit.candid.model.CandidType
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import java.math.BigInteger
-import kotlin.reflect.full.memberProperties
 
 internal object CandidEncoder {
-
-    private fun encodeCandidType(candidType: CandidType): CandidValue {
-        return when(candidType) {
-            is CandidType.Container -> TODO("Container")
-            is CandidType.Function -> TODO("Function")
-            is CandidType.KeyedContainer -> TODO("KeyedContainer")
-            is CandidType.Primitive -> TODO("${candidType.primitiveType.value}")
-        }
-    }
-
     operator fun invoke(
         arg: Any?,
         expectedClass: Class<*>? = null,
@@ -27,16 +14,6 @@ internal object CandidEncoder {
         if(arg == null) {
             requireNotNull(expectedClass)
             return CandidValue.Option(candidPrimitiveTypeForClass(expectedClass))
-        }
-
-        // TODO, value could be optional
-        if(arg is CandidType.KeyedContainer) {
-            val argsMap = arg.dictionaryItemType.associate {
-                it.hashedKey to encodeCandidType(it.type)
-            }
-            return CandidValue.Record(
-                CandidDictionary(HashMap(argsMap))
-            )
         }
 
         val candidValue = when(arg) {
@@ -62,15 +39,17 @@ internal object CandidEncoder {
             is Boolean -> CandidValue.Bool(arg)
             is String -> CandidValue.Text(arg)
             is ByteArray -> CandidValue.Blob(arg)
+
             else -> {
+                TODO()
                 // TODO, value could be optional
-                CandidValue.Record(
+                /* CandidValue.Record(
                     CandidDictionary(
                         arg::class.memberProperties.associate {
                             it.name to CandidEncoder(it.getter.call(arg))
                         }
                     )
-                )
+                ) */
             }
         }
         return if(expectedClassNullable) {
@@ -84,6 +63,7 @@ internal object CandidEncoder {
     private fun candidPrimitiveTypeForClass(clazz: Class<*>): CandidType {
         return when(clazz) {
 
+            /**
             // Unsigned Value
             UByte::class.java-> CandidType.Primitive(CandidPrimitiveType.NATURAL8)
             UShort::class.java -> CandidType.Primitive(CandidPrimitiveType.NATURAL16)
@@ -101,6 +81,7 @@ internal object CandidEncoder {
 
             Boolean::class.java -> CandidType.Primitive(CandidPrimitiveType.BOOL)
             String::class.java -> CandidType.Primitive(CandidPrimitiveType.TEXT)
+            **/
 
             else -> TODO()
         }

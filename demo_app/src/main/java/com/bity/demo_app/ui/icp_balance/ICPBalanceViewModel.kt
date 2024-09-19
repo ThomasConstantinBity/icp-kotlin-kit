@@ -1,4 +1,4 @@
-package com.bity.demo_app.ui.address_balance
+package com.bity.demo_app.ui.icp_balance
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

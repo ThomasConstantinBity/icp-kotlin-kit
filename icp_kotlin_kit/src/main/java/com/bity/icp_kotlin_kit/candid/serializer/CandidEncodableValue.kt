@@ -1,7 +1,7 @@
 package com.bity.icp_kotlin_kit.candid.serializer
 
-import com.bity.icp_kotlin_kit.candid.model.CandidFunction
 import com.bity.icp_kotlin_kit.candid.model.CandidPrimitiveType
+import com.bity.icp_kotlin_kit.candid.model.ServiceMethod
 import com.bity.icp_kotlin_kit.cryptography.LEB128
 import com.bity.icp_kotlin_kit.util.ext_function.bytes
 import com.bity.icp_kotlin_kit.util.ext_function.joinedData
@@ -56,11 +56,15 @@ internal sealed class CandidEncodableValue {
     ): CandidEncodableValue()
     class Function(
         val typeRef: Int,
-        val serviceMethod: CandidFunction.ServiceMethod?
+        val serviceMethod: ServiceMethod?
     ): CandidEncodableValue()
     class Service(
         val typeRef: Int,
         val principalId: ByteArray?
+    ): CandidEncodableValue()
+    class Principal(
+        val typeRef: Int,
+        val data: ByteArray?
     ): CandidEncodableValue()
 
     fun encodeType(): ByteArray {
@@ -90,6 +94,7 @@ internal sealed class CandidEncodableValue {
             is Text -> encodeSigned(CandidPrimitiveType.TEXT.value)
             is Variant -> encodeSigned(typeRef)
             is Vector -> encodeSigned(typeRef)
+            is Principal -> encodeSigned(typeRef)
         }
     }
 
@@ -109,8 +114,8 @@ internal sealed class CandidEncodableValue {
                 } else {
                     val methodName = serviceMethod.name.toByteArray(Charsets.UTF_8)
                     byteArrayOf(0x01) +
-                            encodeUnsigned(serviceMethod.principalId.size) +
-                            serviceMethod.principalId +
+                            encodeUnsigned(serviceMethod.principal.bytes.size) +
+                            serviceMethod.principal.bytes +
                             byteArrayOf(0x01) +
                             encodeUnsigned(methodName.size) +
                             methodName
@@ -152,6 +157,11 @@ internal sealed class CandidEncodableValue {
                 } else {
                     byteArrayOf(0x01) + encodeUnsigned(principalId.size) + principalId
                 }
+
+            is Principal -> {
+                val principal = data ?: return byteArrayOf(0x00)
+                byteArrayOf(0x01) + encodeUnsigned(principal.size) + principal
+            }
         }
     }
 

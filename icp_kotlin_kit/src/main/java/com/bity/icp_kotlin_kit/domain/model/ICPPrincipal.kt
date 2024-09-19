@@ -6,28 +6,22 @@ import com.bity.icp_kotlin_kit.cryptography.SHA224
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPPrincipalApiModel
 
 // Source:  from https://internetcomputer.org/docs/current/references/ic-interface-spec/#principal
-data class ICPPrincipal private constructor(
+class ICPPrincipal private constructor(
     val bytes: ByteArray,
     val string: String
 ) {
 
+    internal constructor(bytes: ByteArray): this(
+        string = ICPCryptography.encodeCanonicalText(bytes),
+        bytes = bytes
+    )
+
+    internal constructor(string: String): this(
+        string = string,
+        bytes = ICPCryptography.decodeCanonicalText(string)
+    )
+
     companion object {
-
-        internal fun init(bytes: ByteArray): ICPPrincipal {
-            val string = ICPCryptography.encodeCanonicalText(bytes)
-            return ICPPrincipal(
-                string = string,
-                bytes = bytes
-            )
-        }
-
-        internal fun init(string: String): ICPPrincipal {
-            val bytes = ICPCryptography.decodeCanonicalText(string)
-            return ICPPrincipal(
-                string = string,
-                bytes = bytes
-            )
-        }
 
         /** Principal with Self-Authenticating ID
          * These have the form H(ec_public_key) · 0x02 (29 bytes).
@@ -37,7 +31,7 @@ data class ICPPrincipal private constructor(
             val serialized = DER.serialise(uncompressedPublicKey)
             val hash = SHA224(serialized)
             val bytes = hash + 0x02.toByte()
-            return init(bytes)
+            return ICPPrincipal(bytes)
         }
     }
 }
