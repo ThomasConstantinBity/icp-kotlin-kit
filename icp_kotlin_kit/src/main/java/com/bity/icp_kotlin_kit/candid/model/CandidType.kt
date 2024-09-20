@@ -15,8 +15,8 @@ internal sealed class CandidType(
 
     data object Null: CandidType(CandidPrimitiveType.NULL)
     data object Bool: CandidType(CandidPrimitiveType.BOOL)
-    data object Natural: CandidType(TODO())
-    data object Integer: CandidType(TODO())
+    data object Natural: CandidType(CandidPrimitiveType.NATURAL)
+    data object Integer: CandidType(CandidPrimitiveType.INTEGER)
     data object Natural8: CandidType(CandidPrimitiveType.NATURAL8)
     data object Natural16: CandidType(CandidPrimitiveType.NATURAL16)
     data object Natural32: CandidType(CandidPrimitiveType.NATURAL32)

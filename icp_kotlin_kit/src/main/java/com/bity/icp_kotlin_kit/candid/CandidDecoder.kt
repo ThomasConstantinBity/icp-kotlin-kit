@@ -117,7 +117,7 @@ internal object CandidDecoder {
                 ?: throw IllegalArgumentException("Missing value for parameter: ${param.name}")
             // println("[BuildObject] - ${param.name} - ${param.type.classifier}")
             val res = decode(value, param.type)
-            println("[BuildObject] - ${param.name}: $res")
+            // println("[BuildObject] - ${param.name}: $res")
             param to res
         }.toMap()
 
@@ -419,7 +419,7 @@ internal object CandidDecoder {
                         }
                     } catch (t: Throwable) {
                         t.printStackTrace()
-                        println("Error for ${nestedClass.simpleName}")
+                        // println("Error for ${nestedClass.simpleName}")
                         null
                     }
                 }

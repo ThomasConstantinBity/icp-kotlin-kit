@@ -13,6 +13,8 @@ import com.bity.demo_app.ui.util.TopBar
 import com.bity.icp_kotlin_kit.domain.usecase.Tokens
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
@@ -40,7 +42,7 @@ fun ICPTokens(
                 .padding(it)
         ) {
             when(state) {
-                is ICPTokensState.Error -> TODO()
+                is ICPTokensState.Error -> Text(text = "Error: ${state.errorMessage ?: ""}")
                 is ICPTokensState.ICPTokens -> Tokens(state.tokens)
                 ICPTokensState.Loading -> LoadingDialog()
             }
@@ -59,43 +61,59 @@ fun Tokens(tokens: Array<Tokens.token>) {
 
 @Composable
 fun TokenRow(token: Tokens.token) {
-    Card(
+    BadgedBox(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(start = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(token.thumbnail)
-                    .crossfade(true)
-                    .build(),
-                placeholder = null,
-                contentDescription = "",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(50.dp),
-            )
-            Column(
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        badge = {
+            Badge(
                 modifier = Modifier
-                    .weight(3.0F),
+                    .padding(horizontal = 16.dp,)
+                    .align(Alignment.BottomEnd)
             ) {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    text = token.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                Text(text = getICRCStandard(token.details))
+            }
+        }
+    ) {
+        Card {
+            Row(
+                modifier = Modifier
+                    .padding(start = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(token.thumbnail)
+                        .crossfade(true)
+                        .build(),
+                    placeholder = null,
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(50.dp),
                 )
-                Text(
+                Column(
                     modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    text = token.description
-                )
+                        .weight(3.0F),
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        text = token.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                    Text(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        text = token.description
+                    )
+                }
             }
         }
     }
 }
+
+private fun getICRCStandard(details: Array<Tokens.token._Class1>): String =
+    (details.firstOrNull {
+        it.string == "standard"
+    }?.detail_value as? Tokens.detail_value.Text)?.string ?: "-"

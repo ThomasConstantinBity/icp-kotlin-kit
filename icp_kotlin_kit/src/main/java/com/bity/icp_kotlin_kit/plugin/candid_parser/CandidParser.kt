@@ -275,6 +275,10 @@ internal object CandidParser {
                 optional {
                     expect(Token.Semi)
                 }
+
+                optional {
+                    expect(IDLComment) storeIn IDLTypeCustom::comment
+                }
             } or {
                 expect(Token.Id) storeIn IDLTypeCustom::typeDef
                 optional {
@@ -389,6 +393,12 @@ internal object CandidParser {
                         expect(Token.RParen)
                     }
                 }
+                optional {
+                    expect(Token.Semi)
+                }
+                optional {
+                    expect(IDLComment) storeIn IDLTypeNat::comment
+                }
             } or {
                 optional {
                     expect(Token.Opt)
@@ -415,6 +425,9 @@ internal object CandidParser {
                 expect(Token.Nat8)
                 optional {
                     expect(Token.Semi)
+                }
+                optional {
+                    expect(IDLComment) storeIn IDLTypeNat8::comment
                 }
             } or {
                 expect(Token.Nat8)
@@ -521,6 +534,9 @@ internal object CandidParser {
                 expect(Token.Text)
                 optional {
                     expect(Token.Semi)
+                }
+                optional {
+                    expect(IDLComment) storeIn IDLTypeText::comment
                 }
             } or {
                 optional {

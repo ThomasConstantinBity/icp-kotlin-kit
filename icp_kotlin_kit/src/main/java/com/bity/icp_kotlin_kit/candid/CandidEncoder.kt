@@ -1,21 +1,32 @@
 package com.bity.icp_kotlin_kit.candid
 
+import com.bity.icp_kotlin_kit.candid.model.CandidOption
+import com.bity.icp_kotlin_kit.candid.model.CandidPrincipal
 import com.bity.icp_kotlin_kit.candid.model.CandidRecord
 import com.bity.icp_kotlin_kit.candid.model.CandidType
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
+import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import java.math.BigInteger
+import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.jvmErasure
 
 internal object CandidEncoder {
+
+    // TODO, expectedClass could be removed
     operator fun invoke(
         arg: Any?,
-        expectedClass: Class<*>? = null,
+        expectedClass: KClass<*>? = null,
         expectedClassNullable: Boolean = false
     ): CandidValue {
 
         if(arg == null) {
             requireNotNull(expectedClass)
-            return CandidValue.Option(candidPrimitiveTypeForClass(expectedClass))
+            return CandidValue.Option(
+                option = CandidOption.None(
+                    type = candidPrimitiveTypeForClass(expectedClass)
+                )
+            )
         }
 
         val candidValue = when(arg) {
@@ -42,10 +53,21 @@ internal object CandidEncoder {
             is String -> CandidValue.Text(arg)
             is ByteArray -> CandidValue.Blob(arg)
 
+            is ICPPrincipal -> CandidValue.Principal(
+                candidPrincipal = CandidPrincipal(
+                    string = arg.string,
+                    bytes = arg.bytes
+                )
+            )
+
             else -> {
                 // TODO, value could be optional
                 val dictionary = arg::class.memberProperties.associate {
-                    it.name to CandidEncoder(it.getter.call(arg))
+                    it.name to CandidEncoder(
+                        arg = it.getter.call(arg),
+                        expectedClass = it.returnType.jvmErasure,
+                        expectedClassNullable = it.returnType.isMarkedNullable
+                    )
                 }.toMap()
                 CandidValue.Record(CandidRecord.init(dictionary))
             }
@@ -58,8 +80,12 @@ internal object CandidEncoder {
     }
 
     // TODO return CandidValue.Option
-    private fun candidPrimitiveTypeForClass(clazz: Class<*>): CandidType {
+    private fun candidPrimitiveTypeForClass(clazz: KClass<*>): CandidType {
         return when(clazz) {
+
+            Byte::class-> CandidType.Integer8
+
+            ByteArray::class -> CandidType.Vector(CandidType.Integer8)
 
             /**
             // Unsigned Value
@@ -81,7 +107,7 @@ internal object CandidEncoder {
             String::class.java -> CandidType.Primitive(CandidPrimitiveType.TEXT)
             **/
 
-            else -> TODO()
+            else -> TODO("not implemented for $clazz")
         }
     }
 }
