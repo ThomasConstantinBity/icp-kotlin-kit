@@ -21,12 +21,17 @@ fun MainScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         MainButton(text = "ICP Balance") {
             navController.navigate(Screen.AddressBalance.route)
         }
         MainButton(text = "Tokens Balance") {
             navController.navigate(Screen.TokensBalance.route)
         }
+        MainButton(text = "ICP Tokens") {
+            navController.navigate(Screen.ICPTokens.route)
+        }
+
     }
 }
 

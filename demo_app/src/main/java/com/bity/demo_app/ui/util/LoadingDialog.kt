@@ -17,7 +17,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
 @Composable
-fun LoadingDialog(isLoading: Boolean) {
+fun LoadingDialog(isLoading: Boolean = true) {
     if(isLoading) {
         Dialog(
             onDismissRequest = { },

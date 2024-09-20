@@ -110,7 +110,7 @@ object Tokens {
     ) {
         data class _Class1(
             val string: String,
-            // val detail_value: detail_value
+            val detail_value: detail_value
         )
     }
 

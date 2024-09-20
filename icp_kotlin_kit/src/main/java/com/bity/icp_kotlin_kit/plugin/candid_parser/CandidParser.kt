@@ -118,6 +118,9 @@ internal object CandidParser {
                 } storeIn IDLFileDeclaration::services
                 expect(Token.RBrace)
             }
+            optional{
+                expect(Token.Semi)
+            }
         }
 
         IDLService {

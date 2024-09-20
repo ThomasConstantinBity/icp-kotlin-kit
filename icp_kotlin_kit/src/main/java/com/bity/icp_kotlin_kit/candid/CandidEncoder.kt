@@ -1,8 +1,10 @@
 package com.bity.icp_kotlin_kit.candid
 
+import com.bity.icp_kotlin_kit.candid.model.CandidRecord
 import com.bity.icp_kotlin_kit.candid.model.CandidType
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import java.math.BigInteger
+import kotlin.reflect.full.memberProperties
 
 internal object CandidEncoder {
     operator fun invoke(
@@ -41,15 +43,11 @@ internal object CandidEncoder {
             is ByteArray -> CandidValue.Blob(arg)
 
             else -> {
-                TODO()
                 // TODO, value could be optional
-                /* CandidValue.Record(
-                    CandidDictionary(
-                        arg::class.memberProperties.associate {
-                            it.name to CandidEncoder(it.getter.call(arg))
-                        }
-                    )
-                ) */
+                val dictionary = arg::class.memberProperties.associate {
+                    it.name to CandidEncoder(it.getter.call(arg))
+                }.toMap()
+                CandidValue.Record(CandidRecord.init(dictionary))
             }
         }
         return if(expectedClassNullable) {

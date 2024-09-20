@@ -9,6 +9,7 @@ internal class CandidTypeTable {
 
     fun getReference(type: CandidType): Int =
         when(type) {
+
             is CandidType.Vector -> {
                 val typeData = CandidTypeData(
                     types = listOf(
@@ -60,27 +61,10 @@ internal class CandidTypeTable {
             }
 
             is CandidType.Function -> TODO()
-            CandidType.Bool -> TODO()
-            CandidType.Empty -> TODO()
-            CandidType.Float32 -> TODO()
-            CandidType.Float64 -> TODO()
-            CandidType.Integer -> TODO()
-            CandidType.Integer16 -> TODO()
-            CandidType.Integer32 -> TODO()
-            CandidType.Integer64 -> TODO()
-            CandidType.Integer8 -> TODO()
-            is CandidType.Named -> TODO()
-            CandidType.Natural -> TODO()
-            CandidType.Natural16 -> TODO()
-            CandidType.Natural32 -> TODO()
-            CandidType.Natural64 -> TODO()
-            CandidType.Natural8 -> TODO()
-            CandidType.Null -> TODO()
-            CandidType.Principal -> TODO()
-
-            CandidType.Reserved -> TODO()
             is CandidType.Service -> TODO()
-            CandidType.Text -> TODO()
+            is CandidType.Named -> TODO()
+
+            else -> type.primitiveType.value
         }
 
     fun encode(): ByteArray =

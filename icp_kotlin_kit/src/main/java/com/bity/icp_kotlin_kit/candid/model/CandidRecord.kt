@@ -26,4 +26,14 @@ internal data class CandidRecord(
         val hashedKey = CandidKey.candidHash(key)
         return get(hashedKey)
     }
+
+    companion object {
+        fun init(dictionary: Map<String, CandidValue>): CandidRecord =
+            CandidRecord(
+                hashedDictionary = dictionary.entries
+                    .associate {
+                        CandidKey.candidHash(it.key).toLong() to it.value
+                    }
+            )
+    }
 }

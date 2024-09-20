@@ -5,6 +5,7 @@ import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.candid.model.CandidVector
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import java.lang.RuntimeException
+import java.math.BigInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
@@ -21,7 +22,7 @@ internal object CandidDecoder {
 
     inline fun <reified T>decode(candidValue: CandidValue?): T? {
         candidValue ?: return null
-        println("[Decode] - Decoding into ${T::class.java.simpleName}")
+        // println("[Decode] - Decoding into ${T::class.java.simpleName}")
         // println("candidValue: $candidValue")
         val clazz = T::class
         val res = when(candidValue) {
@@ -42,20 +43,18 @@ internal object CandidDecoder {
             is CandidValue.Natural64 -> candidValue.uInt64
             is CandidValue.Natural8 -> candidValue.uInt8
             CandidValue.Null -> TODO()
-            is CandidValue.Option -> decodeOption(candidValue.option.value)
+            is CandidValue.Option -> TODO() // decodeOption(candidValue.option.value)
             is CandidValue.Record -> {
-                TODO()
-                /**
-                 * buildObject(
-                 *                 candidValue.dictionary,
-                 *                 T::class.constructors.first()
-                 *             )
-                 */
+                buildObject(
+                    candidRecord = candidValue.record,
+                    constructor = T::class.constructors.first()
+                )
             }
 
             CandidValue.Reserved -> TODO()
             is CandidValue.Text -> candidValue.string
             is CandidValue.Variant -> {
+                TODO()
                 require(T::class.isSealed) {
                     throw RuntimeException("Can't parse CandidVariant")
                 }
@@ -158,22 +157,14 @@ internal object CandidDecoder {
             is CandidValue.Service -> TODO()
             is CandidValue.Text -> candidValue.string
             is CandidValue.Variant -> {
+                // TODO, should have a name
                 val kClass = type.classifier as? KClass<*>
                 requireNotNull(kClass)
                 require(kClass.isSealed)
-                println(
-                    """
-                        candidValue: ${candidValue.variant.candidTypes.size}
-                    """.trimIndent()
+                buildSealedClass(
+                    candidValue = candidValue.variant.value,
+                    subclasses = kClass.sealedSubclasses
                 )
-                kClass.sealedSubclasses.map {
-                    println(
-                        """
-                            $it has ${it.primaryConstructor?.parameters?.size ?: 0} params
-                        """.trimIndent()
-                    )
-                }
-                TODO()
             }
             is CandidValue.Vector -> {
                 val componentType = type.arguments.firstOrNull()?.type?.classifier as? KClass<*>
@@ -185,6 +176,69 @@ internal object CandidDecoder {
             }
         }
     }
+
+    private fun buildSealedClass(
+        candidValue: CandidValue,
+        subclasses: List<KClass<out Any>>
+    ): Any {
+        return when(candidValue) {
+            is CandidValue.Blob -> buildDataClass(subclasses, ByteArray::class, candidValue.data)
+            is CandidValue.Bool -> buildDataClass(subclasses, Boolean::class, candidValue.bool)
+            CandidValue.Empty -> TODO()
+            is CandidValue.Float32 -> buildDataClass(subclasses, Float::class, candidValue.float)
+            is CandidValue.Float64 -> buildDataClass(subclasses, Double::class, candidValue.double)
+            is CandidValue.Function -> TODO()
+            is CandidValue.Integer -> buildDataClass(subclasses, BigInteger::class, candidValue.bigInt)
+            is CandidValue.Integer16 -> buildDataClass(subclasses, Short::class, candidValue.int16)
+            is CandidValue.Integer32 -> buildDataClass(subclasses, Int::class, candidValue.int32)
+            is CandidValue.Integer64 -> buildDataClass(subclasses, Long::class, candidValue.int64)
+            is CandidValue.Integer8 -> buildDataClass(subclasses, Byte::class, candidValue.int8)
+            is CandidValue.Natural -> buildDataClass(subclasses, BigInteger::class, candidValue.bigUInt)
+            is CandidValue.Natural16 -> buildDataClass(subclasses, UShort::class, candidValue.uInt16)
+            is CandidValue.Natural32 -> buildDataClass(subclasses, UInt::class, candidValue.uInt32)
+            is CandidValue.Natural64 -> buildDataClass(subclasses, ULong::class, candidValue.uInt64)
+            is CandidValue.Natural8 -> buildDataClass(subclasses, UByte::class, candidValue.uInt8)
+            CandidValue.Null -> buildObject(subclasses)
+            is CandidValue.Option -> TODO()
+            is CandidValue.Principal -> TODO()
+            is CandidValue.Record -> TODO()
+            CandidValue.Reserved -> TODO()
+            is CandidValue.Service -> TODO()
+
+            is CandidValue.Text -> buildDataClass(subclasses, String::class, candidValue.string)
+
+            is CandidValue.Variant -> TODO()
+            is CandidValue.Vector -> TODO()
+        }
+    }
+
+    private fun buildObject(
+        subclasses: List<KClass<out Any>>,
+    ): Any {
+        val targetClasses = subclasses
+            .filter { it.primaryConstructor == null }
+        require(targetClasses.isNotEmpty())
+        return if(targetClasses.size == 1) {
+            targetClasses.first().objectInstance!!
+        } else
+            // TODO()
+            targetClasses.first().objectInstance!!
+    }
+
+    private fun buildDataClass(
+        subclasses: List<KClass<out Any>>,
+        kClass: KClass<*>,
+        value: Any
+    ): Any {
+        val targetClasses = subclasses
+            .filter { it.primaryConstructor?.parameters?.size == 1 }
+            .filter { it.primaryConstructor!!.parameters.first().type.classifier == kClass  }
+        require(targetClasses.isNotEmpty())
+        return if(targetClasses.size == 1) {
+            targetClasses.first().primaryConstructor!!.call(value)
+        } else TODO()
+    }
+
 
     private fun buildArray (
         candidVector: CandidVector,

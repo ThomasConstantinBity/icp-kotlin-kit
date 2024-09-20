@@ -1,5 +1,6 @@
 [versions]
 bouncycastle-version = "1.70"
+coilCompose = "2.4.0"
 commons-codec-version = "1.16.0"
 koin = "4.0.0"
 kotlin-reflect = "1.9.20"
@@ -30,6 +31,7 @@ composeBom = "2024.09.01"
 
 [libraries]
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec-version" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "bouncycastle-version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin-reflect" }

@@ -7,22 +7,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.bity.demo_app.ui.util.AccountID
 import com.bity.demo_app.ui.util.LoadingDialog
+import com.bity.demo_app.ui.util.TopBar
 import java.math.BigDecimal
 
 @Composable
@@ -34,7 +31,7 @@ fun AddressBalance(
 
     Scaffold(
         topBar = {
-            TopBar()
+            TopBar("ICP Balance")
         },
         bottomBar = {
             BottomBar(
@@ -60,20 +57,6 @@ fun AddressBalance(
             ErrorMessage(message = state.error)
         }
     }
-}
-
-@Composable
-private fun TopBar() {
-    Text(
-        text = "ICP Balance",
-        style = MaterialTheme.typography.bodyLarge,
-        fontSize = 24.sp,
-        fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    )
 }
 
 @Composable
