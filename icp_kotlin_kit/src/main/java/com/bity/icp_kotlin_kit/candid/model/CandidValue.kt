@@ -72,7 +72,23 @@ internal sealed class CandidValue(
 
     data class Blob(val data: ByteArray) : CandidValue(
         candidType = CandidType.Vector(CandidType.Natural8)
-    )
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            if (!super.equals(other)) return false
+
+            other as Blob
+
+            return data.contentEquals(other.data)
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + data.contentHashCode()
+            return result
+        }
+    }
 
     data object Reserved : CandidValue(
         candidType = CandidType.Reserved
@@ -115,14 +131,60 @@ internal sealed class CandidValue(
     ): CandidValue(
         candidType = CandidType.Principal
     ) {
+
         constructor(string: String): this(
             candidPrincipal = CandidPrincipal(string)
         )
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            if (!super.equals(other)) return false
+
+            other as Principal
+
+            return candidPrincipal == other.candidPrincipal
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + (candidPrincipal?.hashCode() ?: 0)
+            return result
+        }
     }
 
     data class Service(
         val candidService: CandidService
     ): CandidValue(
         candidType = CandidType.Service(candidService.signature)
-    )
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            if (!super.equals(other)) return false
+
+            other as Service
+
+            return candidService == other.candidService
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + candidService.hashCode()
+            return result
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CandidValue
+
+        return candidType == other.candidType
+    }
+
+    override fun hashCode(): Int {
+        return candidType.hashCode()
+    }
 }

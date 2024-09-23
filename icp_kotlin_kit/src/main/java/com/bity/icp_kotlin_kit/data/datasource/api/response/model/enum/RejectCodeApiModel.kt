@@ -2,7 +2,9 @@ package com.bity.icp_kotlin_kit.data.datasource.api.response.model.enum
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
+// TODO, remove PlaceHolder and fix mapping
 enum class RejectCodeApiModel {
+    PlaceHolder,
     @JsonProperty("1") SystemFatal,
     @JsonProperty("2") SystemTransient,
     @JsonProperty("3") DestinationInvalid,

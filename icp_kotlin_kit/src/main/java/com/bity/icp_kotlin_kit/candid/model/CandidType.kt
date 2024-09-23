@@ -4,7 +4,7 @@ internal sealed class CandidType(
     private val candidPrimitiveType: CandidPrimitiveType?
 ) {
     val functionSignature: CandidFunctionSignature?
-        get() = (this as? Function)?.functionSignature
+        get() = (this as? Function)?.signature
 
     val serviceSignature: CandidServiceSignature?
         get() = (this as? Service)?.serviceSignature

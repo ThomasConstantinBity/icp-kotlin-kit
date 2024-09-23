@@ -51,7 +51,7 @@ object LedgerCanister {
      *     e8s : nat64;
      * };
      */
-    class Tokens(
+    data class Tokens(
         val e8s: ULong
     )
 
@@ -64,33 +64,37 @@ object LedgerCanister {
      *         Burn: record {
      *             from: AccountIdentifier;
      *             amount: Tokens;
+     *             spender : opt blob
      *         };
      *         Transfer: record {
      *             from: AccountIdentifier;
      *             to: AccountIdentifier;
      *             amount: Tokens;
      *             fee: Tokens;
+     *             spender : opt blob;
      *         };
      *     };
      */
     //There are three types of operations: minting tokens, burning tokens & transferring tokens
     sealed class Operation {
 
-        class Mint(
+        data class Mint(
             val to: AccountIdentifier,
             val amount: Tokens
         ): Operation()
 
-        class Burn(
+        data class Burn(
             val from: AccountIdentifier,
-            val amount: Tokens
+            val amount: Tokens,
+            val spender: ByteArray?
         ): Operation()
 
-        class Transfer(
+        data class Transfer(
             val from: AccountIdentifier,
             val to: AccountIdentifier,
             val amount: Tokens,
-            val fee: Tokens
+            val fee: Tokens,
+            val spender: ByteArray?
         ): Operation()
 
     }
@@ -101,7 +105,7 @@ object LedgerCanister {
      * };
      */
     // Timestamps are represented as nanoseconds from the UNIX epoch in UTC timezone
-    class TimeStamp(
+    data class TimeStamp(
         val timestamp_nanos: ULong
     )
 
@@ -112,7 +116,7 @@ object LedgerCanister {
      *     created_at_time: TimeStamp;
      * };
      */
-    class Transaction(
+    data class Transaction(
         val operation: Operation?,
         val memo: Memo,
         val created_at_time: TimeStamp
@@ -125,7 +129,7 @@ object LedgerCanister {
      *     timestamp: TimeStamp;
      * };
      */
-    class Block(
+    data class Block(
         val parent_hash: Hash?,
         val transaction: Transaction,
         val timestamp: TimeStamp
@@ -244,7 +248,7 @@ object LedgerCanister {
      * };
      */
     // A prefix of the block range specified in the [GetBlocksArgs] request.
-    class BlockRange(
+    data class BlockRange(
         // A prefix of the requested block range.
         // The index of the first block is equal to [GetBlocksArgs.from].
         //
@@ -258,7 +262,7 @@ object LedgerCanister {
         // NOTE: the list of blocks can be empty if:
         // 1. [GetBlocksArgs.len] was zero.
         // 2. [GetBlocksArgs.from] was larger than the last block known to the canister.
-        val blocks: kotlin.Array<Block>
+        val blocks: Array<Block>
     )
 
     /**
@@ -269,7 +273,7 @@ object LedgerCanister {
      */
     sealed class QueryArchiveResult {
 
-        class Ok(
+        data class Ok(
             val blockRange: BlockRange
         ): QueryArchiveResult()
 
@@ -337,7 +341,7 @@ object LedgerCanister {
         //
         // The block range can be an arbitrary sub-range of the originally requested range.
         val certificate: ByteArray?,
-        val blocks: kotlin.Array<Block>,
+        val blocks: Array<Block>,
 
         // The index of the first block in "blocks".
         // If the blocks vector is empty, the exact value of this field is not specified.
@@ -348,7 +352,7 @@ object LedgerCanister {
         //
         // For each entry `e` in [archived_blocks], `[e.from, e.from + len)` is a sub-range
         // of the originally requested block range.
-        val archived_blocks: kotlin.Array<_Class1>
+        val archived_blocks: Array<_Class1>
     ) {
         class _Class1(
             // The index of the first archived block that can be fetched using the callback.
