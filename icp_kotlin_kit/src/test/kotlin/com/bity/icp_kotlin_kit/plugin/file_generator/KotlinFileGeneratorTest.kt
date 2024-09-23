@@ -31,6 +31,14 @@ class KotlinFileGeneratorTest {
         @JvmStatic
         private fun filePaths() = listOf(
             Arguments.of(
+                "src/test/resources/candid_file/ICRC1.did",
+                "src/test/resources/generated_candid_file/ICRC1.kt"
+            ),
+            Arguments.of(
+                "src/test/resources/candid_file/DIP20.did",
+                "src/test/resources/generated_candid_file/DIP20.kt"
+            ),
+            Arguments.of(
                 "src/test/resources/candid_file/LedgerCanister.did",
                 "src/test/resources/generated_candid_file/LedgerCanister.kt"
             ),

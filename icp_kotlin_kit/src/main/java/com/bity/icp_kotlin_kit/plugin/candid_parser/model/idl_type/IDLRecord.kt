@@ -41,7 +41,7 @@ internal data class IDLRecord(
     override val id: String? = null,
     override val isOptional: Boolean = false,
     val recordName: String? = null,
-    val types: List<IDLType>,
+    val types: List<IDLType> = emptyList(),
 ) : IDLType(
     comment = comment,
     id = id,

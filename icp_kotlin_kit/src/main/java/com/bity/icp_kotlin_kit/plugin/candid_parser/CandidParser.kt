@@ -14,8 +14,12 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolea
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFloat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt16
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt32
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat16
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat32
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat8
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
@@ -77,10 +81,14 @@ internal object CandidParser {
             "null" isToken Token.Null
             "blob" isToken Token.Blob
             matches("""\bint\b""") isToken Token.Int
+            matches("""\bint16\b""") isToken Token.Int16
+            matches("""\bint32\b""") isToken Token.Int32
             matches("""\bint64\b""") isToken Token.Int64
 
             matches("""\bnat\b""") isToken Token.Nat
             matches("""\bnat8\b""") isToken Token.Nat8
+            matches("""\bnat16\b""") isToken Token.Nat16
+            matches("""\bnat32\b""") isToken Token.Nat32
             matches("""\bnat64\b""") isToken Token.Nat64
 
             matches("""\bfloat64\b""") isToken Token.Float64
@@ -112,6 +120,14 @@ internal object CandidParser {
             optional {
                 expect(Token.Service)
                 expect(Token.Colon)
+                optional {
+                    expect(Token.LParen)
+                    repeated<IDLFileDeclaration, IDLType> {
+                        expect(IDLType) storeIn item
+                    } storeIn IDLFileDeclaration::serviceConstructors
+                    expect(Token.RParen)
+                    expect(Token.Arrow)
+                }
                 expect(Token.LBrace)
                 repeated<IDLFileDeclaration, IDLFun>(min = 1) {
                     expect(IDLFun) storeIn item
@@ -187,6 +203,14 @@ internal object CandidParser {
                 expect(IDLTypeNat8) storeIn self()
             } or {
                 expect(IDLTypeFloat64) storeIn self()
+            } or {
+                expect(IDLTypeInt16) storeIn self()
+            } or {
+                expect(IDLTypeNat16) storeIn self()
+            } or {
+                expect(IDLTypeNat32) storeIn self()
+            } or {
+                expect(IDLTypeInt32) storeIn self()
             }
         }
 
@@ -215,7 +239,7 @@ internal object CandidParser {
                 expect(Token.Record)
                 expect(Token.LBrace)
             }
-            repeated(min = 1) {
+            repeated(min = 0) {
                 expect(IDLType) storeIn item
                 optional { expect(Token.Semi) }
             } storeIn IDLRecord::types
@@ -434,6 +458,52 @@ internal object CandidParser {
             }
         }
 
+        IDLTypeNat16 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat16::comment
+            }
+            either {
+                expect(Token.Id) storeIn IDLTypeNat16::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeNat16::isOptional
+                }
+                expect(Token.Nat16)
+                optional {
+                    expect(Token.Semi)
+                }
+                optional {
+                    expect(IDLComment) storeIn IDLTypeNat16::comment
+                }
+            } or {
+                expect(Token.Nat16)
+            }
+        }
+
+        IDLTypeNat32 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeNat32::comment
+            }
+            either {
+                expect(Token.Id) storeIn IDLTypeNat32::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeNat32::isOptional
+                }
+                expect(Token.Nat32)
+                optional {
+                    expect(Token.Semi)
+                }
+                optional {
+                    expect(IDLComment) storeIn IDLTypeNat32::comment
+                }
+            } or {
+                expect(Token.Nat32)
+            }
+        }
+
         IDLTypeNat64 {
             optional {
                 expect(IDLComment) storeIn IDLTypeNat64::comment
@@ -464,6 +534,58 @@ internal object CandidParser {
             expect(Token.Int)
             optional {
                 expect(Token.Semi)
+            }
+        }
+
+        IDLTypeInt16 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeInt16::comment
+            }
+
+            either {
+                expect(Token.Id) storeIn IDLTypeInt16::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeInt16::isOptional
+                }
+                expect(Token.Int16)
+
+                optional {
+                    expect(Token.Semi)
+                }
+            } or {
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeInt16::isOptional
+                }
+                expect(Token.Int16)
+            }
+        }
+
+        IDLTypeInt32 {
+            optional {
+                expect(IDLComment) storeIn IDLTypeInt32::comment
+            }
+
+            either {
+                expect(Token.Id) storeIn IDLTypeInt32::id
+                expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeInt32::isOptional
+                }
+                expect(Token.Int32)
+
+                optional {
+                    expect(Token.Semi)
+                }
+            } or {
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeInt32::isOptional
+                }
+                expect(Token.Int32)
             }
         }
 
@@ -560,14 +682,26 @@ internal object CandidParser {
                 expect(Token.Type)
                 expect(Token.Id) storeIn IDLTypeVec::vecDeclaration
                 expect(Token.Equals)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeVec::isOptional
+                }
                 expect(Token.Vec)
                 expect(IDLType) storeIn IDLTypeVec::vecType
             } or {
                 expect(Token.Id) storeIn IDLTypeVec::id
                 expect(Token.Colon)
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeVec::isOptional
+                }
                 expect(Token.Vec)
                 expect(IDLType) storeIn IDLTypeVec::vecType
             } or {
+                optional {
+                    expect(Token.Opt)
+                    emit(true) storeIn IDLTypeVec::isOptional
+                }
                 expect(Token.Vec)
                 expect(IDLType) storeIn IDLTypeVec::vecType
             }
@@ -603,6 +737,9 @@ internal object CandidParser {
             } or {
                 expect(Token.Id) transform { it.replace("\"", "") } storeIn IDLFun::id
                 expect(Token.Colon)
+                optional {
+                    expect(Token.Func)
+                }
             }
 
             // Input args declaration
@@ -644,6 +781,15 @@ internal object CandidParser {
                     emit(true) storeIn IDLTypePrincipal::isOptional
                 }
                 expect(Token.Principal)
+            } or {
+                expect(Token.Principal)
+                lookahead {
+                    either {
+                        expect(Token.Comma)
+                    } or {
+                        expect(Token.RParen)
+                    }
+                }
             }
             optional {
                 expect(Token.Semi)
@@ -652,7 +798,7 @@ internal object CandidParser {
     }
 
     fun parseFile(input: String): IDLFileDeclaration {
-        debug(input)
+        // debug(input)
         return fileParser.parse(fileLexer.tokenize(input))
     }
 

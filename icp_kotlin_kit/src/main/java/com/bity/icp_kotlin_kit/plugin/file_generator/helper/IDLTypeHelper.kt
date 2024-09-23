@@ -8,8 +8,12 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeBoolea
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeFloat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt16
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt32
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeInt64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat16
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat32
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat64
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNat8
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
@@ -44,7 +48,7 @@ internal object IDLTypeHelper {
         className: String? = null
     ): String =
         when (type) {
-            is IDLFun -> TODO()
+            is IDLFun -> "${mapInputFunTypeVariable(type, className)} -> ${mapOutputFunTypeVariable(type, className)}"
             is IDLTypeBlob -> "ByteArray"
             is IDLTypeBoolean -> "Boolean"
             is IDLTypeCustom -> {
@@ -56,10 +60,14 @@ internal object IDLTypeHelper {
             }
 
             is IDLTypeInt -> "BigInteger"
+            is IDLTypeInt16 -> "Short"
+            is IDLTypeInt32 -> "Int"
             is IDLTypeInt64 -> "Long"
 
             is IDLTypeNat -> "BigInteger"
             is IDLTypeNat8 -> "UByte"
+            is IDLTypeNat16 -> "UShort"
+            is IDLTypeNat32 -> "UInt"
             is IDLTypeNat64 -> "ULong"
 
             is IDLTypeFloat64 -> "Double"
@@ -73,4 +81,18 @@ internal object IDLTypeHelper {
             is IDLTypeVariant -> TODO()
             is IDLTypeVec -> "Array<${kotlinTypeVariable(type.vecType, className)}${if(type.isOptional) "?" else ""}>"
         }
+
+    private fun mapInputFunTypeVariable(idlFun: IDLFun, className: String?): String =
+        idlFun.inputArgs.joinToString(
+            prefix = "(",
+            postfix = ")"
+        ) { kotlinTypeVariable(it, className) }
+
+    private fun mapOutputFunTypeVariable(idlFun: IDLFun, className: String?): String {
+        return if(idlFun.outputArgs.isEmpty()) "Unit"
+        else idlFun.outputArgs.joinToString(
+            prefix = "(",
+            postfix = ")"
+        ) { kotlinTypeVariable(it, className) }
+    }
 }
