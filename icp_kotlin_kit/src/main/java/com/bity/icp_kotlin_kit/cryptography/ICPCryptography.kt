@@ -45,15 +45,4 @@ internal object ICPCryptography {
         }
         return decoded.copyOfRange(CRC32.CRC_32_LENGTH, decoded.size)
     }
-
-    fun isValidAccountId(accountId: String): Boolean {
-        val data = accountId.fromHex() ?: return false
-        require(data.size == 32) {
-            return false
-        }
-        val checksum = data.take(CRC32.CRC_32_LENGTH)
-        val hashed = data.takeLast(data.size - CRC32.CRC_32_LENGTH)
-        val expectedChecksum = CRC32(hashed.toByteArray())
-        return expectedChecksum.contentEquals(checksum.toByteArray())
-    }
 }
