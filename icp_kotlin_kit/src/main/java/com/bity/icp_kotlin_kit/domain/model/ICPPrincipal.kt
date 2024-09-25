@@ -11,12 +11,12 @@ class ICPPrincipal private constructor(
     val string: String
 ) {
 
-    internal constructor(bytes: ByteArray): this(
+    constructor(bytes: ByteArray): this(
         string = ICPCryptography.encodeCanonicalText(bytes),
         bytes = bytes
     )
 
-    internal constructor(string: String): this(
+    constructor(string: String): this(
         string = string,
         bytes = ICPCryptography.decodeCanonicalText(string)
     )
