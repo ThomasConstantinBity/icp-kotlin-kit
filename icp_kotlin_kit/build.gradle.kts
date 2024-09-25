@@ -29,23 +29,11 @@ dependencies {
 }
 
 publishing {
-    repositories {
-        maven {
-            val properties = Properties().apply {
-                file("../local.properties").inputStream().use { load(it) }
-            }
-            name = "icp-kotlin-kit"
-            url = uri("https://maven.pkg.github.com/ThomasConstantinBity/icp-kotlin-kit")
-            credentials {
-                username = properties["gpr.user"] as String? ?: System.getenv("USERNAME")
-                password = properties["gpr.key"] as String? ?: System.getenv("TOKEN")
-            }
-        }
-    }
     publications {
-        register<MavenPublication>("gpr") {
-            version = "0.0.1"
+        create<MavenPublication>("maven") {
             groupId = "com.bity"
+            artifactId = "icp-kotlin-kit"
+            version = "1.0.1"
             from(components["java"])
         }
     }
