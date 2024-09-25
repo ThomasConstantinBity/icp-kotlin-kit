@@ -32,7 +32,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = "com.bity"
-            artifactId = "icp-kotlin-kit"
+            artifactId = "icp_kotlin_kit"
             version = "1.0.1"
             from(components["java"])
         }
