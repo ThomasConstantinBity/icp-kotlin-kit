@@ -1,7 +1,9 @@
 package com.bity.icp_kotlin_kit.candid
 
+import com.bity.icp_kotlin_kit.candid.model.CandidKey
 import com.bity.icp_kotlin_kit.candid.model.CandidRecord
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
+import com.bity.icp_kotlin_kit.candid.model.CandidVariant
 import com.bity.icp_kotlin_kit.candid.model.CandidVector
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import java.lang.RuntimeException
@@ -12,6 +14,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.valueParameters
+import kotlin.reflect.jvm.jvmName
 
 internal object CandidDecoder {
 
@@ -54,7 +57,7 @@ internal object CandidDecoder {
             is CandidValue.Text -> candidValue.string
             is CandidValue.Variant -> {
                 buildSealedClass(
-                    candidValue = candidValue.variant.value,
+                    candidVariant = candidValue.variant,
                     subclasses = T::class.nestedClasses.toList()
                 )
             }
@@ -177,7 +180,7 @@ internal object CandidDecoder {
                 requireNotNull(kClass)
                 require(kClass.isSealed)
                 buildSealedClass(
-                    candidValue = candidValue.variant.value,
+                    candidVariant = candidValue.variant,
                     subclasses = kClass.sealedSubclasses
                 )
             }
@@ -193,75 +196,71 @@ internal object CandidDecoder {
     }
 
     private fun buildSealedClass(
-        candidValue: CandidValue,
+        candidVariant: CandidVariant,
         subclasses: List<KClass<out Any>>
     ): Any {
-        return when(candidValue) {
-            is CandidValue.Blob -> buildDataClass(subclasses, ByteArray::class, candidValue.data)
-            is CandidValue.Bool -> buildDataClass(subclasses, Boolean::class, candidValue.bool)
+        val targetClass = subclasses.find { clazz ->
+            val className = clazz.simpleName ?: return false
+            candidVariant.key.longValue.toULong() == CandidKey.candidHash(className)
+        }
+        requireNotNull(targetClass)
+        return when(val value = candidVariant.value) {
+
             CandidValue.Empty -> TODO()
-            is CandidValue.Float32 -> buildDataClass(subclasses, Float::class, candidValue.float)
-            is CandidValue.Float64 -> buildDataClass(subclasses, Double::class, candidValue.double)
             is CandidValue.Function -> TODO()
-            is CandidValue.Integer -> buildDataClass(subclasses, BigInteger::class, candidValue.bigInt)
-            is CandidValue.Integer16 -> buildDataClass(subclasses, Short::class, candidValue.int16)
-            is CandidValue.Integer32 -> buildDataClass(subclasses, Int::class, candidValue.int32)
-            is CandidValue.Integer64 -> buildDataClass(subclasses, Long::class, candidValue.int64)
-            is CandidValue.Integer8 -> buildDataClass(subclasses, Byte::class, candidValue.int8)
-            is CandidValue.Natural -> buildDataClass(subclasses, BigInteger::class, candidValue.bigUInt)
-            is CandidValue.Natural16 -> buildDataClass(subclasses, UShort::class, candidValue.uInt16)
-            is CandidValue.Natural32 -> buildDataClass(subclasses, UInt::class, candidValue.uInt32)
-            is CandidValue.Natural64 -> buildDataClass(subclasses, ULong::class, candidValue.uInt64)
-            is CandidValue.Natural8 -> buildDataClass(subclasses, UByte::class, candidValue.uInt8)
+
+            is CandidValue.Text,
+            is CandidValue.Blob,
+            is CandidValue.Bool,
+            is CandidValue.Float32,
+            is CandidValue.Float64,
+            is CandidValue.Integer,
+            is CandidValue.Integer16,
+            is CandidValue.Integer32,
+            is CandidValue.Integer64,
+            is CandidValue.Integer8,
+            is CandidValue.Natural,
+            is CandidValue.Natural16,
+            is CandidValue.Natural32,
+            is CandidValue.Natural64,
+            is CandidValue.Natural8 -> {
+                val constructor = targetClass.primaryConstructor
+                requireNotNull(constructor)
+                constructor.call(getPrimitiveValue(value))
+            }
             CandidValue.Null -> {
-                // TODO, check value
-                buildObject(subclasses)
+                val objectInstance = targetClass.objectInstance
+                requireNotNull(objectInstance)
+                objectInstance
             }
             is CandidValue.Option -> TODO()
             is CandidValue.Principal -> TODO()
-            is CandidValue.Record -> buildDataClass(candidValue.record, subclasses)
+            is CandidValue.Record -> {
+                val constructor = targetClass.primaryConstructor
+                requireNotNull(constructor)
+                buildDataClass(
+                    candidRecord = value.record,
+                    constructor = constructor
+                )
+            }
             CandidValue.Reserved -> TODO()
             is CandidValue.Service -> TODO()
-
-            is CandidValue.Text -> buildDataClass(subclasses, String::class, candidValue.string)
             is CandidValue.Variant -> TODO()
-
             is CandidValue.Vector -> TODO()
         }
     }
 
-    private fun buildObject(
-        subclasses: List<KClass<out Any>>,
-    ): Any {
-        val targetClasses = subclasses
-            .filter { it.primaryConstructor == null }
-        require(targetClasses.isNotEmpty())
-        return if(targetClasses.size == 1) {
-            targetClasses.first().objectInstance!!
-        } else
-            // TODO()
-            targetClasses.first().objectInstance!!
-    }
-
-    // TODO
-    //  if .did file will be updated some fields will be added/removed, candid records will
-    //  have a different number of param and an error will be thrown
     private fun buildDataClass(
         candidRecord: CandidRecord,
-        subclasses: List<KClass<out Any>>
+        constructor: KFunction<*>
     ): Any {
-        val paramsNumber = candidRecord.candidSortedItems.size
-        require(paramsNumber > 0)
-        val targetClasses = subclasses.filter { it.primaryConstructor?.parameters?.size == paramsNumber }
-        return if(targetClasses.size == 1) {
-            val constructor = targetClasses.first().primaryConstructor
-            requireNotNull(constructor)
-            val params = constructor.parameters.associateWith { param ->
-                val res = decode(candidRecord, param)
-                res
-            }
-            constructor.callBy(params)
-        } else TODO()
+        val params = constructor.parameters.associateWith { param ->
+            val res = decode(candidRecord, param)
+            res
+        }
+        val clazz = constructor.callBy(params)
+        requireNotNull(clazz)
+        return clazz
     }
 
     private fun getPrimitiveValueForKey(candidRecord: CandidRecord, key: String): Any? {
