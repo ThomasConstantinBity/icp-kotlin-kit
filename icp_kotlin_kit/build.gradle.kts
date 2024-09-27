@@ -18,9 +18,7 @@ dependencies {
     implementation(libs.commons.codec)
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.bundles.retrofit)
-    implementation(libs.jackson.dataformat.cbor)
-    implementation(libs.jackson.module.kotlin)
+    implementation(libs.bundles.http)
     implementation(libs.logging.interceptor)
 
     testImplementation(libs.bundles.junit.test)
