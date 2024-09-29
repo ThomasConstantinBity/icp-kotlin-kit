@@ -12,8 +12,8 @@ java {
 }
 
 dependencies {
-    implementation(tegralLibs.niwen.lexer)
-    implementation(tegralLibs.niwen.parser)
+    // implementation(tegralLibs.niwen.lexer)
+    // implementation(tegralLibs.niwen.parser)
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0-RC2")
     implementation("com.google.guava:guava:31.0.1-jre")
