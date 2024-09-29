@@ -17,14 +17,10 @@ class CandidOptionTest {
         fun equals() = listOf(
             Arguments.of(
                 CandidOption.None(
-                    type = CandidType.Primitive(
-                        primitiveType = CandidPrimitiveType.NULL
-                    )
+                    type = CandidType.Null
                 ),
                 CandidOption.None(
-                    type = CandidType.Primitive(
-                        primitiveType = CandidPrimitiveType.NULL
-                    )
+                    type = CandidType.Null
                 ),
             ),
         )

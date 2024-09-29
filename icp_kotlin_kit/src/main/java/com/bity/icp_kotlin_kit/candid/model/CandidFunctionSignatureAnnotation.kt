@@ -1,6 +1,6 @@
 package com.bity.icp_kotlin_kit.candid.model
 
-class CandidFunctionSignatureAnnotation(
+data class CandidFunctionSignatureAnnotation(
     // indicates that the referenced function is a query method,
     // meaning it does not alter the state of its canister, and that
     // it can be invoked using the cheaper “query call” mechanism.

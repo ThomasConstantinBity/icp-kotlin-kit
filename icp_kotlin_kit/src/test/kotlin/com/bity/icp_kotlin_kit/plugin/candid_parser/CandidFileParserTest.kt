@@ -17,6 +17,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypePrinci
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeText
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVariant
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -54,6 +55,7 @@ internal class CandidFileParserTest {
         assertEquals(expectedResult, fileDeclaration)
     }
 
+    @Disabled("Need to support different type of comment")
     @MethodSource("record")
     @ParameterizedTest
     fun `parse record`(

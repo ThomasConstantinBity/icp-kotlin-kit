@@ -2,8 +2,13 @@ package com.bity.icp_kotlin_kit.candid.model
 
 internal data class CandidKey(
     val longValue: Long,
-    private val stringValue: String? = null
+    val stringValue: String? = null
 ) : Comparable<CandidKey> {
+
+    constructor(string: String): this(
+        longValue = candidHash(string).toLong(),
+        stringValue = string
+    )
 
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
@@ -16,6 +21,19 @@ internal data class CandidKey(
             longValue > other.longValue -> 1
             else -> -1
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CandidKey
+
+        return longValue == other.longValue
+    }
+
+    override fun hashCode(): Int {
+        return longValue.hashCode()
     }
 
     companion object {

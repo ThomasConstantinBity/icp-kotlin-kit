@@ -9,6 +9,7 @@ import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import java.math.BigInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.jvmErasure
 
 internal object CandidEncoder {
@@ -63,6 +64,8 @@ internal object CandidEncoder {
             else -> {
                 // TODO, value could be optional
                 val dictionary = arg::class.memberProperties.associate {
+                    // Required if obfuscation is enabled
+                    it.isAccessible = true
                     it.name to CandidEncoder(
                         arg = it.getter.call(arg),
                         expectedClass = it.returnType.jvmErasure,

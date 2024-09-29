@@ -2,7 +2,7 @@ package com.bity.icp_kotlin_kit.candid.model
 
 internal class CandidServiceSignatureMethod(
     val name: String,
-    val functionSignature: FunctionSignatureType
+    private val functionSignature: FunctionSignatureType
 ) {
     constructor(
         name: String,
@@ -11,4 +11,12 @@ internal class CandidServiceSignatureMethod(
         name = name,
         functionSignature = FunctionSignatureType.Concrete(functionSignature)
     )
+
+    fun isSubType(other: List<CandidServiceSignatureMethod>): Boolean {
+        val otherMethod = other.firstOrNull { it.name == name }
+            ?: return true
+        if (functionSignature !is FunctionSignatureType.Concrete) return false
+        if (otherMethod.functionSignature !is FunctionSignatureType.Concrete) return false
+        return functionSignature.candidFunctionSignature.isSubType(otherMethod.functionSignature.candidFunctionSignature)
+    }
 }

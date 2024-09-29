@@ -13,6 +13,73 @@ internal sealed class CandidType(
         get() = candidPrimitiveType
             ?: throw Error("Primitive type for CandidTypeNamed should never be called")
 
+    fun isSuperType(other: CandidType): Boolean = other.isSubType(this)
+
+    fun isSubType(other: CandidType): Boolean {
+        if (javaClass == other.javaClass) return true
+
+        // t is a subtype of opt t (unless t itself is null, opt … or reserved).
+        if(other is Option && other.candidType.javaClass == this.javaClass) {
+            return this !is Null
+                    && this !is Reserved
+                    && this.primitiveType != CandidPrimitiveType.OPTION
+        }
+        if(this is Option && (this.candidType == Empty || this.candidType == Null))
+            return true
+
+        return when(this) {
+            Bool,
+            Integer,
+            Natural8,
+            Natural16,
+            Natural32,
+            Natural64,
+            Integer8,
+            Integer16,
+            Integer32,
+            Integer64,
+            Float32,
+            Float64,
+            Text,
+            Reserved,
+            Principal -> false
+            Empty -> true
+            Natural -> other.primitiveType == CandidPrimitiveType.INTEGER
+            Null -> other.primitiveType == CandidPrimitiveType.OPTION
+            is Option -> {
+                val otherOptionalType = (other as? Option)?.candidType
+                    ?: return false
+                this.candidType.isSubType(otherOptionalType)
+            }
+            is Vector -> {
+                val containedType = (other as? Vector)
+                    ?: return false
+                this.candidType.isSubType(containedType)
+            }
+            is Record -> {
+                val containedTypes = (other as? Record)?.candidKeyedTypes
+                    ?: return false
+                containedTypes.isRecordSuperType(this.candidKeyedTypes)
+            }
+            is Variant -> {
+                val containedTypes = (other as? Variant)?.candidKeyedTypes
+                    ?: return false
+                this.candidKeyedTypes.isVariantSubType(containedTypes)
+            }
+            is Function-> {
+                val signature = (other as? Function)?.signature
+                    ?: return false
+                this.signature.isSubType(signature)
+            }
+            is Service -> {
+                val signature = (other as? Service)?.serviceSignature
+                    ?: return false
+                this.candidServiceSignature.isSubType(signature)
+            }
+            is Named -> false
+        }
+    }
+
     data object Null: CandidType(CandidPrimitiveType.NULL)
     data object Bool: CandidType(CandidPrimitiveType.BOOL)
     data object Natural: CandidType(CandidPrimitiveType.NATURAL)
@@ -68,6 +135,19 @@ internal sealed class CandidType(
     data class Named(
         val string: String
     ): CandidType(null)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CandidType
+
+        return candidPrimitiveType == other.candidPrimitiveType
+    }
+
+    override fun hashCode(): Int {
+        return candidPrimitiveType?.hashCode() ?: 0
+    }
 
     companion object {
         fun init(primitiveType: CandidPrimitiveType): CandidType? {

@@ -139,7 +139,7 @@ internal object CandidDeserializer {
                 if(type.containedType == CandidPrimitiveType.NATURAL8.value) {
                     CandidValue.Blob(
                         items.mapNotNull { it.natural8Value }
-                            .flatMap { it.toByteArray().asIterable() }
+                            .map { it.toByte() }
                             .toByteArray()
                     )
                 } else if(items.isEmpty())

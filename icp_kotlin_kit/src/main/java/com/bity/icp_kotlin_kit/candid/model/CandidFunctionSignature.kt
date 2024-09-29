@@ -2,9 +2,10 @@ package com.bity.icp_kotlin_kit.candid.model
 
 internal class CandidFunctionSignature(
     val arguments: List<CandidFunctionSignatureParameter>,
-    val results: List<CandidFunctionSignatureParameter>,
-    val annotations: CandidFunctionSignatureAnnotation
+    private val results: List<CandidFunctionSignatureParameter>,
+    private val annotations: CandidFunctionSignatureAnnotation
 ) {
+
     constructor(
         inputs: List<CandidType>,
         outputs: List<CandidType>,
@@ -30,4 +31,15 @@ internal class CandidFunctionSignature(
             isCompositeQuery = compositeQuery
         )
     )
+
+    fun isSubType(other: CandidFunctionSignature): Boolean =
+        arguments.all { it.isArgumentsSubType(other.arguments) }
+                && results.isResultsSubType(other.results)
+                && annotations == other.annotations
 }
+
+private fun Iterable<CandidFunctionSignatureParameter>.isResultsSubType(
+    other: List<CandidFunctionSignatureParameter>
+): Boolean =
+    all { it.isResultSubType(other) }
+            && other.all { otherItem -> any { it.index == otherItem.index } }

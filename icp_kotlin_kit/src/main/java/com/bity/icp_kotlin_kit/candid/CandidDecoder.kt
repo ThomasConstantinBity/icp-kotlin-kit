@@ -14,14 +14,13 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.valueParameters
-import kotlin.reflect.jvm.jvmName
 
 internal object CandidDecoder {
 
-    inline fun <reified T>decodeNotNull(candidValue: CandidValue): T =
+    inline fun <reified T : Any>decodeNotNull(candidValue: CandidValue): T =
         decode<T>(candidValue) ?: throw RuntimeException("Value cannot be null")
 
-    inline fun <reified T>decode(candidValue: CandidValue?): T? {
+    inline fun <reified T : Any>decode(candidValue: CandidValue?): T? {
         candidValue ?: return null
         val clazz = T::class
         val res = when(candidValue) {
@@ -47,9 +46,10 @@ internal object CandidDecoder {
                 constructor = T::class.constructors.firstOrNull()
             )
             is CandidValue.Record -> {
+                val kClass: KClass<T> = T::class
                 buildObject(
                     candidRecord = candidValue.record,
-                    constructor = T::class.constructors.first()
+                    constructor = kClass.primaryConstructor!!
                 )
             }
 

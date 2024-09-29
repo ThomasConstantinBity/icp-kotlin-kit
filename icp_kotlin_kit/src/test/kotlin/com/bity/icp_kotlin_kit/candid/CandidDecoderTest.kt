@@ -1,6 +1,6 @@
 package com.bity.icp_kotlin_kit.candid
 
-import com.bity.icp_kotlin_kit.candid.model.CandidDictionary
+import com.bity.icp_kotlin_kit.candid.model.CandidRecord
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.candid.model.CandidVector
 import org.junit.jupiter.api.Assertions.*
@@ -57,7 +57,7 @@ internal class CandidDecoderTest {
         )
 
         val candidValue = CandidValue.Record(
-            dictionary = CandidDictionary(
+            record = CandidRecord.init(
                 hashMapOf(
                     "chain_length" to CandidValue.Natural64(13786000UL)
                 )

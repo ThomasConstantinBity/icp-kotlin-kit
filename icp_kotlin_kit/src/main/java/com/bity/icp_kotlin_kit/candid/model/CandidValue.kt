@@ -16,7 +16,23 @@ internal sealed class CandidValue(
 
     data class Bool(val bool: Boolean) : CandidValue(
         candidType = CandidType.Bool
-    )
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            if (!super.equals(other)) return false
+
+            other as Bool
+
+            return bool == other.bool
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + bool.hashCode()
+            return result
+        }
+    }
 
     data class Natural(val bigUInt: BigInteger) : CandidValue(
         candidType = CandidType.Natural
