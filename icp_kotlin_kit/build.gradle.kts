@@ -24,6 +24,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-jackson:2.7.2")
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.10")
 
+    testImplementation("io.mockk:mockk:1.13.12")
     testImplementation(libs.bundles.junit.test)
     testImplementation(libs.bundles.kotlinx.test)
 }
