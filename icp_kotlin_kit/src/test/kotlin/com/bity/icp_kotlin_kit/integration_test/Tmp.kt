@@ -9,7 +9,7 @@ import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
 import com.bity.icp_kotlin_kit.domain.request.PollingValues
-import com.bity.icp_kotlin_kit.domain.usecase.ICPQuery
+import com.bity.icp_kotlin_kit.domain.generated_file.ICPQuery
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -128,7 +128,7 @@ object LedgerCanister {
     class QueryArchiveFn(
         methodName: String,
         canister: ICPPrincipal
-    ) : ICPQuery (
+    ) : ICPQuery(
         methodName = methodName,
         canister = canister
     ) {

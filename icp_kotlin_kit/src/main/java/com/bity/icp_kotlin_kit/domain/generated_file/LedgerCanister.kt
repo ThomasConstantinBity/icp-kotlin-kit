@@ -1,4 +1,4 @@
-package com.bity.icp_kotlin_kit.domain.usecase
+package com.bity.icp_kotlin_kit.domain.generated_file
 
 import com.bity.icp_kotlin_kit.candid.CandidDecoder
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
@@ -288,7 +288,7 @@ object LedgerCanister {
     class QueryArchiveFn(
         methodName: String,
         canister: ICPPrincipal
-    ) : ICPQuery (
+    ) : ICPQuery(
         methodName = methodName,
         canister = canister
     ) {

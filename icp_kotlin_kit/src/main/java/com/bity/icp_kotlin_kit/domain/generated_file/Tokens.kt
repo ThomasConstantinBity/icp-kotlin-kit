@@ -1,8 +1,6 @@
-package com.bity.icp_kotlin_kit.domain.usecase
+package com.bity.icp_kotlin_kit.domain.generated_file
 
 import com.bity.icp_kotlin_kit.candid.CandidDecoder
-import com.bity.icp_kotlin_kit.candid.model.CandidValue
-import com.bity.icp_kotlin_kit.candid.model.CandidVector
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification

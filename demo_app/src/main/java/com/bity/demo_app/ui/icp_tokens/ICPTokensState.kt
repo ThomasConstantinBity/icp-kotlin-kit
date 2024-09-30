@@ -1,6 +1,6 @@
 package com.bity.demo_app.ui.icp_tokens
 
-import com.bity.icp_kotlin_kit.domain.usecase.Tokens
+import com.bity.icp_kotlin_kit.domain.generated_file.Tokens
 
 sealed class ICPTokensState {
     data object Loading: ICPTokensState()

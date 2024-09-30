@@ -2,6 +2,9 @@ package com.bity.icp_kotlin_kit
 
 import com.bity.icp_kotlin_kit.data.datasource.api.service.ICPRetrofitService
 import com.bity.icp_kotlin_kit.data.repository.ICPCanisterRepositoryImpl
+import com.bity.icp_kotlin_kit.data.repository.TokenRepositoryImpl
+import com.bity.icp_kotlin_kit.domain.generated_file.Tokens
+import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
 import com.bity.icp_kotlin_kit.util.jackson.CborConverterFactory
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -34,3 +37,12 @@ private fun provideICPRetrofitService(): ICPRetrofitService =
         .addConverterFactory(cborConverterFactory)
         .build()
         .create(ICPRetrofitService::class.java)
+
+/**
+ * Token Repository
+ */
+internal fun provideTokenRepository() = TokenRepositoryImpl(
+    tokensService = Tokens.TokensService(
+        canister = ICPPrincipal("b7hhy-tyaaa-aaaah-abbja-cai")
+    )
+)
