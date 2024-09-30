@@ -26,7 +26,7 @@ import java.math.BigDecimal
 fun AddressBalance(
     viewModel: ICPBalanceViewModel = koinViewModel()
 ) {
-    var accountId by rememberSaveable { mutableStateOf("") }
+    var accountId by rememberSaveable { mutableStateOf("cafd0a2c27f41a851837b00f019b93e741f76e4147fe74435fb7efb836826a1c") }
     val state = viewModel.state
 
     Scaffold(
