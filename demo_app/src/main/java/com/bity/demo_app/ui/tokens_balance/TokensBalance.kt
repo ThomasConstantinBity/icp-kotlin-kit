@@ -37,10 +37,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.bity.icp_kotlin_kit.domain.usecase.Tokens
+import com.bity.icp_kotlin_kit.domain.model.ICPTokenBalance
 import org.koin.androidx.compose.koinViewModel
-import java.math.BigDecimal
-import java.math.BigInteger
 
 @Composable
 fun TokensBalance(
@@ -79,7 +77,7 @@ fun TokensBalance(
 
 @Composable
 fun TokensBalanceView(
-    balances: List<TokenWithBalanceModel>,
+    balances: List<ICPTokenBalance>,
     uncompressedPubKey: String,
     padding: PaddingValues,
     onValueChange: (String) -> Unit
@@ -100,7 +98,7 @@ fun TokensBalanceView(
 }
 
 @Composable
-fun TokenBalanceRow(tokenWithBalanceModel: TokenWithBalanceModel) {
+fun TokenBalanceRow(tokenWithBalanceModel: ICPTokenBalance) {
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -116,7 +114,7 @@ fun TokenBalanceRow(tokenWithBalanceModel: TokenWithBalanceModel) {
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(tokenWithBalanceModel.token.thumbnail)
+                        .data(tokenWithBalanceModel.token.logoUrl)
                         .crossfade(true)
                         .build(),
                     placeholder = null,
@@ -142,23 +140,13 @@ fun TokenBalanceRow(tokenWithBalanceModel: TokenWithBalanceModel) {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = "${getTokenBalance(tokenWithBalanceModel.token, tokenWithBalanceModel.balance)} ${tokenTicker(tokenWithBalanceModel.token)}",
+                    text = "${tokenWithBalanceModel.decimalBalance} ${tokenWithBalanceModel.token.symbol}",
                     textAlign = TextAlign.End
                 )
             }
         }
     }
 }
-
-private fun getTokenBalance(token: Tokens.token, balance: BigInteger): BigDecimal {
-    (token.details.find { it.string == "decimals" }?.detail_value as? Tokens.detail_value.U64)?.uLong?.let {
-        return balance.toBigDecimal().divide(BigDecimal.TEN.pow(it.toInt()))
-    } ?: return balance.toBigDecimal()
-}
-
-private fun tokenTicker(token: Tokens.token): String =
-    (token.details.find { it.string == "symbol" }?.detail_value as? Tokens.detail_value.Text)?.string ?: ""
-
 
 @Composable
 fun PubKey(

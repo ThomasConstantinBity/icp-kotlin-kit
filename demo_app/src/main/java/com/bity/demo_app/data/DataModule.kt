@@ -1,8 +1,8 @@
 package com.bity.demo_app.data
 
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
-import com.bity.icp_kotlin_kit.domain.usecase.LedgerCanister
-import com.bity.icp_kotlin_kit.domain.usecase.Tokens
+import com.bity.icp_kotlin_kit.domain.generated_file.LedgerCanister
+import com.bity.icp_kotlin_kit.domain.usecase.token.GetTokenBalanceUseCase
 import org.koin.dsl.module
 
 val dataModule = module {
@@ -13,9 +13,5 @@ val dataModule = module {
         )
     }
 
-    single {
-        Tokens.TokensService(
-            canister = ICPSystemCanisters.TokenRegistry.icpPrincipal
-        )
-    }
+    single { GetTokenBalanceUseCase() }
 }

@@ -3,13 +3,14 @@ package com.bity.icp_kotlin_kit.domain.model
 import com.bity.icp_kotlin_kit.data.model.DABTokenException
 import com.bity.icp_kotlin_kit.domain.generated_file.Tokens
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPTokenStandard
+import java.math.BigDecimal
 import java.math.BigInteger
 
 data class ICPToken(
     val standard: ICPTokenStandard,
     val canister: ICPPrincipal,
     val name: String,
-    val decimals: ULong,
+    val decimals: Int,
     val symbol: String,
     val description: String,
     val totalSupply: BigInteger,
@@ -30,6 +31,11 @@ data class ICPToken(
         logoUrl = token.thumbnail,
         websiteUrl = token.frontend
     )
+
+    fun decimal(amount: BigInteger): BigDecimal {
+        val divisor = BigDecimal.TEN.pow(decimals)
+        return amount.toBigDecimal().divide(divisor)
+    }
 }
 
 private fun Tokens.token.textValue(key: String): String =
@@ -51,8 +57,8 @@ private val Tokens.token.standard: ICPTokenStandard
 private val Tokens.token.symbol: String
     get() = textValue("symbol")
 
-private val Tokens.token.decimals: ULong
-    get() = uLongValue("decimals")
+private val Tokens.token.decimals: Int
+    get() = uLongValue("decimals").toInt()
 
 private val Tokens.token.totalSupply: ULong
     get() = uLongValue("total_supply")
