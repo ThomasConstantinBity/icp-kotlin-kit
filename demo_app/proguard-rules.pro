@@ -2,6 +2,12 @@
 -printusage proguard/unused.txt
 -printmapping proguard/mapping.txt
 
+# Keep Kotlin's default constructor markers
+-keep class kotlin.jvm.** { *; }
+
+# Keep parameter names for reflection
+# -keepattributes *Annotation*, Signature, EnclosingMethod, InnerClasses, SourceFile, LineNumberTable, LocalVariableTable, LocalVariableTypeTable
+
 -keepattributes *Annotation*, Signature, InnerClasses, Synthetic, MethodParameters, RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations, Record, InnerClasses, EnclosingMethod
 -keep,allowshrinking class kotlin.jvm.internal.DefaultConstructorMarker
 
@@ -25,9 +31,9 @@
 -keepclassmembers class com.bity.icp_kotlin_kit.candid.**$* { *; }
 -keepclassmembernames class com.bity.icp_kotlin_kit.candid.**$* { *; }
 
--keep class com.bity.icp_kotlin_kit.domain.usecase.** { *; }
--keepclassmembers class com.bity.icp_kotlin_kit.domain.usecase.** { *; }
--keepclassmembernames class com.bity.icp_kotlin_kit.domain.usecase.**$* { *; }
+-keep class com.bity.icp_kotlin_kit.domain.generated_file.** { *; }
+-keepclassmembers class com.bity.icp_kotlin_kit.domain.generated_file.** { *; }
+-keepclassmembernames class com.bity.icp_kotlin_kit.domain.generated_file.**$* { *; }
 
 
 # kotlin.jvm.internal.DefaultConstructorMarker
