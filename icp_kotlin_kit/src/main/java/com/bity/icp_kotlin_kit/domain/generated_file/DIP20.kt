@@ -472,8 +472,6 @@ object DIP20 {
         suspend fun transfer (
             to: ICPPrincipal,
             value: BigInteger,
-
-            certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
         ): TxReceipt {
@@ -483,7 +481,7 @@ object DIP20 {
             )
             val result = icpQuery.query(
                 args = listOf(to, value),
-                certification = certification,
+                certification = ICPRequestCertification.Certified,
                 sender = sender,
                 pollingValues = pollingValues
             ).getOrThrow()

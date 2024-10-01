@@ -14,7 +14,6 @@ import kotlin.reflect.jvm.jvmErasure
 
 internal object CandidEncoder {
 
-    // TODO, expectedClass could be removed
     operator fun invoke(
         arg: Any?,
         expectedClass: KClass<*>? = null,
@@ -47,9 +46,7 @@ internal object CandidEncoder {
             is Float -> CandidValue.Float32(arg)
             is Double -> CandidValue.Float64(arg)
 
-            // TODO
-            is BigInteger -> TODO()
-
+            is BigInteger -> CandidValue.Natural(arg)
             is Boolean -> CandidValue.Bool(arg)
             is String -> CandidValue.Text(arg)
             is ByteArray -> CandidValue.Blob(arg)
@@ -62,7 +59,6 @@ internal object CandidEncoder {
             )
 
             else -> {
-                // TODO, value could be optional
                 val dictionary = arg::class.memberProperties.associate {
                     // Required if obfuscation is enabled
                     it.isAccessible = true
@@ -75,18 +71,20 @@ internal object CandidEncoder {
                 CandidValue.Record(CandidRecord.init(dictionary))
             }
         }
-        return if(expectedClassNullable) {
-            requireNotNull(expectedClass)
-            CandidValue.Option(candidPrimitiveTypeForClass(expectedClass))
-        }
-        else candidValue
+        return if(expectedClassNullable)
+            CandidValue.Option(CandidOption.Some(candidValue))
+        else
+            candidValue
     }
 
     // TODO return CandidValue.Option
     private fun candidPrimitiveTypeForClass(clazz: KClass<*>): CandidType {
         return when(clazz) {
 
-            Byte::class-> CandidType.Integer8
+            Byte::class -> CandidType.Integer8
+            BigInteger::class -> CandidType.Natural
+
+            ULong::class -> CandidType.Natural64
 
             ByteArray::class -> CandidType.Vector(CandidType.Integer8)
 

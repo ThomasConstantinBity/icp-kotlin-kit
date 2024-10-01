@@ -157,7 +157,7 @@ internal object CandidDecoder {
             is CandidValue.Natural16 -> candidValue.uInt16
             is CandidValue.Natural32 -> candidValue.uInt32
             is CandidValue.Natural64 -> candidValue.uInt64
-            is CandidValue.Natural8 -> TODO()
+            is CandidValue.Natural8 -> candidValue.uInt8
             CandidValue.Null -> TODO()
             is CandidValue.Option -> candidValue.option.value?.let { decode(it, type) }
 
@@ -245,7 +245,19 @@ internal object CandidDecoder {
             }
             CandidValue.Reserved -> TODO()
             is CandidValue.Service -> TODO()
-            is CandidValue.Variant -> TODO()
+            is CandidValue.Variant -> {
+                val constructor = targetClass.primaryConstructor
+                requireNotNull(constructor)
+                val paramClass = constructor.parameters.first().type.classifier as? KClass<*>
+                requireNotNull(paramClass)
+                require(paramClass.isSealed)
+                constructor.call(
+                    buildSealedClass(
+                        candidVariant = value.variant,
+                        subclasses = paramClass.sealedSubclasses
+                    )
+                )
+            }
             is CandidValue.Vector -> TODO()
         }
     }
@@ -361,20 +373,6 @@ internal object CandidDecoder {
             )
         }
         return constructor.callBy(params)
-    }
-
-    private fun buildDataClass(
-        subclasses: List<KClass<out Any>>,
-        kClass: KClass<*>,
-        value: Any
-    ): Any {
-        val targetClasses = subclasses
-            .filter { it.primaryConstructor?.parameters?.size == 1 }
-            .filter { it.primaryConstructor!!.parameters.first().type.classifier == kClass  }
-        require(targetClasses.isNotEmpty())
-        return if(targetClasses.size == 1) {
-            targetClasses.first().primaryConstructor!!.call(value)
-        } else TODO()
     }
 
     private fun buildArray (

@@ -13,3 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
+/icp_kotlin_kit/src/test/kotlin/com/bity/icp_kotlin_kit/end_to_end/
