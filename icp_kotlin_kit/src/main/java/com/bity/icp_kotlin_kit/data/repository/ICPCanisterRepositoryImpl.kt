@@ -26,8 +26,7 @@ internal class ICPCanisterRepositoryImpl(
 ): ICPCanisterRepository {
 
     override suspend fun query(
-        method: ICPMethod,
-        sender: ICPSigningPrincipal?
+        method: ICPMethod
     ): Result<CandidValue> {
         val request = ICPRequest.init(
             requestType = ICPRequestApiModel.Query(

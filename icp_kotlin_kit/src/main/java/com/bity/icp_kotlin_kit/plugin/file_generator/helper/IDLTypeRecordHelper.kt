@@ -5,7 +5,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 
 internal object IDLTypeRecordHelper {
 
-    // TODO, check inner declaration (record containing a record)
     fun kotlinClassDefinition(
         idlRecord: IDLRecord,
         className: String

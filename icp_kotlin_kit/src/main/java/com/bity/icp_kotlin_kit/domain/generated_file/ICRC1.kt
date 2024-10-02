@@ -1,6 +1,7 @@
 package com.bity.icp_kotlin_kit.domain.generated_file
 
 import com.bity.icp_kotlin_kit.candid.CandidDecoder
+import com.bity.icp_kotlin_kit.domain.ICPQuery
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
@@ -35,22 +36,10 @@ object ICRC1 {
      * };
      */
     sealed class Value {
-
-        class Nat(
-            val bigInteger: BigInteger
-        ): Value()
-
-        class Int(
-            val bigInteger: BigInteger
-        ): Value()
-
-        class Text(
-            val string: String
-        ): Value()
-
-        class Blob(
-            val byteArray: ByteArray
-        ): Value()
+        class Nat(val bigInteger: BigInteger): Value()
+        class Int(val bigInteger: BigInteger): Value()
+        class Text(val string: String): Value()
+        class Blob(val byteArray: ByteArray): Value()
     }
 
     /**
@@ -85,31 +74,13 @@ object ICRC1 {
      * };
      */
     sealed class TransferError {
-
-        class BadFee(
-            val expected_fee: BigInteger
-        ): TransferError()
-
-        class BadBurn(
-            val min_burn_amount: BigInteger
-        ): TransferError()
-
-        class InsufficientFunds(
-            val balance: BigInteger
-        ): TransferError()
-
+        class BadFee(val expected_fee: BigInteger): TransferError()
+        class BadBurn(val min_burn_amount: BigInteger): TransferError()
+        class InsufficientFunds(val balance: BigInteger): TransferError()
         data object TooOld : TransferError()
-
-        class CreatedInFuture(
-            val ledger_time: ULong
-        ): TransferError()
-
-        class Duplicate(
-            val duplicate_of: BigInteger
-        ): TransferError()
-
+        class CreatedInFuture(val ledger_time: ULong): TransferError()
+        class Duplicate(val duplicate_of: BigInteger): TransferError()
         data object TemporarilyUnavailable : TransferError()
-
         class GenericError(
             val error_code: BigInteger,
             val message: String
@@ -120,14 +91,8 @@ object ICRC1 {
      * type TransferResult = variant { Ok: nat; Err: TransferError; };
      */
     sealed class TransferResult {
-
-        class Ok(
-            val bigInteger: BigInteger
-        ): TransferResult()
-
-        class Err(
-            val transferError: TransferError
-        ): TransferResult()
+        class Ok(val bigInteger: BigInteger): TransferResult()
+        class Err(val transferError: TransferError): TransferResult()
     }
 
     /**
@@ -149,8 +114,9 @@ object ICRC1 {
     class ICRC1Service(
         private val canister: ICPPrincipal
     ) {
-
-        // icrc1_name : () -> (text) query;
+        /**
+         * icrc1_name : () -> (text) query;
+         */
         suspend fun icrc1_name (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
@@ -160,16 +126,18 @@ object ICRC1 {
                 methodName = "icrc1_name",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // icrc1_symbol : () -> (text) query;
+        /**
+         * icrc1_symbol : () -> (text) query;
+         */
         suspend fun icrc1_symbol (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
@@ -179,16 +147,18 @@ object ICRC1 {
                 methodName = "icrc1_symbol",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // icrc1_decimals : () -> (nat8) query;
+        /**
+         * icrc1_decimals : () -> (nat8) query;
+         */
         suspend fun icrc1_decimals (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
@@ -198,16 +168,18 @@ object ICRC1 {
                 methodName = "icrc1_decimals",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // icrc1_fee : () -> (nat) query;
+        /**
+         * icrc1_fee : () -> (nat) query;
+         */
         suspend fun icrc1_fee (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
@@ -217,16 +189,18 @@ object ICRC1 {
                 methodName = "icrc1_fee",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // icrc1_metadata : () -> (vec MetadataField) query;
+        /**
+         * icrc1_metadata : () -> (vec MetadataField) query;
+         */
         suspend fun icrc1_metadata (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
@@ -236,16 +210,18 @@ object ICRC1 {
                 methodName = "icrc1_metadata",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // icrc1_total_supply : () -> (nat) query;
+        /**
+         * icrc1_total_supply : () -> (nat) query;
+         */
         suspend fun icrc1_total_supply (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
@@ -255,16 +231,18 @@ object ICRC1 {
                 methodName = "icrc1_total_supply",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // icrc1_minting_account : () -> (opt Account) query;
+        /**
+         * icrc1_minting_account : () -> (opt Account) query;
+         */
         suspend fun icrc1_minting_account (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
@@ -274,16 +252,18 @@ object ICRC1 {
                 methodName = "icrc1_minting_account",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decode(result)
         }
 
-        // icrc1_balance_of : (Account) -> (nat) query;
+        /**
+         * icrc1_balance_of : (Account) -> (nat) query;
+         */
         suspend fun icrc1_balance_of (
             account: Account,
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
@@ -294,19 +274,20 @@ object ICRC1 {
                 methodName = "icrc1_balance_of",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(account),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // icrc1_transfer : (TransferArgs) -> (TransferResult);
+        /**
+         * icrc1_transfer : (TransferArgs) -> (TransferResult);
+         */
         suspend fun icrc1_transfer (
             transferArgs: TransferArgs,
-            certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
         ): TransferResult {
@@ -314,30 +295,32 @@ object ICRC1 {
                 methodName = "icrc1_transfer",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(transferArgs),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = ICPRequestCertification.Certified
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // icrc1_supported_standards : () -> (vec SupportedStandard) query;
+        /**
+         * icrc1_supported_standards : () -> (vec SupportedStandard) query;
+         */
         suspend fun icrc1_supported_standards (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
-        ): Array<SupportedStandard> {
+        ): kotlin.Array<SupportedStandard> {
             val icpQuery = ICPQuery(
                 methodName = "icrc1_supported_standards",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }

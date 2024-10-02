@@ -95,6 +95,7 @@ internal class KotlinFileGenerator(
                 val icpQuery = KotlinClassDefinition.ICPQuery(
                     comment = it.comment,
                     queryName = it.id,
+                    funType = it.funType
                 )
                 val inputParams = generateFunctionParams(
                     icpQuery = icpQuery,
@@ -146,13 +147,11 @@ internal class KotlinFileGenerator(
         
         import java.math.BigInteger
         import com.bity.icp_kotlin_kit.candid.CandidDecoder
-        import com.bity.icp_kotlin_kit.domain.usecase.ICPQuery
+        import com.bity.icp_kotlin_kit.domain.ICPQuery
         import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
         import com.bity.icp_kotlin_kit.domain.request.PollingValues
-        import com.bity.icp_kotlin_kit.provideICPCanisterRepository
         import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
         import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.*
-        import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
         import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
        
         /**

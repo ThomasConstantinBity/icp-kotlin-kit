@@ -1,6 +1,7 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.file_generator.KotlinCommentGenerator
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
@@ -83,37 +84,6 @@ internal sealed class KotlinClassDefinition(
         }
     }
 
-    /*class Array(
-        private val arrayName: String,
-        private val parentClassName: String?,
-        private val type: IDLType
-    ): KotlinClassDefinition(arrayName) {
-        override fun kotlinDefinition(): String {
-            TODO()
-            return when {
-                inheritedClass != null && innerClasses.isNotEmpty() -> {
-                    """
-                        class $arrayName (
-                            val ${arrayName.kotlinVariableName()}: kotlin.Array<${innerClasses.first().name}>
-                        ) : ${inheritedClass!!.name}() {
-                            ${innerClasses.first().kotlinDefinition()}
-                        }
-                    """.trimIndent()
-                }
-
-                inheritedClass != null -> {
-                    """
-                        class $arrayName (
-                            val ${arrayName.kotlinVariableName()}: kotlin.Array<${IDLTypeHelper.kotlinTypeVariable(type)}>
-                        ) : ${inheritedClass!!.name}()
-                    """.trimIndent()
-                }
-
-                else -> "typealias $arrayName = Array<${IDLTypeHelper.kotlinTypeVariable(type, parentClassName)}>"
-            }
-        }
-    }*/
-
     data class Class(
         val className: String,
     ): KotlinClassDefinition(className) {
@@ -143,6 +113,7 @@ internal sealed class KotlinClassDefinition(
     class ICPQuery(
         private val comment: IDLComment? = null,
         private val queryName: String,
+        private val funType: FunType?
     ) : KotlinClassDefinition(queryName) {
 
         val inputArgs = mutableListOf<KotlinClassParameter>()
@@ -179,28 +150,48 @@ internal sealed class KotlinClassDefinition(
             inputArgs.joinToString(
                 separator = ",\n",
                 prefix = "(\n",
-                postfix = ",\n"
+                postfix = ","
             ) { it.functionInputArgument() }
             else "("
-            return """
-                $input
-                certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
-			    sender: ICPSigningPrincipal? = null,
-			    pollingValues: PollingValues = PollingValues()
-            )
-            """.trimIndent()
+            return when(funType) {
+                FunType.Query -> """
+                    $input
+                    certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
+			        sender: ICPSigningPrincipal? = null,
+			        pollingValues: PollingValues = PollingValues()
+                )
+                """.trimIndent()
+                null -> """
+                    $input
+			        sender: ICPSigningPrincipal? = null,
+			        pollingValues: PollingValues = PollingValues()
+                )
+                """.trimIndent()
+            }
         }
 
         private fun callQueryFun(): String {
             val argsList = inputArgs.joinToString(", ") { it.id }
-            return """
-                val result = icpQuery.query(
-                    args = listOf($argsList),
-                    certification = certification,
-				    sender = sender,
-				    pollingValues = pollingValues
-                ).getOrThrow()
-            """.trimIndent()
+            return when(funType) {
+                FunType.Query ->
+                    """
+                        val result = icpQuery(
+                            args = listOf($argsList),
+                            sender = sender,
+                            pollingValues = pollingValues,
+                            certification = certification
+                        ).getOrThrow()
+                    """.trimIndent()
+                null ->
+                    """
+                        val result = icpQuery(
+                            args = listOf($argsList),
+                            sender = sender,
+                            pollingValues = pollingValues,
+                            certification = ICPRequestCertification.Certified
+                        ).getOrThrow()
+                    """.trimIndent()
+            }
         }
 
         private fun returnStatement(): String {

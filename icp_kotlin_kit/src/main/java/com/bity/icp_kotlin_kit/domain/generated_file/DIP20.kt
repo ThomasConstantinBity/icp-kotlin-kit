@@ -1,7 +1,8 @@
 package com.bity.icp_kotlin_kit.domain.generated_file
 
-import java.math.BigInteger
 import com.bity.icp_kotlin_kit.candid.CandidDecoder
+import java.math.BigInteger
+import com.bity.icp_kotlin_kit.domain.ICPQuery
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.request.PollingValues
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
@@ -175,11 +176,11 @@ object DIP20 {
                 methodName = "logo",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -197,11 +198,11 @@ object DIP20 {
                 methodName = "name",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -219,11 +220,11 @@ object DIP20 {
                 methodName = "symbol",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -241,11 +242,11 @@ object DIP20 {
                 methodName = "decimals",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -263,11 +264,11 @@ object DIP20 {
                 methodName = "totalSupply",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -286,11 +287,11 @@ object DIP20 {
                 methodName = "balanceOf",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(who),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -310,11 +311,11 @@ object DIP20 {
                 methodName = "allowance",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(owner, spender),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -332,11 +333,11 @@ object DIP20 {
                 methodName = "getMetadata",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -354,11 +355,11 @@ object DIP20 {
                 methodName = "historySize",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -378,11 +379,11 @@ object DIP20 {
                 methodName = "getTransaction",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(index),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -399,16 +400,16 @@ object DIP20 {
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
-        ): Array<TxRecord> {
+        ): kotlin.Array<TxRecord> {
             val icpQuery = ICPQuery(
                 methodName = "getTransactions",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(start, limit),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -427,16 +428,16 @@ object DIP20 {
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
-        ): Array<TxRecord> {
+        ): kotlin.Array<TxRecord> {
             val icpQuery = ICPQuery(
                 methodName = "getUserTransactions",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(who, start, limit),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -447,7 +448,6 @@ object DIP20 {
         // Returns total number of transactions related to the user who.
         suspend fun getUserTransactionAmount (
             who: ICPPrincipal,
-
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
@@ -456,11 +456,11 @@ object DIP20 {
                 methodName = "getUserTransactionAmount",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(who),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -479,11 +479,11 @@ object DIP20 {
                 methodName = "transfer",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(to, value),
-                certification = ICPRequestCertification.Certified,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = ICPRequestCertification.Certified
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -498,8 +498,6 @@ object DIP20 {
             from: ICPPrincipal,
             to: ICPPrincipal,
             value: BigInteger,
-
-            certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
         ): TxReceipt {
@@ -507,11 +505,11 @@ object DIP20 {
                 methodName = "transferFrom",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(from, to, value),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = ICPRequestCertification.Certified
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
@@ -525,8 +523,6 @@ object DIP20 {
         suspend fun approve (
             spender: ICPPrincipal,
             value: BigInteger,
-
-            certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
         ): TxReceipt {
@@ -534,11 +530,11 @@ object DIP20 {
                 methodName = "approve",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(spender, value),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = ICPRequestCertification.Certified
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
