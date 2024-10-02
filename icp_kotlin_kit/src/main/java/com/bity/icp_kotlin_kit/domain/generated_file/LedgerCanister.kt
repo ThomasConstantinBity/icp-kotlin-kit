@@ -133,10 +133,33 @@ object LedgerCanister {
      * };
      */
     class ArchivedBlocksRange(
-        val callback: (GetBlocksArgs) -> (Result_4),
+        val callback: ArchivedEncodedBlocksRangeCallback,
         val start: ULong,
         val length: ULong
-    )
+    ) {
+        class ArchivedEncodedBlocksRangeCallback(
+            methodName: String,
+            canister: ICPPrincipal
+        ) : ICPQuery (
+            methodName = methodName,
+            canister = canister
+        ) {
+            suspend operator fun invoke(
+                getBlocksArgs: GetBlocksArgs,
+                certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
+                sender: ICPSigningPrincipal? = null,
+                pollingValues: PollingValues = PollingValues()
+            ): Result_4 {
+                val result = this(
+                    args = listOf(getBlocksArgs),
+                    certification = certification,
+                    sender = sender,
+                    pollingValues = pollingValues
+                ).getOrThrow()
+                return CandidDecoder.decodeNotNull(result)
+            }
+        }
+    }
 
     /**
      * type ArchivedEncodedBlocksRange = record {
@@ -146,10 +169,33 @@ object LedgerCanister {
      * };
      */
     class ArchivedEncodedBlocksRange(
-        val callback: (GetBlocksArgs) -> (Result_5),
+        val callback: ArchivedEncodedBlocksRangeCallback,
         val start: ULong,
         val length: ULong
-    )
+    ) {
+        class ArchivedEncodedBlocksRangeCallback(
+            methodName: String,
+            canister: ICPPrincipal
+        ) : ICPQuery (
+            methodName = methodName,
+            canister = canister
+        ) {
+            suspend operator fun invoke(
+                getBlocksArgs: GetBlocksArgs,
+                certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
+                sender: ICPSigningPrincipal? = null,
+                pollingValues: PollingValues = PollingValues()
+            ): Result_5 {
+                val result = this(
+                    args = listOf(getBlocksArgs),
+                    certification = certification,
+                    sender = sender,
+                    pollingValues = pollingValues
+                ).getOrThrow()
+                return CandidDecoder.decodeNotNull(result)
+            }
+        }
+    }
 
     /**
      * type Archives = record { archives : vec ArchiveInfo };
@@ -476,7 +522,7 @@ object LedgerCanister {
      */
     class QueryBlocksResponse(
         val certificate: ByteArray?,
-        val blocks: kotlin.Array<CandidBlock>,
+        val blocks: Array<CandidBlock>,
         val chain_length: ULong,
         val first_block_index: ULong,
         val archived_blocks: Array<ArchivedBlocksRange>
@@ -493,10 +539,10 @@ object LedgerCanister {
      */
     class QueryEncodedBlocksResponse(
         val certificate: ByteArray?,
-        val blocks: kotlin.Array<ByteArray>,
+        val blocks: Array<ByteArray>,
         val chain_length: ULong,
         val first_block_index: ULong,
-        val archived_blocks: kotlin.Array<ArchivedEncodedBlocksRange>
+        val archived_blocks: Array<ArchivedEncodedBlocksRange>
     )
 
     /**

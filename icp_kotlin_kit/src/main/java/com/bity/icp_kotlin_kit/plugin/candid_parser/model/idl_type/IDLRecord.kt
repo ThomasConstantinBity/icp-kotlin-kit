@@ -1,10 +1,8 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
-import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
@@ -59,16 +57,15 @@ internal data class IDLRecord(
         val kotlinClassDefinition = KotlinClassDefinition.Class(
             className = recordName
         )
-        var innerClassIndex = 1
         val params = types.map { idlType ->
             var className: String? = null
             val innerClassToDeclare = IDLTypeHelper.getInnerTypeToDeclare(idlType)
             if(innerClassToDeclare != null) {
-                className = "_Class${innerClassIndex++}"
+                className = "$recordName${idlType.id?.replaceFirstChar { it.uppercase() } ?: ""}"
                 kotlinClassDefinition.innerClasses.add(
-                    IDLTypeRecordHelper.kotlinClassDefinition(
+                    IDLTypeHelper.kotlinDefinition(
                         className = className,
-                        idlRecord = innerClassToDeclare
+                        idlType = innerClassToDeclare
                     )
                 )
             }

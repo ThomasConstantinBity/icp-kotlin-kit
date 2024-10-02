@@ -31,7 +31,7 @@ open class ICPQuery(
             )
         }
 
-    private suspend fun query(
+    internal suspend fun query(
         args: List<Any?>?,
     ): Result<CandidValue> {
         val icpMethod = ICPMethod(
@@ -42,7 +42,7 @@ open class ICPQuery(
         return icpCanisterRepository.query(icpMethod)
     }
 
-    private suspend fun callAndPoll(
+    internal suspend fun callAndPoll(
         args: List<Any?>?,
         sender: ICPSigningPrincipal?,
         pollingValues: PollingValues

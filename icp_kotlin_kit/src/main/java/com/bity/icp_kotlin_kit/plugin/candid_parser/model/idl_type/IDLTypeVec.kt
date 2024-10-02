@@ -5,7 +5,6 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinC
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.kotlinVariableName
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
-import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
 import guru.zoroark.tegral.niwen.parser.ParserNodeDeclaration
 import guru.zoroark.tegral.niwen.parser.reflective
 
@@ -35,8 +34,8 @@ internal data class IDLTypeVec(
         if(innerTypeToDeclare != null) {
             val className = "_ArrayClass"
             kotlinClass.innerClasses.add(
-                IDLTypeRecordHelper.kotlinClassDefinition(
-                    idlRecord = innerTypeToDeclare,
+                IDLTypeHelper.kotlinDefinition(
+                    idlType = innerTypeToDeclare,
                     className = className
                 )
             )

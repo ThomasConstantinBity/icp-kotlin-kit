@@ -1,5 +1,6 @@
 package com.bity.icp_kotlin_kit.plugin.file_generator.helper
 
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLRecord
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
@@ -24,9 +25,9 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 
 internal object IDLTypeHelper {
 
-    fun getInnerTypeToDeclare(idlType: IDLType): IDLRecord? {
+    fun getInnerTypeToDeclare(idlType: IDLType): IDLType? {
         return when(idlType) {
-            is IDLRecord -> return idlType
+            is IDLRecord, is IDLFun -> return idlType
             is IDLTypeVec -> return getInnerTypeToDeclare(idlType.vecType)
             else -> null
         }
@@ -40,6 +41,55 @@ internal object IDLTypeHelper {
             type = type,
             className = className
         ).replaceFirstChar { it.lowercase() }
+    }
+
+    fun kotlinDefinition(
+        idlType: IDLType,
+        className: String
+    ): KotlinClassDefinition =
+        when(idlType) {
+            is IDLFun -> kotlinQueryDefinition(idlType, className)
+            is IDLRecord -> kotlinClassDefinition(idlType, className)
+            else -> throw RuntimeException("kotlinDefinition not implemented for ${idlType::class.simpleName}")
+        }
+
+    private fun kotlinQueryDefinition(
+        idlFun: IDLFun,
+        className: String
+    ): KotlinClassDefinition.Function {
+        val outputArgs = idlFun.outputArgs.map { it.getKotlinClassParameter(className) }
+        val inputArgs = idlFun.inputArgs.map { it.getKotlinClassParameter(className) }
+        val icpQuery = KotlinClassDefinition.Function(
+            functionName = className,
+            inputArgs = inputArgs,
+            outputArgs = outputArgs,
+            funType = idlFun.funType
+        )
+        return icpQuery
+    }
+
+    private fun kotlinClassDefinition(
+        idlRecord: IDLRecord,
+        className: String
+    ): KotlinClassDefinition.Class {
+        val kotlinClass = KotlinClassDefinition.Class(
+            className = className
+        )
+        val params = idlRecord.types.map {
+            var clazzName: String? = null
+            val innerClass = getInnerTypeToDeclare(it)
+            innerClass?.let { classToDeclare ->
+                clazzName = UnnamedClassHelper.getUnnamedClassName()
+                val clazz = kotlinDefinition(
+                    idlType = classToDeclare,
+                    className = clazzName!!
+                )
+                kotlinClass.innerClasses.add(clazz)
+            }
+            it.getKotlinClassParameter(clazzName)
+        }
+        kotlinClass.params.addAll(params)
+        return kotlinClass
     }
 
     // TODO, can remove className ?

@@ -4,13 +4,11 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
-import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.UnnamedClassHelper
 import java.io.File
 import java.lang.IllegalStateException
@@ -132,8 +130,8 @@ internal class KotlinFileGenerator(
             val innerType = IDLTypeHelper.getInnerTypeToDeclare(idlType)
             if(innerType != null) {
                 className = UnnamedClassHelper.getUnnamedClassName()
-                val innerClass = IDLTypeRecordHelper.kotlinClassDefinition(
-                    idlRecord = innerType,
+                val innerClass = IDLTypeHelper.kotlinDefinition(
+                    idlType = innerType,
                     className = className
                 )
                 icpQuery.innerClasses.add(innerClass)

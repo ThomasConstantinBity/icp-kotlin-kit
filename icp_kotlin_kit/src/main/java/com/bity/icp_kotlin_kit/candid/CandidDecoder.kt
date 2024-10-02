@@ -143,10 +143,11 @@ internal object CandidDecoder {
             is CandidValue.Float32 -> candidValue.float
             is CandidValue.Float64 -> candidValue.double
             is CandidValue.Function -> {
-                // TODO, support additional constructor
                 val name = candidValue.function.method?.name
                 val principalId = candidValue.function.method?.principal?.bytes?.let { ICPPrincipal(it) }
-                return (type.classifier as KClass<*>).primaryConstructor!!.call(name!!, principalId)
+                val constructor = (type.classifier as KClass<*>).primaryConstructor
+                requireNotNull(constructor)
+                return constructor.call(name!!, principalId)
             }
             is CandidValue.Integer -> candidValue.bigInt
             is CandidValue.Integer16 -> candidValue.int16
@@ -267,8 +268,7 @@ internal object CandidDecoder {
         constructor: KFunction<*>
     ): Any {
         val params = constructor.parameters.associateWith { param ->
-            val res = decode(candidRecord, param)
-            res
+            decode(candidRecord, param)
         }
         val clazz = constructor.callBy(params)
         requireNotNull(clazz)
@@ -337,6 +337,8 @@ internal object CandidDecoder {
             BigInteger::class,
             Char::class -> getPrimitiveValueForKey(candidRecord, key)
 
+            // TODO, could class be Array<ByteArray>::class
+
             else -> {
                 val candidValue = candidRecord[key] as? CandidValue.Record
 
@@ -344,9 +346,9 @@ internal object CandidDecoder {
                  * Candid value is null if class has been generated and generic name has been assigned to value.
                  * Ex: LedgerCanister.QueryArchiveResult.Ok::blockRange
                  */
-                if(candidValue == null) {
+                if (candidValue == null)
                     createClass(candidRecord, classifier)
-                } else {
+                else {
                     decode(
                         candidValue = candidValue,
                         type = param.type

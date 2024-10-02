@@ -21,11 +21,18 @@ internal data class IDLFun(
 ) {
     companion object : ParserNodeDeclaration<IDLFun> by reflective()
 
+    override fun typeVariable(className: String?): String {
+        requireNotNull(className)
+        return className
+    }
+
     override fun getKotlinClassDefinition(): KotlinClassDefinition {
         requireNotNull(funcName)
         return KotlinClassDefinition.Function(
             functionName = funcName,
+            inputArgs = inputArgs.map { it.getKotlinClassParameter() },
             outputArgs = outputArgs.map { it.getKotlinClassParameter() },
+            funType = funType
         )
     }
 }
