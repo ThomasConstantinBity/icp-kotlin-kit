@@ -6,8 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.bity.demo_app.ui.icp_balance.AddressBalance
-import com.bity.demo_app.ui.icp_tokens.ICPTokens
 import com.bity.demo_app.ui.main_screen.MainScreen
 import com.bity.demo_app.ui.theme.ICPKotlinKitTheme
 import com.bity.demo_app.ui.tokens_balance.TokensBalance
@@ -25,12 +23,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(route = Screen.MainScreen.route) {
                         MainScreen(navController)
-                    }
-                    composable(route = Screen.ICPTokens.route) {
-                        ICPTokens()
-                    }
-                    composable(route = Screen.AddressBalance.route) {
-                        AddressBalance()
                     }
                     composable(route = Screen.TokensBalance.route) {
                         TokensBalance()

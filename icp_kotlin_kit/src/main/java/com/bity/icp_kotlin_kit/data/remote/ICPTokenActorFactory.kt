@@ -20,6 +20,7 @@ internal object ICPTokenActorFactory {
                     canister = canister
                 )
             )
+            ICPTokenStandard.ICP,
             ICPTokenStandard.ICRC1,
             ICPTokenStandard.ICRC2 -> ICRC1TokenActor(
                 service = ICRC1.ICRC1Service(
@@ -29,7 +30,6 @@ internal object ICPTokenActorFactory {
             ICPTokenStandard.XTC,
             ICPTokenStandard.WICP,
             ICPTokenStandard.EXT,
-            ICPTokenStandard.ICP,
             ICPTokenStandard.ROSETTA,
             ICPTokenStandard.DRC20 -> null
         }

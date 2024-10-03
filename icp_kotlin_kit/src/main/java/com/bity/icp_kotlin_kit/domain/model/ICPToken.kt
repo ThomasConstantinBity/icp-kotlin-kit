@@ -32,6 +32,26 @@ data class ICPToken(
         websiteUrl = token.frontend
     )
 
+    internal constructor(
+        standard: ICPTokenStandard,
+        canister: ICPPrincipal,
+        description: String,
+        metadata: ICPTokenMetadata,
+        verified: Boolean = true,
+        websiteUrl: String? = null
+    ): this(
+        standard = standard,
+        canister = canister,
+        name = metadata.name,
+        decimals = metadata.decimals,
+        symbol = metadata.symbol,
+        description = description,
+        totalSupply = metadata.totalSupply,
+        verified = verified,
+        logoUrl = metadata.logoUrl,
+        websiteUrl = websiteUrl
+    )
+
     fun decimal(amount: BigInteger): BigDecimal {
         val divisor = BigDecimal.TEN.pow(decimals)
         return amount.toBigDecimal().divide(divisor)
