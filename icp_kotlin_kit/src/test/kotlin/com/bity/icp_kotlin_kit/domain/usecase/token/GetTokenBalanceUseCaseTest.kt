@@ -31,7 +31,7 @@ class GetTokenBalanceUseCaseTest : PrincipalTestData, TokenTestData {
     }
 
     @Test
-    fun `gets token balances`() = runBlocking {
+    fun `gets token balance`() = runBlocking {
         // given
         val token1 = aToken(ICRC1, canister)
         val token2 = aToken(ICP, canister)
