@@ -284,7 +284,7 @@ internal object CandidParser {
                 optional {
                     expect (IDLComment) storeIn IDLTypeCustom::comment
                 }
-                expect(Token.Semi)
+                optional { expect(Token.Semi) }
             } or {
                 expect(Token.Id) storeIn IDLTypeCustom::id
                 expect(Token.Colon)

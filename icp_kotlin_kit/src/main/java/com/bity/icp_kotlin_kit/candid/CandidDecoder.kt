@@ -165,7 +165,8 @@ internal object CandidDecoder {
                 when(val optionType = it.candidType) {
                     is CandidType.Vector -> decodeCandidOptionIntoArray(
                         candidValue = candidValue,
-                        vector = optionType
+                        vector = optionType,
+                        clazz = type.classifier as? KClass<*>
                     )
                     else -> decode(it, type)
                 }
@@ -207,10 +208,16 @@ internal object CandidDecoder {
 
     private fun decodeCandidOptionIntoArray(
         candidValue: CandidValue.Option,
-        vector: CandidType.Vector
-    ): Array<*> =
+        vector: CandidType.Vector,
+        clazz: KClass<*>?
+    ): Any =
         when(vector.candidType) {
-            CandidType.Natural8 -> (candidValue.option.value as CandidValue.Blob).data.map { it.toUByte() }.toTypedArray()
+            CandidType.Natural8 -> {
+                when(clazz) {
+                    ByteArray::class -> (candidValue.option.value as CandidValue.Blob).data
+                    else -> (candidValue.option.value as CandidValue.Blob).data.map { it.toUByte() }.toTypedArray()
+                }
+            }
             else -> TODO()
         }
 
