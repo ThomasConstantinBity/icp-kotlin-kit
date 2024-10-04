@@ -2,6 +2,7 @@ package com.bity.icp_kotlin_kit.candid
 
 import com.bity.icp_kotlin_kit.candid.model.CandidKey
 import com.bity.icp_kotlin_kit.candid.model.CandidRecord
+import com.bity.icp_kotlin_kit.candid.model.CandidType
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.candid.model.CandidVariant
 import com.bity.icp_kotlin_kit.candid.model.CandidVector
@@ -160,7 +161,15 @@ internal object CandidDecoder {
             is CandidValue.Natural64 -> candidValue.uInt64
             is CandidValue.Natural8 -> candidValue.uInt8
             CandidValue.Null -> TODO()
-            is CandidValue.Option -> candidValue.option.value?.let { decode(it, type) }
+            is CandidValue.Option -> candidValue.option.value?.let {
+                when(val optionType = it.candidType) {
+                    is CandidType.Vector -> decodeCandidOptionIntoArray(
+                        candidValue = candidValue,
+                        vector = optionType
+                    )
+                    else -> decode(it, type)
+                }
+            }
 
             is CandidValue.Principal ->
                 candidValue.candidPrincipal?.bytes?.let {
@@ -195,6 +204,15 @@ internal object CandidDecoder {
             }
         }
     }
+
+    private fun decodeCandidOptionIntoArray(
+        candidValue: CandidValue.Option,
+        vector: CandidType.Vector
+    ): Array<*> =
+        when(vector.candidType) {
+            CandidType.Natural8 -> (candidValue.option.value as CandidValue.Blob).data.map { it.toUByte() }.toTypedArray()
+            else -> TODO()
+        }
 
     private fun buildSealedClass(
         candidVariant: CandidVariant,
@@ -340,19 +358,16 @@ internal object CandidDecoder {
             // TODO, could class be Array<ByteArray>::class
 
             else -> {
-                val candidValue = candidRecord[key] as? CandidValue.Record
-
-                /**
-                 * Candid value is null if class has been generated and generic name has been assigned to value.
-                 * Ex: LedgerCanister.QueryArchiveResult.Ok::blockRange
-                 */
-                if (candidValue == null)
-                    createClass(candidRecord, classifier)
-                else {
-                    decode(
+                return when(val candidValue = candidRecord[key]) {
+                    is CandidValue.Option -> {
+                        if(candidValue.option.value == null) null else TODO()
+                    }
+                    is CandidValue.Record -> decode(
                         candidValue = candidValue,
                         type = param.type
                     )
+                    null -> createClass(candidRecord, classifier)
+                    else -> TODO("Need to implement for ${candidValue::class}")
                 }
             }
         }

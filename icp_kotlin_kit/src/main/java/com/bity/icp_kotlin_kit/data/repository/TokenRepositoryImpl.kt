@@ -1,7 +1,7 @@
 package com.bity.icp_kotlin_kit.data.repository
 
 import com.bity.icp_kotlin_kit.data.model.RemoteClientError
-import com.bity.icp_kotlin_kit.data.remote.ICPTokenActorFactory
+import com.bity.icp_kotlin_kit.data.factory.ICPTokenActorFactory
 import com.bity.icp_kotlin_kit.domain.generated_file.Tokens
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPToken

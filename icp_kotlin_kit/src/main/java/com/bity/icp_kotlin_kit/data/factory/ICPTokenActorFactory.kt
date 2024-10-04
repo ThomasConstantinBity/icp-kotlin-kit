@@ -1,7 +1,7 @@
-package com.bity.icp_kotlin_kit.data.remote
+package com.bity.icp_kotlin_kit.data.factory
 
 import com.bity.icp_kotlin_kit.data.remote.token_actor.DIP20TokenActor
-import com.bity.icp_kotlin_kit.data.remote.token_actor.ICPTokenActor
+import com.bity.icp_kotlin_kit.domain.provider.ICPTokenActor
 import com.bity.icp_kotlin_kit.data.remote.token_actor.ICRC1TokenActor
 import com.bity.icp_kotlin_kit.domain.generated_file.DIP20
 import com.bity.icp_kotlin_kit.domain.generated_file.ICRC1

@@ -6,6 +6,7 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinC
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
@@ -125,7 +126,9 @@ internal class KotlinFileGenerator(
         icpQuery: KotlinClassDefinition.ICPQuery,
         idlTypes: List<IDLType>
     ): List<KotlinClassParameter> {
-        return idlTypes.map { idlType ->
+        return idlTypes
+            .filter { it !is IDLTypeNull }
+            .map { idlType ->
             var className: String? = null
             val innerType = IDLTypeHelper.getInnerTypeToDeclare(idlType)
             if(innerType != null) {

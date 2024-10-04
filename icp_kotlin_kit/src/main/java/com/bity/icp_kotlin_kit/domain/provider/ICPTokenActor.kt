@@ -1,4 +1,4 @@
-package com.bity.icp_kotlin_kit.data.remote.token_actor
+package com.bity.icp_kotlin_kit.domain.provider
 
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPTokenMetadata

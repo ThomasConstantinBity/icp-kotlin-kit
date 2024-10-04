@@ -3,8 +3,11 @@ package com.bity.icp_kotlin_kit
 import com.bity.icp_kotlin_kit.data.datasource.api.service.ICPRetrofitService
 import com.bity.icp_kotlin_kit.data.repository.ICPCanisterRepositoryImpl
 import com.bity.icp_kotlin_kit.data.repository.TokenRepositoryImpl
+import com.bity.icp_kotlin_kit.domain.generated_file.NNSICPIndexCanister
+import com.bity.icp_kotlin_kit.domain.generated_file.NNS_SNS_W
 import com.bity.icp_kotlin_kit.domain.generated_file.Tokens
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
+import com.bity.icp_kotlin_kit.domain.model.enum.ICPSystemCanisters
 import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
 import com.bity.icp_kotlin_kit.util.jackson.CborConverterFactory
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -46,3 +49,14 @@ internal fun provideTokenRepository() = TokenRepositoryImpl(
         canister = ICPPrincipal("b7hhy-tyaaa-aaaah-abbja-cai")
     )
 )
+
+internal fun provideNNSSNSWService(): NNS_SNS_W.nns_sns_wService =
+    NNS_SNS_W.nns_sns_wService(
+        canister = ICPSystemCanisters.NNS_SNS_W.icpPrincipal
+    )
+
+internal val icpIndexService: NNSICPIndexCanister.NNSICPIndexCanisterService by lazy {
+    NNSICPIndexCanister.NNSICPIndexCanisterService(
+        canister = ICPSystemCanisters.Index.icpPrincipal
+    )
+}
