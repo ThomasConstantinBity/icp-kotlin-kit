@@ -42,14 +42,17 @@ class GetTokenBalanceUseCaseTest {
 
     @Test
     fun `test getting token balances successfully`() = runBlocking {
+        // given
         val balance1 = BigInteger("100")
         val balance2 = BigInteger("200")
 
         coEvery { tokenRepository.getAllTokens() } returns listOf(token, token)
-        coEvery { tokenRepository.getTokenBalance(any(), any(), any()) } returnsMany listOf(balance1, balance2)
+        coEvery { tokenRepository.getTokenBalance(ICPTokenStandard.ICRC1, mockPrincipal, mockPrincipal) } returnsMany listOf(balance1, balance2)
 
+        // when
         val result = getTokenBalancesUseCase(mockPrincipal)
 
+        // then
         assertEquals(2, result.size)
         assertEquals(balance1, result[0].balance)
         assertEquals(balance2, result[1].balance)
