@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("java-library")
-    id("maven-publish")
+    `maven-publish`
+    `java-library`
     alias(libs.plugins.jetbrainsKotlinJvm)
 }
 
