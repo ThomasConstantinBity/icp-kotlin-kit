@@ -1,7 +1,7 @@
-package com.bity.icp_kotlin_kit.data.remote
+package com.bity.icp_kotlin_kit.data.factory
 
 import com.bity.icp_kotlin_kit.data.remote.token_actor.DIP20TokenActor
-import com.bity.icp_kotlin_kit.data.remote.token_actor.ICPTokenActor
+import com.bity.icp_kotlin_kit.domain.provider.ICPTokenActor
 import com.bity.icp_kotlin_kit.data.remote.token_actor.ICRC1TokenActor
 import com.bity.icp_kotlin_kit.domain.generated_file.DIP20
 import com.bity.icp_kotlin_kit.domain.generated_file.ICRC1
@@ -20,6 +20,7 @@ internal object ICPTokenActorFactory {
                     canister = canister
                 )
             )
+            ICPTokenStandard.ICP,
             ICPTokenStandard.ICRC1,
             ICPTokenStandard.ICRC2 -> ICRC1TokenActor(
                 service = ICRC1.ICRC1Service(
@@ -29,7 +30,6 @@ internal object ICPTokenActorFactory {
             ICPTokenStandard.XTC,
             ICPTokenStandard.WICP,
             ICPTokenStandard.EXT,
-            ICPTokenStandard.ICP,
             ICPTokenStandard.ROSETTA,
             ICPTokenStandard.DRC20 -> null
         }

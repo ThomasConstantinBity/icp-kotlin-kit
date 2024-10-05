@@ -1,6 +1,7 @@
 package com.bity.icp_kotlin_kit.domain.generated_file
 
 import com.bity.icp_kotlin_kit.candid.CandidDecoder
+import com.bity.icp_kotlin_kit.domain.ICPQuery
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
 import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
@@ -9,8 +10,8 @@ import com.bity.icp_kotlin_kit.domain.request.PollingValues
 /**
  * File generated using ICP Kotlin Kit Plugin
  */
-
 object Tokens {
+
     /**
      * type detail_value = variant {
      *     True;
@@ -25,37 +26,15 @@ object Tokens {
      * };
      */
     sealed class detail_value {
-
         data object True : detail_value()
         data object False : detail_value()
-
-        class I64(
-            val long: Long
-        ): detail_value()
-
-        class U64(
-            val uLong: ULong
-        ): detail_value()
-
-        class Vec(
-            val values: Array<detail_value>
-        ): detail_value()
-
-        class Slice(
-            val values: Array<UByte>
-        ): detail_value()
-
-        class Text(
-            val string: String
-        ): detail_value()
-
-        class Float(
-            val double: Double
-        ): detail_value()
-
-        class Principal(
-            val iCPPrincipal: ICPPrincipal
-        ): detail_value()
+        class I64(val long: Long): detail_value()
+        class U64(val uLong: ULong): detail_value()
+        class Vec(val values: Array<detail_value>): detail_value()
+        class Slice(val values: Array<UByte>): detail_value()
+        class Text(val string: String): detail_value()
+        class Float(val double: Double): detail_value()
+        class Principal(val iCPPrincipal: ICPPrincipal): detail_value()
     }
 
     /**
@@ -78,7 +57,7 @@ object Tokens {
     ) {
         class _Class1(
             val string: String,
-            val detail_value: detail_value?
+            val detail_value: detail_value
         )
     }
 
@@ -95,7 +74,7 @@ object Tokens {
      *     details     : vec record { text; detail_value }
      * };
      */
-    data class token(
+    class token(
         val name: String,
         val description: String,
         val thumbnail: String,
@@ -106,7 +85,7 @@ object Tokens {
         val last_updated_at: ULong,
         val details: Array<_Class1>
     ) {
-        data class _Class1(
+        class _Class1(
             val string: String,
             val detail_value: detail_value
         )
@@ -124,9 +103,7 @@ object Tokens {
         data object NotAuthorized : operation_error()
         data object NonExistentItem : operation_error()
         data object BadParameters : operation_error()
-        class Unknown(
-            val string: String
-        ): operation_error()
+        class Unknown(val string: String): operation_error()
     }
 
     /**
@@ -136,21 +113,17 @@ object Tokens {
      * };
      */
     sealed class operation_response {
-        class Ok(
-            val string: String?
-        ): operation_response()
-
-        class Err(
-            val operation_error: operation_error
-        ): operation_response()
+        class Ok(val string: String?): operation_response()
+        class Err(val operation_error: operation_error): operation_response()
     }
 
     class TokensService(
         private val canister: ICPPrincipal
     ) {
-
         // DRS Methods
-        // "name"   : () -> (text) query;
+        /**
+         * "name"   : () -> (text) query;
+         */
         suspend fun name (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
@@ -160,16 +133,18 @@ object Tokens {
                 methodName = "name",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // "get"    : (token_id: principal) -> (opt token) query;
+        /**
+         * "get"    : (token_id: principal) -> (opt token) query;
+         */
         suspend fun get (
             token_id: ICPPrincipal,
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
@@ -180,20 +155,21 @@ object Tokens {
                 methodName = "get",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(token_id),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decode(result)
         }
 
-        // "add"    : (trusted_source: opt principal, token: add_token_input) -> (operation_response);
+        /**
+         * "add"    : (trusted_source: opt principal, token: add_token_input) -> (operation_response);
+         */
         suspend fun add (
             trusted_source: ICPPrincipal?,
             token: add_token_input,
-            certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
         ): operation_response {
@@ -201,20 +177,21 @@ object Tokens {
                 methodName = "add",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(trusted_source, token),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = ICPRequestCertification.Certified
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // "remove" : (trusted_source: opt principal, token_id: principal) -> (operation_response);
+        /**
+         * "remove" : (trusted_source: opt principal, token_id: principal) -> (operation_response);
+         */
         suspend fun remove (
             trusted_source: ICPPrincipal?,
             token_id: ICPPrincipal,
-            certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
         ): operation_response {
@@ -222,40 +199,44 @@ object Tokens {
                 methodName = "remove",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(trusted_source, token_id),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = ICPRequestCertification.Certified
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
+
+
         // Canister methods
-        // "get_all"  : () -> (vec token) query;
+        /**
+         * "get_all"  : () -> (vec token) query;
+         */
         suspend fun get_all (
             certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
-        ): Array<token> {
+        ): kotlin.Array<token> {
             val icpQuery = ICPQuery(
                 methodName = "get_all",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = certification
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }
 
-        // "add_admin" : (admin: principal) -> (operation_response);
+        /**
+         * "add_admin" : (admin: principal) -> (operation_response);
+         */
         suspend fun add_admin (
             admin: ICPPrincipal,
-
-            certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
             sender: ICPSigningPrincipal? = null,
             pollingValues: PollingValues = PollingValues()
         ): operation_response {
@@ -263,11 +244,11 @@ object Tokens {
                 methodName = "add_admin",
                 canister = canister
             )
-            val result = icpQuery.query(
+            val result = icpQuery(
                 args = listOf(admin),
-                certification = certification,
                 sender = sender,
-                pollingValues = pollingValues
+                pollingValues = pollingValues,
+                certification = ICPRequestCertification.Certified
             ).getOrThrow()
             return CandidDecoder.decodeNotNull(result)
         }

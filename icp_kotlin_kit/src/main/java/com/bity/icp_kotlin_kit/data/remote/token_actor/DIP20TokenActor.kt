@@ -8,6 +8,7 @@ import com.bity.icp_kotlin_kit.domain.model.ICPTokenTransfer
 import com.bity.icp_kotlin_kit.domain.model.arg.ICPTokenTransferArgs
 import com.bity.icp_kotlin_kit.domain.model.error.TransferException
 import com.bity.icp_kotlin_kit.domain.model.toDomainModel
+import com.bity.icp_kotlin_kit.domain.provider.ICPTokenActor
 import java.math.BigInteger
 
 internal class DIP20TokenActor(

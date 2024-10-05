@@ -5,6 +5,7 @@ import com.bity.icp_kotlin_kit.candid.model.CandidPrincipal
 import com.bity.icp_kotlin_kit.candid.model.CandidRecord
 import com.bity.icp_kotlin_kit.candid.model.CandidType
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
+import com.bity.icp_kotlin_kit.candid.model.CandidVector
 import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
 import java.math.BigInteger
 import kotlin.reflect.KClass
@@ -51,6 +52,18 @@ internal object CandidEncoder {
             is String -> CandidValue.Text(arg)
             is ByteArray -> CandidValue.Blob(arg)
 
+            is Array<*> -> {
+                val firstArg = arg.first()
+                if(firstArg != null) {
+                    CandidValue.Vector(
+                        CandidVector(
+                            values = arg.map { CandidEncoder(it) },
+                            containedType = candidPrimitiveTypeForClass(firstArg::class)
+                        )
+                    )
+                } else TODO()
+            }
+
             is ICPPrincipal -> CandidValue.Principal(
                 candidPrincipal = CandidPrincipal(
                     string = arg.string,
@@ -84,6 +97,7 @@ internal object CandidEncoder {
             Byte::class -> CandidType.Integer8
             BigInteger::class -> CandidType.Natural
 
+            UByte::class -> CandidType.Natural8
             ULong::class -> CandidType.Natural64
 
             ByteArray::class -> CandidType.Vector(CandidType.Integer8)

@@ -9,7 +9,6 @@ internal interface ICPCanisterRepository {
 
     suspend fun query(
         method: ICPMethod,
-        sender: ICPSigningPrincipal? = null
     ): Result<CandidValue>
 
     /**

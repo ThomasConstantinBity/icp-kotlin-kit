@@ -1,6 +1,8 @@
 package com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator
 
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_comment.IDLComment
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_fun.FunType.*
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.file_generator.KotlinCommentGenerator
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
@@ -23,15 +25,12 @@ internal sealed class KotlinClassDefinition(
 
     class Function(
         private val functionName: String,
+        private val inputArgs: List<KotlinClassParameter>,
         private val outputArgs: List<KotlinClassParameter>,
+        private val funType: FunType?
     ): KotlinClassDefinition(functionName) {
 
         override fun kotlinDefinition(): String {
-            val functionResult = when(val size = outputArgs.size) {
-                0 -> "Unit"
-                1 -> outputArgs.first().typeDeclaration
-                else -> TODO("Function must return multiple args, use NTuple$size")
-            }
             return """
                 class $functionName(
                         methodName: String,
@@ -40,22 +39,58 @@ internal sealed class KotlinClassDefinition(
                     methodName = methodName,
                     canister = canister
                 ) {
-                    suspend operator fun invoke(
-                        args: List<Any>,
+                    ${functionBody()}
+                }
+                """.trimIndent()
+        }
+
+        private fun functionBody(): String {
+
+            val functionResult = when(val size = outputArgs.size) {
+                0 -> "Unit"
+                1 -> outputArgs.first().typeDeclaration
+                else -> TODO("Function must return multiple args, use NTuple$size")
+            }
+
+            val invokeFunArgs = inputArgs.joinToString(
+                prefix = "\n",
+                separator = ",\n",
+                postfix = ","
+            ) { it.functionInputArgument() }
+
+            val callingArgs = if(inputArgs.isNotEmpty()) {
+                "listOf(${inputArgs.joinToString(", ") { it.id }})"
+            } else "null"
+
+            return when(funType) {
+                Query -> """
+                    suspend operator fun invoke($invokeFunArgs
                         certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
 			            sender: ICPSigningPrincipal? = null,
 			            pollingValues: PollingValues = PollingValues()
                     ): $functionResult {
-                        val result = query(
-                            args = args,
+                        val result = this(
+                            args = $callingArgs,
                             certification = certification,
 				            sender = sender,
 				            pollingValues = pollingValues
                         ).getOrThrow()
                         return CandidDecoder.decodeNotNull(result)
                     }
-                }
                 """.trimIndent()
+                null -> """
+                    suspend operator fun invoke($invokeFunArgs
+			            sender: ICPSigningPrincipal? = null,
+			            pollingValues: PollingValues = PollingValues()
+                    ): $functionResult {
+                        val result = callAndPoll(
+                            args = $callingArgs,
+				            sender = sender,
+				            pollingValues = pollingValues
+                        ).getOrThrow()
+                        return CandidDecoder.decodeNotNull(result)
+                """.trimIndent()
+            }
         }
     }
 
@@ -82,37 +117,6 @@ internal sealed class KotlinClassDefinition(
             } ?: "object $objectName"
         }
     }
-
-    /*class Array(
-        private val arrayName: String,
-        private val parentClassName: String?,
-        private val type: IDLType
-    ): KotlinClassDefinition(arrayName) {
-        override fun kotlinDefinition(): String {
-            TODO()
-            return when {
-                inheritedClass != null && innerClasses.isNotEmpty() -> {
-                    """
-                        class $arrayName (
-                            val ${arrayName.kotlinVariableName()}: kotlin.Array<${innerClasses.first().name}>
-                        ) : ${inheritedClass!!.name}() {
-                            ${innerClasses.first().kotlinDefinition()}
-                        }
-                    """.trimIndent()
-                }
-
-                inheritedClass != null -> {
-                    """
-                        class $arrayName (
-                            val ${arrayName.kotlinVariableName()}: kotlin.Array<${IDLTypeHelper.kotlinTypeVariable(type)}>
-                        ) : ${inheritedClass!!.name}()
-                    """.trimIndent()
-                }
-
-                else -> "typealias $arrayName = Array<${IDLTypeHelper.kotlinTypeVariable(type, parentClassName)}>"
-            }
-        }
-    }*/
 
     data class Class(
         val className: String,
@@ -143,6 +147,7 @@ internal sealed class KotlinClassDefinition(
     class ICPQuery(
         private val comment: IDLComment? = null,
         private val queryName: String,
+        private val funType: FunType?
     ) : KotlinClassDefinition(queryName) {
 
         val inputArgs = mutableListOf<KotlinClassParameter>()
@@ -179,28 +184,49 @@ internal sealed class KotlinClassDefinition(
             inputArgs.joinToString(
                 separator = ",\n",
                 prefix = "(\n",
-                postfix = ",\n"
+                postfix = ","
             ) { it.functionInputArgument() }
             else "("
-            return """
-                $input
-                certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
-			    sender: ICPSigningPrincipal? = null,
-			    pollingValues: PollingValues = PollingValues()
-            )
-            """.trimIndent()
+            return when(funType) {
+                Query -> """
+                    $input
+                    certification: ICPRequestCertification = ICPRequestCertification.Uncertified,
+			        sender: ICPSigningPrincipal? = null,
+			        pollingValues: PollingValues = PollingValues()
+                )
+                """.trimIndent()
+                null -> """
+                    $input
+			        sender: ICPSigningPrincipal? = null,
+			        pollingValues: PollingValues = PollingValues()
+                )
+                """.trimIndent()
+            }
         }
 
         private fun callQueryFun(): String {
-            val argsList = inputArgs.joinToString(", ") { it.id }
-            return """
-                val result = icpQuery.query(
-                    args = listOf($argsList),
-                    certification = certification,
-				    sender = sender,
-				    pollingValues = pollingValues
-                ).getOrThrow()
-            """.trimIndent()
+            val argsList = if(inputArgs.isNotEmpty()) {
+                "listOf(${inputArgs.joinToString(", ") { it.id }})"
+            } else "null"
+            return when(funType) {
+                Query ->
+                    """
+                        val result = icpQuery(
+                            args = $argsList,
+                            sender = sender,
+                            pollingValues = pollingValues,
+                            certification = certification
+                        ).getOrThrow()
+                    """.trimIndent()
+                null ->
+                    """
+                        val result = icpQuery.callAndPoll(
+                            args = $argsList,
+                            sender = sender,
+                            pollingValues = pollingValues,
+                        ).getOrThrow()
+                    """.trimIndent()
+            }
         }
 
         private fun returnStatement(): String {

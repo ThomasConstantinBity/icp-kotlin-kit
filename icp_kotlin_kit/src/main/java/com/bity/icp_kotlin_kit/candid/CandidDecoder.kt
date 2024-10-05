@@ -2,6 +2,7 @@ package com.bity.icp_kotlin_kit.candid
 
 import com.bity.icp_kotlin_kit.candid.model.CandidKey
 import com.bity.icp_kotlin_kit.candid.model.CandidRecord
+import com.bity.icp_kotlin_kit.candid.model.CandidType
 import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import com.bity.icp_kotlin_kit.candid.model.CandidVariant
 import com.bity.icp_kotlin_kit.candid.model.CandidVector
@@ -143,10 +144,11 @@ internal object CandidDecoder {
             is CandidValue.Float32 -> candidValue.float
             is CandidValue.Float64 -> candidValue.double
             is CandidValue.Function -> {
-                // TODO, support additional constructor
                 val name = candidValue.function.method?.name
                 val principalId = candidValue.function.method?.principal?.bytes?.let { ICPPrincipal(it) }
-                return (type.classifier as KClass<*>).primaryConstructor!!.call(name!!, principalId)
+                val constructor = (type.classifier as KClass<*>).primaryConstructor
+                requireNotNull(constructor)
+                return constructor.call(name!!, principalId)
             }
             is CandidValue.Integer -> candidValue.bigInt
             is CandidValue.Integer16 -> candidValue.int16
@@ -159,7 +161,16 @@ internal object CandidDecoder {
             is CandidValue.Natural64 -> candidValue.uInt64
             is CandidValue.Natural8 -> candidValue.uInt8
             CandidValue.Null -> TODO()
-            is CandidValue.Option -> candidValue.option.value?.let { decode(it, type) }
+            is CandidValue.Option -> candidValue.option.value?.let {
+                when(val optionType = it.candidType) {
+                    is CandidType.Vector -> decodeCandidOptionIntoArray(
+                        candidValue = candidValue,
+                        vector = optionType,
+                        clazz = type.classifier as? KClass<*>
+                    )
+                    else -> decode(it, type)
+                }
+            }
 
             is CandidValue.Principal ->
                 candidValue.candidPrincipal?.bytes?.let {
@@ -194,6 +205,21 @@ internal object CandidDecoder {
             }
         }
     }
+
+    private fun decodeCandidOptionIntoArray(
+        candidValue: CandidValue.Option,
+        vector: CandidType.Vector,
+        clazz: KClass<*>?
+    ): Any =
+        when(vector.candidType) {
+            CandidType.Natural8 -> {
+                when(clazz) {
+                    ByteArray::class -> (candidValue.option.value as CandidValue.Blob).data
+                    else -> (candidValue.option.value as CandidValue.Blob).data.map { it.toUByte() }.toTypedArray()
+                }
+            }
+            else -> TODO()
+        }
 
     private fun buildSealedClass(
         candidVariant: CandidVariant,
@@ -267,8 +293,7 @@ internal object CandidDecoder {
         constructor: KFunction<*>
     ): Any {
         val params = constructor.parameters.associateWith { param ->
-            val res = decode(candidRecord, param)
-            res
+            decode(candidRecord, param)
         }
         val clazz = constructor.callBy(params)
         requireNotNull(clazz)
@@ -337,20 +362,19 @@ internal object CandidDecoder {
             BigInteger::class,
             Char::class -> getPrimitiveValueForKey(candidRecord, key)
 
-            else -> {
-                val candidValue = candidRecord[key] as? CandidValue.Record
+            // TODO, could class be Array<ByteArray>::class
 
-                /**
-                 * Candid value is null if class has been generated and generic name has been assigned to value.
-                 * Ex: LedgerCanister.QueryArchiveResult.Ok::blockRange
-                 */
-                if(candidValue == null) {
-                    createClass(candidRecord, classifier)
-                } else {
-                    decode(
+            else -> {
+                return when(val candidValue = candidRecord[key]) {
+                    is CandidValue.Option -> {
+                        if(candidValue.option.value == null) null else TODO()
+                    }
+                    is CandidValue.Record -> decode(
                         candidValue = candidValue,
                         type = param.type
                     )
+                    null -> createClass(candidRecord, classifier)
+                    else -> TODO("Need to implement for ${candidValue::class}")
                 }
             }
         }

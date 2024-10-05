@@ -2,43 +2,10 @@ package com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun
 
 internal fun String.kotlinVariableName() = replaceFirstChar { it.lowercase() }
 
-internal fun String.kotlinFunctionName() =
-    split("_")
-        .joinToString("") { s ->
-            s.replaceFirstChar { c ->
-                c.uppercase()
-            }
-        }
-        .replaceFirstChar { it.lowercase() }
-
-internal fun String.classNameFromVariableName() =
-    split("_")
-        .joinToString("") { s ->
-            s.replaceFirstChar {
-                c -> c.uppercase()
-            }
-        }
-
 internal fun String.trimCommentLine() =
     this.removeRange(0..1)
         .replace("\\s+".toRegex(), " ")
         .trimStart()
-
-internal fun String.trimEndOfLineComment() =
-    // Remove ;
-    removeRange(0..1)
-        // Remove extra spaces before //
-        .trimStart()
-        // Remove //
-        .removeRange(0..2)
-        .replace("\\s".toRegex(), " ")
-
-internal fun String.toKotlinMultiLineComment(): String =
-    """
-        /**
-         * ${lines().joinToString("\n* ")}
-         */
-    """.trimIndent()
 
 internal fun String.toKotlinFileString(): String {
     val kotlinFile = StringBuilder()
@@ -64,7 +31,6 @@ internal fun String.toKotlinFileString(): String {
         kotlinFile.appendLine("""${"\t".repeat(indent)}$lineToAppend""")
 
         when {
-            line.startsWith("*") -> { }
             line.endsWith("(") || line.endsWith("{") -> indent++
         }
     }

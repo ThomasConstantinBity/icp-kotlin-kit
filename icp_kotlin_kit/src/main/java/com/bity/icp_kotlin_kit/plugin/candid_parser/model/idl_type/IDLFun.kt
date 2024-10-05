@@ -21,37 +21,18 @@ internal data class IDLFun(
 ) {
     companion object : ParserNodeDeclaration<IDLFun> by reflective()
 
+    override fun typeVariable(className: String?): String {
+        requireNotNull(className)
+        return className
+    }
+
     override fun getKotlinClassDefinition(): KotlinClassDefinition {
         requireNotNull(funcName)
         return KotlinClassDefinition.Function(
             functionName = funcName,
-            outputArgs = outputArgs.map { it.getKotlinClassParameter() }
+            inputArgs = inputArgs.map { it.getKotlinClassParameter() },
+            outputArgs = outputArgs.map { it.getKotlinClassParameter() },
+            funType = funType
         )
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
-
-        other as IDLFun
-
-        if (funcName != other.funcName) return false
-        if (inputArgs != other.inputArgs) return false
-        if (outputArgs != other.outputArgs) return false
-        if (funType != other.funType) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + (funcName?.hashCode() ?: 0)
-        result = 31 * result + inputArgs.hashCode()
-        result = 31 * result + outputArgs.hashCode()
-        result = 31 * result + (funType?.hashCode() ?: 0)
-        return result
-    }
-
-
 }

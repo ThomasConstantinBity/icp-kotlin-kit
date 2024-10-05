@@ -284,7 +284,7 @@ internal object CandidParser {
                 optional {
                     expect (IDLComment) storeIn IDLTypeCustom::comment
                 }
-                expect(Token.Semi)
+                optional { expect(Token.Semi) }
             } or {
                 expect(Token.Id) storeIn IDLTypeCustom::id
                 expect(Token.Colon)
@@ -713,10 +713,21 @@ internal object CandidParser {
                 expect(IDLComment) storeIn IDLTypeNull::comment
             }
 
-            expect(Token.Id) storeIn IDLTypeNull::nullDefinition
-            expect(Token.Colon)
-            expect(Token.Null)
-            expect(Token.Semi)
+            either {
+                expect(Token.Id) storeIn IDLTypeNull::nullDefinition
+                expect(Token.Colon)
+                expect(Token.Null)
+                expect(Token.Semi)
+            } or {
+                expect(Token.Null)
+                lookahead {
+                    either {
+                        expect(Token.Comma)
+                    } or {
+                        expect(Token.RParen)
+                    }
+                }
+            }
 
             optional {
                 expect(IDLComment) storeIn IDLTypeNull::comment
@@ -756,6 +767,7 @@ internal object CandidParser {
             expect(Token.LParen)
             repeated {
                 expect(IDLType) storeIn item
+                optional { expect(Token.Comma) }
             } storeIn IDLFun::outputArgs
             expect(Token.RParen)
 

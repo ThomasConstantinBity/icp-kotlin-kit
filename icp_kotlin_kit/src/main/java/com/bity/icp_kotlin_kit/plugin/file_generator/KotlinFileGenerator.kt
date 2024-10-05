@@ -4,13 +4,12 @@ import com.bity.icp_kotlin_kit.plugin.candid_parser.CandidParser
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.file_generator.KotlinClassParameter
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_file.IDLFileDeclaration
-import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLFun
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeCustom
+import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.plugin.candid_parser.model.idl_type.IDLTypeVec
 import com.bity.icp_kotlin_kit.plugin.candid_parser.util.ext_fun.toKotlinFileString
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeHelper
-import com.bity.icp_kotlin_kit.plugin.file_generator.helper.IDLTypeRecordHelper
 import com.bity.icp_kotlin_kit.plugin.file_generator.helper.UnnamedClassHelper
 import java.io.File
 import java.lang.IllegalStateException
@@ -95,6 +94,7 @@ internal class KotlinFileGenerator(
                 val icpQuery = KotlinClassDefinition.ICPQuery(
                     comment = it.comment,
                     queryName = it.id,
+                    funType = it.funType
                 )
                 val inputParams = generateFunctionParams(
                     icpQuery = icpQuery,
@@ -126,13 +126,15 @@ internal class KotlinFileGenerator(
         icpQuery: KotlinClassDefinition.ICPQuery,
         idlTypes: List<IDLType>
     ): List<KotlinClassParameter> {
-        return idlTypes.map { idlType ->
+        return idlTypes
+            .filter { it !is IDLTypeNull }
+            .map { idlType ->
             var className: String? = null
             val innerType = IDLTypeHelper.getInnerTypeToDeclare(idlType)
             if(innerType != null) {
                 className = UnnamedClassHelper.getUnnamedClassName()
-                val innerClass = IDLTypeRecordHelper.kotlinClassDefinition(
-                    idlRecord = innerType,
+                val innerClass = IDLTypeHelper.kotlinDefinition(
+                    idlType = innerType,
                     className = className
                 )
                 icpQuery.innerClasses.add(innerClass)
@@ -146,13 +148,11 @@ internal class KotlinFileGenerator(
         
         import java.math.BigInteger
         import com.bity.icp_kotlin_kit.candid.CandidDecoder
-        import com.bity.icp_kotlin_kit.domain.usecase.ICPQuery
+        import com.bity.icp_kotlin_kit.domain.ICPQuery
         import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
         import com.bity.icp_kotlin_kit.domain.request.PollingValues
-        import com.bity.icp_kotlin_kit.provideICPCanisterRepository
         import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
         import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.*
-        import com.bity.icp_kotlin_kit.domain.repository.ICPCanisterRepository
         import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
        
         /**
