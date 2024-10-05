@@ -12,7 +12,7 @@ import com.bity.icp_kotlin_kit.file_parser.file_generator.helper.IDLTypeHelper
 import com.bity.icp_kotlin_kit.file_parser.file_generator.helper.UnnamedClassHelper
 import java.io.File
 
-class KotlinFileGenerator(
+internal class KotlinFileGenerator(
     private val didFilePath: String,
     outputFilePath: String,
 ) {
