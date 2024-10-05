@@ -2,7 +2,6 @@ package com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_type
 
 import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.file_generator.KotlinClassDefinition
 import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.file_generator.KotlinClassParameter
-import com.bity.icp_kotlin_kit.file_parser.candid_parser.util.ext_fun.toKotlinFileString
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -17,7 +16,7 @@ internal class IDLTypeTest {
         expectedResult: KotlinClassDefinition
     ) {
         val result = idlRecord.getKotlinClassDefinition()
-        println(result.kotlinDefinition().toKotlinFileString())
+        println(result.kotlinDefinition())
         assertEquals(expectedResult, result)
     }
 

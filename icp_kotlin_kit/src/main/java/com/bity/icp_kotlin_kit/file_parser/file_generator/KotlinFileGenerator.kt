@@ -8,11 +8,9 @@ import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_type.IDLTypeCustom
 import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_type.IDLTypeNull
 import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_type.IDLTypeVec
-import com.bity.icp_kotlin_kit.file_parser.candid_parser.util.ext_fun.toKotlinFileString
 import com.bity.icp_kotlin_kit.file_parser.file_generator.helper.IDLTypeHelper
 import com.bity.icp_kotlin_kit.file_parser.file_generator.helper.UnnamedClassHelper
 import java.io.File
-import java.lang.IllegalStateException
 
 class KotlinFileGenerator(
     private val didFilePath: String,
@@ -46,7 +44,7 @@ class KotlinFileGenerator(
         writeClasses()
         writeService()
         fileText.appendLine("}")
-        outputFile.writeText(fileText.toString().toKotlinFileString())
+        outputFile.writeText(formatKotlinCode(fileText))
     }
 
     private fun writeTypeAliases() {
@@ -143,22 +141,55 @@ class KotlinFileGenerator(
         }
     }
 
+    private fun formatKotlinCode(input: StringBuilder): String {
+        val indentedCode = StringBuilder()
+        var indentLevel = 0
+        var imporst = input.lines()
+            .count { it.trim().startsWith("import ") }
+
+        input.lines()
+            .filter { it.isNotBlank() }
+            .forEachIndexed { index, line ->
+
+                if ((line.trim().startsWith("}") || line.trim().startsWith(")")) && indentLevel > 0)
+                    indentLevel--
+
+                val indentedLine = if(line.trim().startsWith("*")) " ${line.trim()}" else "\t".repeat(indentLevel) + line.trim()
+                indentedCode.appendLine(indentedLine)
+
+                // Separate package form import statements
+                if(index == 0 || line.trim().startsWith("}") || line.trim().startsWith(")"))
+                    indentedCode.appendLine()
+                if(line.trim().startsWith("import "))
+                    imporst--
+                if(imporst == 0) {
+                    imporst--
+                    indentedCode.appendLine()
+                }
+
+                if (line.trim().endsWith("{") || line.trim().endsWith("("))
+                    indentLevel++
+            }
+
+        return indentedCode.toString()
+    }
+
     companion object {
-        private const val HEADER = """// TODO, add package name
-        
-        import java.math.BigInteger
-        import com.bity.icp_kotlin_kit.candid.CandidDecoder
-        import com.bity.icp_kotlin_kit.domain.ICPQuery
-        import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
-        import com.bity.icp_kotlin_kit.domain.request.PollingValues
-        import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
-        import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.*
-        import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
-       
-        /**
-         * File generated using ICP Kotlin Kit Plugin
-         */
-         
-    """
+        private const val HEADER = """
+                // TODO, add package name
+            
+                import java.math.BigInteger
+                import com.bity.icp_kotlin_kit.candid.CandidDecoder
+                import com.bity.icp_kotlin_kit.domain.ICPQuery
+                import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
+                import com.bity.icp_kotlin_kit.domain.request.PollingValues
+                import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
+                import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.*
+                import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
+               
+                /**
+                 * File generated using ICP Kotlin Kit Plugin
+                 */
+             """
     }
 }

@@ -2,7 +2,7 @@ package com.bity.icp_kotlin_kit.file_parser.candid_parser.model.file_generator
 
 import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_comment.IDLComment
 import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_fun.FunType
-import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_fun.FunType.*
+import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_fun.FunType.Query
 import com.bity.icp_kotlin_kit.file_parser.candid_parser.model.idl_type.IDLType
 import com.bity.icp_kotlin_kit.file_parser.file_generator.KotlinCommentGenerator
 import com.bity.icp_kotlin_kit.file_parser.file_generator.helper.IDLTypeHelper
@@ -127,11 +127,13 @@ internal sealed class KotlinClassDefinition(
         override fun kotlinDefinition(): String {
             if(className == "TransferArgs")
                 println()
-            val constructor = params.joinToString(
-                prefix = "(\n",
-                separator = ",\n",
-                postfix = "\n)"
-            ) { it.constructorDefinition() }
+            val constructor = if(params.isNotEmpty()) {
+                params.joinToString(
+                    prefix = "(\n",
+                    separator = ",\n",
+                    postfix = "\n)"
+                ) { it.constructorDefinition() }
+            } else "()"
             val inheritedClassDefinition = inheritedClass?.let { ": ${it.name}()" } ?: ""
             val innerClassesDefinition = if(innerClasses.isNotEmpty()) {
                 innerClasses.joinToString(
