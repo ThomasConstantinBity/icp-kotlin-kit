@@ -1,7 +1,5 @@
 package com.bity.icp_kotlin_kit.util.ext_function
 
-import com.bity.icp_kotlin_kit.candid.model.CandidDictionary
-import com.bity.icp_kotlin_kit.candid.model.CandidValue
 import java.io.InputStream
 
 // Little-endian = Least significant byte first
@@ -14,19 +12,3 @@ fun ULong.Companion.readFrom(stream: InputStream): ULong {
     byteArray.reverse()
     return byteArray.toLong().toULong()
 }
-
-internal fun ULong.icpAmount(): CandidValue =
-    CandidValue.Record(
-        CandidDictionary(
-            hashMapOf("e8s" to CandidValue.Natural64(this))
-        )
-    )
-
-internal fun ULong.icpTimestamp(): CandidValue =
-    CandidValue.Record(
-        CandidDictionary(
-            hashMapOf(
-                "timestamp_nanos" to CandidValue.Natural64(this)
-            )
-        )
-    )

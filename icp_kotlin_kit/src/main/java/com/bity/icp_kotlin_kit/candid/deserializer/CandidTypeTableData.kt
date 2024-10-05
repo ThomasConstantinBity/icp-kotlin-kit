@@ -1,27 +1,45 @@
 package com.bity.icp_kotlin_kit.candid.deserializer
 
 import com.bity.icp_kotlin_kit.candid.model.CandidPrimitiveType
+import com.bity.icp_kotlin_kit.candid.model.KeyedContainerRowData
 import com.bity.icp_kotlin_kit.cryptography.LEB128
 import com.bity.icp_kotlin_kit.data.model.CandidDeserializationError
 import java.io.ByteArrayInputStream
 
 internal sealed class CandidTypeTableData {
 
-    class Container(
-        val containerType: CandidPrimitiveType,
+    data class Vector(
         val containedType: Int
     ): CandidTypeTableData()
 
-    class KeyedContainer(
-        val containerType: CandidPrimitiveType,
-        val rows: List<Pair<Long, Int>>  // hashedKey, type
+    data class Option(
+        val containedType: Int
     ): CandidTypeTableData()
 
-    class FunctionSignature(
+    data class Record(
+        val rows: List<KeyedContainerRowData>
+    ): CandidTypeTableData()
+
+    data class Variant(
+        val rows: List<KeyedContainerRowData>
+    ): CandidTypeTableData()
+
+    data class Function(
         val inputTypes: List<Int>,
         val outputTypes: List<Int>,
         val annotations: List<ULong>
     ): CandidTypeTableData()
+
+    data class Service(
+        val methods: List<ServiceMethod>
+    ): CandidTypeTableData() {
+
+        class ServiceMethod(
+            val name: String,
+            val functionType: Int
+        )
+
+    }
 
     companion object {
         @Throws(CandidDeserializationError.InvalidPrimitive::class)
@@ -31,13 +49,24 @@ internal sealed class CandidTypeTableData {
                 ?: throw CandidDeserializationError.InvalidPrimitive()
             return when(primitive) {
 
-                CandidPrimitiveType.RECORD, CandidPrimitiveType.VARIANT -> {
-                    val nRows: Int = LEB128.decodeUnsigned(stream)
-                    val rows: List<Pair<Long, Int>> = (0 until nRows).map {
-                        // HashedKey, Type
-                        Pair(LEB128.decodeUnsigned(stream), LEB128.decodeSigned(stream))
-                    }
-                    KeyedContainer(primitive, rows)
+                CandidPrimitiveType.VECTOR -> {
+                    val containedType: Int = LEB128.decodeSigned(stream)
+                    Vector(containedType)
+                }
+
+                CandidPrimitiveType.OPTION -> {
+                    val containedType: Int = LEB128.decodeSigned(stream)
+                    Option(containedType)
+                }
+
+                CandidPrimitiveType.VARIANT -> {
+                    val rows = decodeRows(stream)
+                    return Variant(rows)
+                }
+
+                CandidPrimitiveType.RECORD -> {
+                    val rows = decodeRows(stream)
+                    Record(rows)
                 }
 
                 CandidPrimitiveType.FUNCTION -> {
@@ -53,22 +82,39 @@ internal sealed class CandidTypeTableData {
                     val annotations: List<ULong> = (0 until nAnnotations).map {
                         LEB128.decodeUnsigned(stream)
                     }
-                    FunctionSignature(
+                    Function(
                         inputTypes,
                         outputTypes,
                         annotations
                     )
                 }
 
-                else -> {
-                    // all other types have a single contained type, either primitive or ref
-                    val containedType: Int = LEB128.decodeSigned(stream)
-                    Container(
-                        containerType = primitive,
-                        containedType = containedType
-                    )
+                CandidPrimitiveType.SERVICE -> {
+                    val nMethods: Int = LEB128.decodeUnsigned(stream)
+                    val methods = (0 until nMethods).map {
+                        val name = CandidDeserializer.readStringFromInputStream(stream)
+                        val functionReference: Int = LEB128.decodeSigned(stream)
+                        Service.ServiceMethod(
+                            name = name,
+                            functionType = functionReference
+                        )
+                    }
+                    Service(methods)
                 }
+
+                else -> throw CandidDeserializationError.InvalidPrimitive()
             }
+        }
+
+        private fun decodeRows(stream: ByteArrayInputStream): List<KeyedContainerRowData> {
+            val nRows: Int = LEB128.decodeUnsigned(stream)
+            val rows = (0 until nRows).map {
+                KeyedContainerRowData(
+                    hashedKey = LEB128.decodeUnsigned(stream),
+                    type = LEB128.decodeSigned(stream)
+                )
+            }
+            return rows
         }
     }
 }

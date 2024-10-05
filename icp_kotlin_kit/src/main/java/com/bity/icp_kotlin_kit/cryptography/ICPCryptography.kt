@@ -1,14 +1,13 @@
 package com.bity.icp_kotlin_kit.cryptography
 
 import com.bity.icp_kotlin_kit.domain.model.error.ICPCryptographyError
-import com.bity.icp_kotlin_kit.util.ext_function.fromHex
 import com.bity.icp_kotlin_kit.util.ext_function.grouped
-import org.apache.commons.codec.binary.Base32
+import com.google.common.io.BaseEncoding
 
 internal object ICPCryptography {
 
     private const val CANONICAL_TEXT_SEPARATOR = "-"
-    private val base32 = Base32()
+    private val base32 = BaseEncoding.base32()
 
     /**
      * The canonical textual representation of a blob b isGrouped(Base32(CRC32(b) · b)) where:
@@ -23,7 +22,7 @@ internal object ICPCryptography {
     fun encodeCanonicalText(data: ByteArray): String {
         val checksum = CRC32(data)
         val dataWithChecksum = checksum + data
-        val base32Encoded = base32.encodeAsString(dataWithChecksum)
+        val base32Encoded = base32.encode(dataWithChecksum)
             .lowercase()
             .filter { it != '=' }
         return base32Encoded.grouped(CANONICAL_TEXT_SEPARATOR, 5)
@@ -36,7 +35,7 @@ internal object ICPCryptography {
         } else {
             degrouped
         }
-        val decoded = base32.decode(base32Encoded)
+        val decoded = base32.decode(base32Encoded.uppercase())
         val checksum = decoded.take(CRC32.CRC_32_LENGTH).toByteArray()
         val data = decoded.copyOfRange(CRC32.CRC_32_LENGTH, decoded.size)
         val expectedChecksum = CRC32(data)
@@ -44,16 +43,5 @@ internal object ICPCryptography {
             throw ICPCryptographyError.ICPCRC32Error.InvalidChecksum()
         }
         return decoded.copyOfRange(CRC32.CRC_32_LENGTH, decoded.size)
-    }
-
-    fun isValidAccountId(accountId: String): Boolean {
-        val data = accountId.fromHex() ?: return false
-        require(data.size == 32) {
-            return false
-        }
-        val checksum = data.take(CRC32.CRC_32_LENGTH)
-        val hashed = data.takeLast(data.size - CRC32.CRC_32_LENGTH)
-        val expectedChecksum = CRC32(hashed.toByteArray())
-        return expectedChecksum.contentEquals(checksum.toByteArray())
     }
 }

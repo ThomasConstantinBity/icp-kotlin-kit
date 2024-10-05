@@ -2,54 +2,58 @@ package com.bity.icp_kotlin_kit.candid.model
 
 import com.bity.icp_kotlin_kit.data.model.CandidVariantError
 
-
-internal class CandidVariant(
-    val candidTypes: List<CandidDictionaryItemType>,
-    val value: CandidValue,
+internal class CandidVariant {
+    val value: CandidValue
     val valueIndex: ULong
-) {
-
-    val hashedKey: ULong = candidTypes[valueIndex.toInt()].hashedKey
+    val candidTypes: List<CandidKeyedType>
+    val key: CandidKey
+        get() = candidTypes[valueIndex.toInt()].key
 
     constructor(
-        candidTypes: HashMap<String, CandidType>,
-        value: Pair<String, CandidValue>
-    ) : this(
-        candidTypes = candidTypes.map { CandidDictionaryItemType(it.key, it.value) },
-        value = value.second,
-        valueIndex = candidTypes
-            .keys
-            .indexOfFirst { it == value.first }
-            .toULong()
-            .also {
-                if (it < 0U) {
-                    throw CandidVariantError.ValueNotPartOfTypes()
-                }
-            }
-    )
+        candidTypesList: List<CandidKeyedType>,
+        value: CandidValue,
+        valueIndex: ULong
+    ) {
+        this.value = value
+        this.valueIndex = valueIndex
+        candidTypes = candidTypesList.sortedBy { it.key }
+    }
 
-    operator fun get(key: String): CandidValue? =
-        this[CandidDictionary.hash(key)]
-
-    operator fun get(key: ULong): CandidValue? {
-        require(hashedKey == key) {
-            return null
+    constructor(
+        candidTypes: Map<String, CandidType>,
+        value: Pair<String ,CandidValue>
+    ) {
+        val sortedTypes = candidTypes.map {
+            CandidKeyedType(CandidKey(it.key), it.value)
+        }.sortedBy { it.key }
+        val index = sortedTypes.indexOfFirst { it.key.stringValue == value.first }
+        require(index != -1) {
+            throw CandidVariantError.ValueNotPartOfTypes()
         }
-        return value
+        valueIndex = index.toULong()
+        this.candidTypes = sortedTypes
+        this.value = value.second
     }
 
     override fun equals(other: Any?): Boolean {
-        if(other !is CandidVariant) return false
-        return candidTypes == other.candidTypes
-                &&  value == other.value
-                && valueIndex == other.valueIndex
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CandidVariant
+
+        if (value != other.value) return false
+        if (valueIndex != other.valueIndex) return false
+        if (candidTypes != other.candidTypes) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        var result = candidTypes.hashCode()
-        result = 31 * result + value.hashCode()
+        var result = value.hashCode()
         result = 31 * result + valueIndex.hashCode()
-        result = 31 * result + hashedKey.hashCode()
+        result = 31 * result + candidTypes.hashCode()
         return result
     }
+
+
 }

@@ -26,8 +26,7 @@ internal class ICPCanisterRepositoryImpl(
 ): ICPCanisterRepository {
 
     override suspend fun query(
-        method: ICPMethod,
-        sender: ICPSigningPrincipal?
+        method: ICPMethod
     ): Result<CandidValue> {
         val request = ICPRequest.init(
             requestType = ICPRequestApiModel.Query(
@@ -47,7 +46,18 @@ internal class ICPCanisterRepositoryImpl(
                     )
                 )
             }
-            val arg = body()?.reply?.arg ?: return Result.failure(RemoteClientError.MissingBody())
+            val arg = body()?.reply?.arg
+                ?: body()?.let {
+                    return Result.failure(
+                        RemoteClientError.CanisterError(
+                            rejectCode = it.rejectCode?.name,
+                            rejectMessage = it.rejectMessage,
+                            errorCode = it.errorCode,
+                            errorBody = errorBody()?.string(),
+                        )
+                    )
+                }
+                ?: return Result.failure(RemoteClientError.MissingBody())
             val candidValue = CandidDeserializer.decode(arg).firstOrNull()
                 ?: return Result.failure(RemoteClientError.ParsingError(arg))
             return Result.success(candidValue)

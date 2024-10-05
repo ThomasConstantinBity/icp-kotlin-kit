@@ -5,6 +5,7 @@ import com.bity.icp_kotlin_kit.cryptography.SHA256
 import com.bity.icp_kotlin_kit.data.datasource.api.enum.ContentRequestType
 import com.bity.icp_kotlin_kit.data.datasource.api.model.ContentApiModel
 import com.bity.icp_kotlin_kit.domain.model.error.OrderIndependentHashError
+import com.bity.icp_kotlin_kit.util.ext_function.toHexString
 import java.math.BigInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties

@@ -6,7 +6,7 @@ import com.bity.icp_kotlin_kit.data.datasource.api.model.ICPMethodApiModel
 internal class ICPMethod(
     val canister: ICPPrincipal,
     val methodName: String,
-    val args: CandidValue?
+    val args: List<CandidValue>?
 )
 
 internal fun ICPMethod.toDataModel(): ICPMethodApiModel =

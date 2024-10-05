@@ -62,7 +62,6 @@ class LEB128Test {
     ) {
         val stream = ByteArrayInputStream(buf)
         val result = LEB128.decodeUnsigned<ULong>(stream)
-        println("Decoded: $result")
         assertEquals(
             expectedResult.toULong(),
             result,

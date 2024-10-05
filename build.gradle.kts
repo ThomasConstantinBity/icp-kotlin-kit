@@ -7,7 +7,6 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath(libs.androidx.navigation.safe.args.gradle.plugin)
         classpath("gradle.plugin.com.github.willir.rust:plugin:0.3.4")
     }
 }

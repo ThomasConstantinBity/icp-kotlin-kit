@@ -24,8 +24,9 @@ internal enum class CandidPrimitiveType(
     VECTOR(-19),
     RECORD(-20),
     VARIANT(-21),
-    FUNCTION(-22);
-    // SERVICE(-23);
+    FUNCTION(-22),
+    SERVICE(-23),
+    PRINCIPAL(-24);
 
     companion object {
         fun candidPrimitiveTypeByValue(value: Int): CandidPrimitiveType? =

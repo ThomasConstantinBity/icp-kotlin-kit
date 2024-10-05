@@ -2,7 +2,7 @@ package com.bity.icp_kotlin_kit
 
 import com.bity.icp_kotlin_kit.domain.model.error.RustBindingsError
 
-object RustBindings {
+internal object RustBindings {
 
     init {
         try {
