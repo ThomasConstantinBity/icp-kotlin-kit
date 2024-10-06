@@ -127,11 +127,13 @@ internal sealed class KotlinClassDefinition(
         override fun kotlinDefinition(): String {
             if(className == "TransferArgs")
                 println()
-            val constructor = params.joinToString(
-                prefix = "(\n",
-                separator = ",\n",
-                postfix = "\n)"
-            ) { it.constructorDefinition() }
+            val constructor = if(params.isNotEmpty()) {
+                params.joinToString(
+                    prefix = "(\n",
+                    separator = ",\n",
+                    postfix = "\n)"
+                ) { it.constructorDefinition() }
+            } else "()"
             val inheritedClassDefinition = inheritedClass?.let { ": ${it.name}()" } ?: ""
             val innerClassesDefinition = if(innerClasses.isNotEmpty()) {
                 innerClasses.joinToString(

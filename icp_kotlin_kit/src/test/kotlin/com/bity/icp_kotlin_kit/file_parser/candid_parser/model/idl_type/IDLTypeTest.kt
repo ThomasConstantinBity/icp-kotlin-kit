@@ -17,7 +17,7 @@ internal class IDLTypeTest {
         expectedResult: KotlinClassDefinition
     ) {
         val result = idlRecord.getKotlinClassDefinition()
-        println(result.kotlinDefinition().toKotlinFileString())
+        println(result.kotlinDefinition())
         assertEquals(expectedResult, result)
     }
 
