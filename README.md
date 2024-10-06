@@ -1,40 +1,26 @@
-# ICP-Kotlin-Kit
+![IcpKit](readme_utils/IcpKit.png)
 
-## Project Milestones
+A comprehensive kotlin package for writing applications that interact with the Internet Computer Protocol (ICP).
+IcpKit aims at facilitating the interaction with the ICP blockchain.
 
-### Milestone 1
-- Define the project's goals, deliverables, and timelines.
-- Develop a comprehensive plan for library development, testing, and documentation.
-- Begin the development of core libraries for ICP token integration.
+For more information about ICP Development, we recommend starting from https://internetcomputer.org/docs/current/references/
 
-### Milestone 2
-- Implement wallet functionality, including secure storage and basic transaction signing.
-- Set up a testing environment for continuous integration and automated testing.
-- Start building APIs and components for managing ICP token transactions.
-- Continue developing the core libraries.
+## Contributors
+This package has been developed by [Thomas Constantin](https://github.com/0xTommy). All code and functionality are the result of my work.
 
-### Final Milestone
-- Core library development completed.
-- Wallet functionality fully implemented, tested, and optimized.
-- APIs and components for transaction management integrated and tested.
-- Finalize the development of libraries and components.
-- Parser to read candid interfaces.
-- Plugin to generate Kotlin classes at build time.
-- Implement function to interact with a given canister.
-- Prepare and make available comprehensive documentation, including guides and API references.
-- Develop sample applications and code snippets showcasing library usage.
-- Release the open-source libraries on popular code hosting platforms.
+## Acknowledgments
+I would like to express my gratitude to [Konstantinos Gaitanis](https://github.com/kgaitanis) for his support during the initial project study and other contributions that helped shape this library.
 
+This Package has been built by [Bity SA](https://bity.com) with the help of the [DFinity Foundation Developer Grant Program](https://dfinity.org/grants).
 
-### Improvements
-#### Use default class for common declaration:
+## License
 
-In the following example
-```candid
-service : {
-    icrc7_collection_metadata : () -> (vec record { text; nat64 } ) query;
-    icrc7_token_metadata : (token_ids : vec nat)-> (vec record { nat; opt record { text; nat64 } }) query;
-}
-```
+## Installation
 
-'record { text; nat64 }' is repeated, we can simplify the code generation using a single class.
+## What does it do?
+
+IcpKit will take care of all the encoding, serialisation and cryptography required to communicate with ICP allowing developers to focus on the real functionality of their app and bootstrapping their development cycle.
+
+### Main Functionalities
+
+### Candid Library Overview
