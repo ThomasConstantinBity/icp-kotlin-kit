@@ -1,3 +1,5 @@
+import com.bity.icp_kotlin_kit.file_parser.file_generator.KotlinFileGenerator
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -62,4 +64,19 @@ dependencies {
     implementation(libs.compose.material)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.koin.androidx.compose)
+}
+
+tasks.register("parseCandidFiles") {
+    val inputFolder = file("./candid_files")
+    require(inputFolder.isDirectory)
+    inputFolder.listFiles { it -> it.extension == "did" }?.forEach { file ->
+        val fileName = file.name.removeSuffix(".did")
+        val kotlinFileGenerator = KotlinFileGenerator(
+            fileName = fileName,
+            packageName = "com.bity.demo_app.generated_files",
+            didFileContent = file.readText(Charsets.UTF_8)
+        )
+        val outputFile = file("./src/main/java/com/bity/demo_app/generated_files/${fileName}.kt")
+        outputFile.writeText(kotlinFileGenerator.generateKotlinFile())
+    }
 }

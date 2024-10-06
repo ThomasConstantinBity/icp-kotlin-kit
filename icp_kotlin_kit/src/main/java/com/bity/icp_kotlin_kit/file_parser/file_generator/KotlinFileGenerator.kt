@@ -17,14 +17,13 @@ class KotlinFileGenerator(
     didFileContent: String,
 ) {
     private val header = """
-        $packageName
+        package $packageName
         import java.math.BigInteger
         import com.bity.icp_kotlin_kit.candid.CandidDecoder
         import com.bity.icp_kotlin_kit.domain.ICPQuery
         import com.bity.icp_kotlin_kit.domain.model.ICPPrincipal
         import com.bity.icp_kotlin_kit.domain.request.PollingValues
         import com.bity.icp_kotlin_kit.domain.model.ICPSigningPrincipal
-        import com.bity.icp_kotlin_kit.plugin.candid_parser.util.shared.*
         import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
         /**
          * File generated using ICP Kotlin Kit Plugin

@@ -24,3 +24,7 @@ IcpKit will take care of all the encoding, serialisation and cryptography requir
 ### Main Functionalities
 
 ### Candid Library Overview
+
+
+### Improvements
+- Add custom task to generate kotlin files (need to support relative path)
