@@ -10,7 +10,7 @@ buildscript {
         maven { url = uri("https://jitpack.io") }
     }
     dependencies {
-        classpath("com.github.ThomasConstantinBity:ICP-Kotlin-Kit:1.0.0-beta02")
+        // classpath("com.github.ThomasConstantinBity:ICP-Kotlin-Kit:1.0.0-beta02")
         classpath("gradle.plugin.com.github.willir.rust:plugin:0.3.4")
     }
 }
