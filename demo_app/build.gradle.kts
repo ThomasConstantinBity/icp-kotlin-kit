@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.koin.androidx.compose)
 }
 
+/*
 tasks.register("parseCandidFiles") {
     val inputFolder = file("./candid_files")
     require(inputFolder.isDirectory)
@@ -80,3 +81,4 @@ tasks.register("parseCandidFiles") {
         outputFile.writeText(kotlinFileGenerator.generateKotlinFile())
     }
 }
+*/
