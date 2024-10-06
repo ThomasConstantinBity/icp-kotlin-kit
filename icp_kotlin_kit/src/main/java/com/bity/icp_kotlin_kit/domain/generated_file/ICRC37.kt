@@ -12,14 +12,14 @@ import com.bity.icp_kotlin_kit.domain.model.enum.ICPRequestCertification
  * File generated using ICP Kotlin Kit Plugin
  */
 
-typealias Subaccount = ByteArray
+typealias ICRC37Subaccount = ByteArray
 typealias CollectionApproval = ICRC37.ApprovalInfo
 
 object ICRC37 {
 
     class Account(
         val owner: ICPPrincipal,
-        val subaccount: Subaccount?
+        val subaccount: ICRC37Subaccount?
     )
 
     class ApprovalInfo(
